@@ -44,6 +44,12 @@ main {
     padding: 10px 0px;
     text-align: center;
 }
+.menu a:hover{
+    color: #fff;
+    transition: color 0.3s ease;
+    cursor: pointer;
+    border: none;
+}
 .table{
     margin-right: 10px;
     padding: 20px;
