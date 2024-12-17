@@ -31,4 +31,5 @@ type Repository interface {
 	UpdateStudentbyID(ctx context.Context, id_num_student uint64, name_group, email_student, second_name_student,
 		first_name_student, surname_student string) (*domain.Student, error)
 	DeleteStudentbyID(ctx context.Context, id_num_student uint64) error
+	GetAllGroup(ctx context.Context) ([]*domain.Group, error)
 }

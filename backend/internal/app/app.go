@@ -40,3 +40,8 @@ func (a *App) DeleteStudentbyID(ctx context.Context, id_num_student uint64) erro
 	err := a.repo.DeleteStudentbyID(ctx, id_num_student)
 	return err
 }
+
+func (a *App) GetAllGroup(ctx context.Context) ([]*domain.Group, error) {
+	groups, err := a.repo.GetAllGroup(ctx)
+	return groups, err
+}

@@ -106,9 +106,21 @@ func getAllStudent(c *gin.Context, a *app.App) {
 	}
 	c.JSON(http.StatusOK, AllStudentSuccessResponse(students))
 }
+
+func getAllGroup(c *gin.Context, a *app.App) {
+	groups, err := a.GetAllGroup(c)
+	if err != nil {
+		c.Status(http.StatusForbidden)
+		c.JSON(http.StatusForbidden, GroupErrorResponse(err))
+		return
+	}
+	c.JSON(http.StatusOK, AllGroupSuccessResponse(groups))
+}
+
 func getTables(c *gin.Context) {
 	tables := []string{
 		"student",
+		"group",
 	}
 	c.JSON(http.StatusOK, gin.H{"data": tables})
 }
