@@ -1,8 +1,8 @@
 package adrepo
 
 import (
+	"backend/internal/ads"
 	"fmt"
-	"homework8/internal/ads"
 	"sync"
 	"time"
 )

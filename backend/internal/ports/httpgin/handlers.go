@@ -9,10 +9,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"homework8/internal/ads"
-	"homework8/internal/app"
-	"homework8/internal/user"
-	"homework8/internal/validator"
+	"backend/internal/ads"
+	"backend/internal/app"
+	"backend/internal/user"
+	"backend/internal/validator"
 )
 
 // Метод для создания объявления (ad)

@@ -1,7 +1,7 @@
 package httpgin
 
 import (
-	"homework8/internal/app"
+	"backend/internal/app"
 
 	"github.com/gin-gonic/gin"
 )

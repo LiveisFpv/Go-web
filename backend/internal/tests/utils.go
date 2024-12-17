@@ -8,10 +8,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"homework8/internal/adrepo"
-	"homework8/internal/app"
-	"homework8/internal/ports/httpgin"
-	"homework8/internal/usrepo"
+	"backend/internal/adrepo"
+	"backend/internal/app"
+	"backend/internal/ports/httpgin"
 )
 
 type adData struct {

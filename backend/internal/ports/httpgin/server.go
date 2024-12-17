@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"homework8/internal/app"
+	"backend/internal/app"
 )
 
 type Server struct {

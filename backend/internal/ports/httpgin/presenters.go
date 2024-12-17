@@ -1,8 +1,8 @@
 package httpgin
 
 import (
-	"homework8/internal/ads"
-	"homework8/internal/user"
+	"backend/internal/ads"
+	"backend/internal/user"
 
 	"github.com/gin-gonic/gin"
 )
