@@ -26,8 +26,6 @@ function loadTableData(tableName) {
     fetch(`${options}/api/v1/${tableName}`)
         .then(response => response.json())
         .then(data => {
-            const body=document.getElementsByTagName("body")[0];
-            body.style.height="100%";
             const tableData = document.getElementById("table-data");
 
             // Очищаем таблицу перед заполнением
@@ -39,10 +37,12 @@ function loadTableData(tableName) {
 
             // Делаем заголовки на основе ключей первого объекта в массиве данных
             if (data.data.length > 0) {
+                var columns=[]
                 Object.keys(data.data[0]).forEach(key => {
                     const th = document.createElement("th");
                     th.textContent = key.replace(/_/g, " ").replace(/\b\w/g, char => char.toUpperCase()); // Форматируем название колонок
                     headerRow.appendChild(th);
+                    columns.push(key)
                 });
                 const actionsTh = document.createElement("th");
                 actionsTh.textContent = "Actions";
@@ -68,7 +68,7 @@ function loadTableData(tableName) {
                 const editButton = document.createElement("button");
                 editButton.textContent = "Edit";
                 editButton.onclick = function() {
-                    alert("Editing not implemented");
+                    openEditModal(row,columns,tableName);
                 };
                 editTd.appendChild(editButton);
                 rowElement.appendChild(editTd);
@@ -78,8 +78,77 @@ function loadTableData(tableName) {
             tableData.appendChild(tbody);
         })
         .catch(error => {console.error('Error loading table data:', error)
-            const body=document.getElementsByTagName("body")[0];
-            body.style.height="100vh";
         });
 }
 
+// Открыть модальное окно с данными для редактирования
+function openEditModal(rowData, columns,tableName) { 
+    const modal = document.getElementById("edit-modal");
+
+    // Закрытие модального окна
+    document.getElementById("close-modal").onclick = function() {
+        modal.style.display = "none";
+    };
+
+    // Закрытие при клике на область за пределами окна
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
+
+    const form = document.getElementById("edit-form");
+    form.innerHTML = ""; // Очищаем форму перед добавлением новых полей
+
+    // Создание динамических полей формы на основе данных
+    columns.forEach(column => {
+        if (column !== "Actions") {  // Пропускаем колонку с действиями
+            const label = document.createElement("label");
+            label.textContent = column + ":";
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = column;
+            input.value = rowData[column] || ""; // Заполняем значением из строки
+            form.appendChild(label);
+            form.appendChild(input);
+            form.appendChild(document.createElement("br"));
+        }
+    });
+    // Добавление кнопки внутри формы
+    const submitButton = document.createElement("button");
+    submitButton.type = "submit";
+    submitButton.textContent = "Save Changes";
+    form.appendChild(submitButton);
+    // Показать модальное окно
+    document.getElementById("edit-modal").style.display = "block";
+
+    // Обработчик отправки формы
+    form.onsubmit = function(event) {
+        event.preventDefault(); // Останавливаем обычную отправку формы
+
+        const updatedData = {};
+        columns.forEach(column => {
+            if (column !== "Actions") {
+                updatedData[column] = document.getElementById(column).value;
+            }
+        });
+
+        // Отправка данных на сервер
+        fetch(`${options}/api/v1/${tableName}/${rowData.id_num_student}`, {
+            method: "PUT",  // Используем метод PUT для обновления данных
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(updatedData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Record updated:", data);
+            // Закрыть модальное окно после сохранения
+            modal.style.display = "none";
+            // Перезагрузить таблицу
+            loadTableData(tableName);
+        })
+        .catch(error => console.error("Error updating data:", error));
+    };
+}
