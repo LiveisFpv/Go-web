@@ -78,18 +78,60 @@ button {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.2);
+    
 }
 
 .modal-content {
     background-color: white;
     margin: 15% auto;
     padding: 20px;
-    border: 1px solid #888;
     width: 80%;
     max-width: 500px;
+    border: 5px solid rgb(201, 126, 224);
+    border-radius: 20px;
+    box-shadow:10px 10px 20px  rgba(255, 255, 255, 0.5);
 }
-
+.modal-content h3{
+    padding-bottom:10px; 
+    border-bottom: 2px solid rgb(201, 126, 224);
+    margin-bottom: 10px;
+    font-size: 24px;
+    text-align: center;
+}
+#edit-form{
+    display: flex;
+    flex-direction: column;
+}
+.card{
+    display: flex;
+    flex-direction: column;
+    padding: 5px 0px;
+}
+input{
+    padding: 5px 0px;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid rgb(201, 126, 224);
+    outline: none;
+}
+label{
+    font-size: 16px;
+}
+button{
+    padding: 10px 20px;
+    border: none;
+    background: #2d6cff;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button:hover{
+    background: #1b438c;
+    transition: background 0.3s ease;
+    transition: box-shadow 0.3s ease;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+}
 .close {
     color: #aaa;
     font-size: 28px;

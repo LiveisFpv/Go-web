@@ -27,7 +27,8 @@ function loadTableData(tableName) {
         .then(response => response.json())
         .then(data => {
             const tableData = document.getElementById("table-data");
-
+            const tablename=document.getElementById("table-name");
+            tablename.textContent = tableName.replace(/\b\w/g, char => char.toUpperCase());
             // Очищаем таблицу перед заполнением
             tableData.innerHTML = "";
 
@@ -103,15 +104,17 @@ function openEditModal(rowData, columns,tableName) {
     // Создание динамических полей формы на основе данных
     columns.forEach(column => {
         if (column !== "Actions") {  // Пропускаем колонку с действиями
+            const div = document.createElement("div")
+            div.classList.add('card');
             const label = document.createElement("label");
-            label.textContent = column + ":";
+            label.textContent = column;
             const input = document.createElement("input");
             input.type = "text";
             input.id = column;
             input.value = rowData[column] || ""; // Заполняем значением из строки
-            form.appendChild(label);
-            form.appendChild(input);
-            form.appendChild(document.createElement("br"));
+            div.appendChild(label);
+            div.appendChild(input);
+            form.appendChild(div);
         }
     });
     // Добавление кнопки внутри формы
