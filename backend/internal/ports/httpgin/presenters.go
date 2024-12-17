@@ -1,105 +1,66 @@
 package httpgin
 
 import (
-	"backend/internal/ads"
-	"backend/internal/user"
+	"backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
 )
 
-type createAdRequest struct {
-	Title  string `json:"title" validate:"max:100 min:1"`
-	Text   string `json:"text" validate:"max:500 min:1"`
-	UserID int64  `json:"user_id"`
+type studentResponse struct {
+	Id_num_student      int64  `json:"id_num_student"`
+	Name_group          string `json:"name_group"`
+	Email_student       string `json:"email_student"`
+	Second_name_student string `json:"second_name_student"`
+	First_name_student  string `json:"first_name_student"`
+	Surname_student     string `json:"surname_student"`
+}
+type createStudentRequest struct {
+	Id_num_student      uint64 `json:"id_num_student"`
+	Name_group          string `json:"name_group"`
+	Email_student       string `json:"email_student"`
+	Second_name_student string `json:"second_name_student"`
+	First_name_student  string `json:"first_name_student"`
+	Surname_student     string `json:"surname_student"`
+}
+type updateStudentRequest struct {
+	Name_group          string `json:"name_group"`
+	Email_student       string `json:"email_student"`
+	Second_name_student string `json:"second_name_student"`
+	First_name_student  string `json:"first_name_student"`
+	Surname_student     string `json:"surname_student"`
 }
 
-type adResponse struct {
-	ID        int64  `json:"id"`
-	Title     string `json:"title"`
-	Text      string `json:"text"`
-	AuthorID  int64  `json:"author_id"`
-	Published bool   `json:"published"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-}
-
-type changeAdStatusRequest struct {
-	Published bool  `json:"published"`
-	UserID    int64 `json:"user_id"`
-}
-
-type updateAdRequest struct {
-	Title  string `json:"title" validate:"max:100 min:1"`
-	Text   string `json:"text" validate:"max:500 min:1"`
-	UserID int64  `json:"user_id"`
-}
-type userResponse struct {
-	Id       int64
-	Nickname string
-	Email    string
-}
-type createUserRequest struct {
-	Nickname string `validate:"max:100 min:1"`
-	Email    string `validate:"max:100 min:1"`
-}
-type updateUserRequest struct {
-	Nickname string `validate:"max:100 min:1"`
-	Email    string `validate:"max:100 min:1"`
-}
-
-func UserSuccessResponse(user *user.User) *gin.H {
+func StudentSuccessResponse(student *domain.Student) *gin.H {
 	return &gin.H{
-		"data": userResponse{
-			Id:       user.Id,
-			Nickname: user.Nickname,
-			Email:    user.Email,
+		"data": studentResponse{
+			Id_num_student:      student.Id_num_student,
+			Name_group:          student.Name_group,
+			Email_student:       student.Email_student,
+			Second_name_student: student.Second_name_student,
+			First_name_student:  student.First_name_student,
+			Surname_student:     student.Surname_student,
 		},
 		"error": nil,
 	}
 }
-
-func AdSuccessResponse(ad *ads.Ad) *gin.H {
-	return &gin.H{
-		"data": adResponse{
-			ID:        ad.ID,
-			Title:     ad.Title,
-			Text:      ad.Text,
-			AuthorID:  ad.AuthorID,
-			Published: ad.Published,
-			CreatedAt: ad.CreatedAt.String(),
-			UpdatedAt: ad.UpdatedAt.String(),
-		},
-		"error": nil,
-	}
-}
-func UserErrorResponse(err error) *gin.H {
-	return &gin.H{
-		"data":  nil,
-		"error": err.Error(),
-	}
-}
-
-func AdListSuccessResponse(ad *[]ads.Ad) *gin.H {
-	var res []adResponse
-	res = make([]adResponse, 0)
-	for _, a := range *ad {
-		res = append(res, adResponse{
-			ID:        a.ID,
-			Title:     a.Title,
-			Text:      a.Text,
-			AuthorID:  a.AuthorID,
-			Published: a.Published,
-			CreatedAt: a.CreatedAt.String(),
-			UpdatedAt: a.UpdatedAt.String(),
+func AllStudentSuccessResponse(students []*domain.Student) *gin.H {
+	data := []studentResponse{}
+	for _, student := range students {
+		data = append(data, studentResponse{
+			Id_num_student:      student.Id_num_student,
+			Name_group:          student.Name_group,
+			Email_student:       student.Email_student,
+			Second_name_student: student.Second_name_student,
+			First_name_student:  student.First_name_student,
+			Surname_student:     student.Surname_student,
 		})
 	}
 	return &gin.H{
-		"data":  res,
+		"data":  data,
 		"error": nil,
 	}
 }
-
-func AdErrorResponse(err error) *gin.H {
+func StudentErrorResponse(err error) *gin.H {
 	return &gin.H{
 		"data":  nil,
 		"error": err.Error(),

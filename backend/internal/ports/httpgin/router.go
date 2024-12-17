@@ -7,14 +7,9 @@ import (
 )
 
 func AppRouter(r *gin.RouterGroup, a *app.App) {
-	r.POST("/ads", func(c *gin.Context) { createAd(c, a) })                    // Метод для создания объявления (ad)
-	r.PUT("/ads/:ad_id/status", func(c *gin.Context) { changeAdStatus(c, a) }) // Метод для изменения статуса объявления (опубликовано - Published = true или снято с публикации Published = false)
-	r.PUT("/ads/:ad_id", func(c *gin.Context) { updateAd(c, a) })              // Метод для обновления текста(Text) или заголовка(Title) объявления
-	r.GET("/ads/:ad_id", func(c *gin.Context) { getAdbyID(c, a) })
-	r.GET("/ads", func(c *gin.Context) { getListAd(c, a) }) // Метод для получчения всех объявлений
-	r.GET("/ads/filter", func(c *gin.Context) { getListAdfilted(c, a) })
-	r.GET("/ads/search", func(c *gin.Context) { getAdbyName(c, a) })
-	r.POST("/user", func(c *gin.Context) { createUser(c, a) })
-	r.PUT("/user/:user_id", func(c *gin.Context) { updateUser(c, a) })
-	r.GET("/user/:user_id/ads", func(c *gin.Context) { getUserAds(c, a) })
+	r.GET("/student/:student_id", func(c *gin.Context) { getStudentbyID(c, a) })
+	r.POST("/student", func(c *gin.Context) { createStudent(c, a) })
+	r.PUT("/student/:student_id", func(c *gin.Context) { updateStudentbyID(c, a) })
+	r.DELETE("/student/:student_id", func(c *gin.Context) { deleteStudentbyID(c, a) })
+	r.GET("/students", func(c *gin.Context) { getAllStudent(c, a) })
 }

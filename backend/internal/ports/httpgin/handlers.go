@@ -1,245 +1,109 @@
 package httpgin
 
 import (
-	"fmt"
 	"net/http"
-	"time"
 
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 
-	"backend/internal/ads"
 	"backend/internal/app"
-	"backend/internal/user"
-	"backend/internal/validator"
 )
 
-// Метод для создания объявления (ad)
-func createAd(c *gin.Context, a *app.App) {
-	var reqBody createAdRequest
-	err := c.ShouldBindJSON(&reqBody)
+func getStudentbyID(c *gin.Context, a *app.App) {
+	studentId, err := strconv.Atoi(c.Param("student_id"))
 	if err != nil {
 		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, AdErrorResponse(err))
+		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
 		return
 	}
-	err = validator.Validate(reqBody)
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, AdErrorResponse(err))
-		return
-	}
-	var ad *ads.Ad
-	ad, err = a.CreateAd(c, reqBody.Title, reqBody.Text, reqBody.UserID)
-
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, AdErrorResponse(err))
-		return
-	}
-	c.JSON(http.StatusOK, AdSuccessResponse(ad))
-}
-func getAdbyID(c *gin.Context, a *app.App) {
-	adId, err := strconv.Atoi(c.Param("ad_id"))
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, AdErrorResponse(err))
-		return
-	}
-	ad, err := a.GetAdByID(c, int64(adId))
+	student, err := a.GetStudentbyID(c, uint64(studentId))
 	if err != nil {
 		c.Status(http.StatusNotFound)
-		c.JSON(http.StatusNotFound, AdErrorResponse(err))
+		c.JSON(http.StatusNotFound, StudentErrorResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, AdSuccessResponse(ad))
+	c.JSON(http.StatusOK, StudentSuccessResponse(student))
 }
 
-// Метод для получения всех объявлений
-func getListAd(c *gin.Context, a *app.App) {
-
-	ads, err := a.GetAds(c)
-	if err != nil {
-		c.Status(http.StatusTeapot)
-		c.JSON(http.StatusTeapot, AdErrorResponse(err))
-		return
-	}
-
-	c.JSON(http.StatusOK, AdListSuccessResponse(ads))
-}
-
-// Метод для изменения статуса объявления (опубликовано - Published = true или снято с публикации Published = false)
-func changeAdStatus(c *gin.Context, a *app.App) {
-	var reqBody changeAdStatusRequest
+func createStudent(c *gin.Context, a *app.App) {
+	var reqBody createStudentRequest
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, AdErrorResponse(err))
+		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
 		return
 	}
-
-	adID, err := strconv.Atoi(c.Param("ad_id"))
+	// err := validator.Validate(reqBody)
+	// if err!= nil {
+	//     c.Status(http.StatusBadRequest)
+	//     c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
+	//     return
+	// }
+	student, err := a.CreateStudent(c,
+		reqBody.Id_num_student,
+		reqBody.Name_group,
+		reqBody.Email_student,
+		reqBody.Second_name_student,
+		reqBody.First_name_student,
+		reqBody.Surname_student)
 	if err != nil {
 		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, AdErrorResponse(err))
+		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
 		return
 	}
-	var ad *ads.Ad
-	ad, err = a.ChangeAdStatus(c, int64(adID), reqBody.UserID, reqBody.Published)
-
+	c.JSON(http.StatusCreated, StudentSuccessResponse(student))
+}
+func updateStudentbyID(c *gin.Context, a *app.App) {
+	studentId, err := strconv.Atoi(c.Param("student_id"))
 	if err != nil {
-		c.Status(http.StatusForbidden)
-		c.JSON(http.StatusForbidden, AdErrorResponse(err))
-		return
-	}
-
-	c.JSON(http.StatusOK, AdSuccessResponse(ad))
-}
-
-func getAdbyName(c *gin.Context, a *app.App) {
-	if c.Query("name") != "" {
-		ads, err := a.GetAdsByName(c, c.Query("name"))
-		if err != nil {
-			c.Status(http.StatusBadRequest)
-			c.JSON(http.StatusBadRequest, AdErrorResponse(err))
-			return
-		}
-		c.JSON(http.StatusOK, AdListSuccessResponse(ads))
-		return
-	}
-	c.Status(http.StatusBadRequest)
-	c.JSON(http.StatusBadRequest, AdErrorResponse(fmt.Errorf("name parameter is required")))
-}
-
-func getListAdfilted(c *gin.Context, a *app.App) {
-	filter := c.Query("param")
-	if filter == "" {
 		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, AdErrorResponse(fmt.Errorf("param parameter is required")))
+		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
 		return
 	}
-	Ads, err := a.GetAds(c)
-	if err != nil {
-		c.Status(http.StatusForbidden)
-		c.JSON(http.StatusForbidden, AdErrorResponse(err))
-		return
-	}
-	filteredAds := make([]ads.Ad, 0)
-	if filter == "createdat" {
-		for _, ad := range *Ads {
-			if ad.CreatedAt.After(time.Now().AddDate(-1, 0, 0)) {
-				if !ad.Published {
-					continue
-				}
-				filteredAds = append(filteredAds, ad)
-			}
-		}
-		c.JSON(http.StatusOK, AdListSuccessResponse(&filteredAds))
-		return
-	} else if filter == "updatedat" {
-		for _, ad := range *Ads {
-			if ad.UpdatedAt.After(time.Now().AddDate(-1, 0, 0)) {
-				if !ad.Published {
-					continue
-				}
-				filteredAds = append(filteredAds, ad)
-			}
-		}
-		c.JSON(http.StatusOK, AdListSuccessResponse(&filteredAds))
-		return
-	}
-	c.JSON(http.StatusNotFound, AdErrorResponse(fmt.Errorf("bad filter")))
-}
-
-// Метод для обновления текста(Text) или заголовка(Title) объявления
-func updateAd(c *gin.Context, a *app.App) {
-	var reqBody updateAdRequest
+	var reqBody updateStudentRequest
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, AdErrorResponse(err))
+		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
 		return
 	}
-	err := validator.Validate(reqBody)
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, AdErrorResponse(err))
-		return
-	}
-	adID, err := strconv.Atoi(c.Param("ad_id"))
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, AdErrorResponse(err))
-		return
-	}
-	var ad *ads.Ad
-	ad, err = a.UpdateAd(c, int64(adID), reqBody.Title, reqBody.Text, reqBody.UserID)
-	// TODO: метод должен возвращать AdSuccessResponse или ошибку.
+	student, err := a.UpdateStudentbyID(c,
+		uint64(studentId),
+		reqBody.Name_group,
+		reqBody.Email_student,
+		reqBody.Second_name_student,
+		reqBody.First_name_student,
+		reqBody.Surname_student)
 	if err != nil {
 		c.Status(http.StatusForbidden)
-		c.JSON(http.StatusForbidden, AdErrorResponse(err))
+		c.JSON(http.StatusForbidden, StudentErrorResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, AdSuccessResponse(ad))
+	c.JSON(http.StatusOK, StudentSuccessResponse(student))
 }
-func createUser(c *gin.Context, a *app.App) {
-	var reqBody createUserRequest
-	err := c.ShouldBind(&reqBody)
+
+func deleteStudentbyID(c *gin.Context, a *app.App) {
+	studentId, err := strconv.Atoi(c.Param("student_id"))
 	if err != nil {
 		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, UserErrorResponse(err))
+		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
 		return
 	}
-	err = validator.Validate(reqBody)
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, UserErrorResponse(err))
-		return
-	}
-	var user *user.User
-	user, err = a.CreateUser(c, reqBody.Nickname, reqBody.Email)
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, UserErrorResponse(err))
-		return
-	}
-	c.JSON(http.StatusOK, UserSuccessResponse(user))
-}
-func updateUser(c *gin.Context, a *app.App) {
-	var reqBody updateUserRequest
-	err := c.ShouldBind(&reqBody)
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-	}
-	err = validator.Validate(reqBody)
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, UserErrorResponse(err))
-		return
-	}
-	Id, err := strconv.Atoi(c.Param("user_id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, UserErrorResponse(err))
-	}
-	user, err := a.UpdateUser(c, int64(Id), reqBody.Nickname, reqBody.Email)
+	err = a.DeleteStudentbyID(c, uint64(studentId))
 	if err != nil {
 		c.Status(http.StatusForbidden)
-		c.JSON(http.StatusForbidden, UserErrorResponse(err))
+		c.JSON(http.StatusForbidden, StudentErrorResponse(err))
+		return
 	}
-	c.JSON(http.StatusOK, UserSuccessResponse(user))
+	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, StudentSuccessResponse(nil))
+	return
 }
-func getUserAds(c *gin.Context, a *app.App) {
-	Id, err := strconv.Atoi(c.Param("user_id"))
-	id := int64(Id)
+func getAllStudent(c *gin.Context, a *app.App) {
+	students, err := a.GetAllStudent(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, UserErrorResponse(err))
+		c.Status(http.StatusForbidden)
+		c.JSON(http.StatusForbidden, StudentErrorResponse(err))
+		return
 	}
-	_, err = a.GetUser(c, id)
-	if err != nil {
-		c.JSON(http.StatusForbidden, UserErrorResponse(err))
-	}
-	ads, err := a.GetUserListAds(c, id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, UserErrorResponse(err))
-	}
-	c.JSON(http.StatusAccepted, AdListSuccessResponse(ads))
+	c.JSON(http.StatusOK, AllStudentSuccessResponse(students))
 }
