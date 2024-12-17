@@ -96,7 +96,6 @@ func deleteStudentbyID(c *gin.Context, a *app.App) {
 	}
 	c.Status(http.StatusOK)
 	c.JSON(http.StatusOK, StudentSuccessResponse(nil))
-	return
 }
 func getAllStudent(c *gin.Context, a *app.App) {
 	students, err := a.GetAllStudent(c)
@@ -106,4 +105,10 @@ func getAllStudent(c *gin.Context, a *app.App) {
 		return
 	}
 	c.JSON(http.StatusOK, AllStudentSuccessResponse(students))
+}
+func getTables(c *gin.Context) {
+	tables := []string{
+		"student",
+	}
+	c.JSON(http.StatusOK, gin.H{"data": tables})
 }

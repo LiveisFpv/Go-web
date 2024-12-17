@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Name}}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js" defer></script>
+</head>
+<body>
+    <h1>{{.Name}}</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                {{range .Columns}}
+                <th>{{.}}</th>
+                {{end}}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            {{range .Rows}}
+            <tr data-id="{{.ID}}">
+                {{range $key, $value := .}}
+                    <td class="editable" data-key="{{ $key }}">{{ $value }}</td>
+                {{end}}
+                <td>
+                    <button onclick="editRow(this)">Edit</button>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+
+    <!-- Модальное окно для редактирования -->
+    <div id="edit-modal" class="hidden">
+        <h3>Edit Row</h3>
+        <form id="edit-form">
+            <input type="hidden" id="edit-id">
+            <div id="edit-fields"></div>
+            <button type="submit">Save</button>
+            <button type="button" onclick="closeModal()">Cancel</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -3,9 +3,10 @@ package httpgin
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-
 	"backend/internal/app"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
@@ -16,6 +17,7 @@ type Server struct {
 func NewHTTPServer(port string, a *app.App) Server {
 	gin.SetMode(gin.ReleaseMode)
 	s := Server{port: port, app: gin.Default()}
+	s.app.Use(cors.Default())
 	api := s.app.Group("/api/v1")
 	AppRouter(api, a)
 	return s
