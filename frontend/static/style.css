@@ -204,6 +204,7 @@ input{
     border: none;
     border-bottom: 1px solid rgb(201, 126, 224);
     outline: none;
+    background-color: transparent;
 }
 label{
     font-size: 16px;

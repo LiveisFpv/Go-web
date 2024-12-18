@@ -123,12 +123,13 @@ function createTableBody(tableData, rows, metadata, tableName) {
         const editTd = document.createElement("td");
         const editButton = document.createElement("button");
         editButton.textContent = "Edit";
-        editButton.onclick = function () {
+        editButton.classList.add("edit-button");
+        editButton.onclick = async function () {
             const table = document.getElementById("table");
             if (table.scrollWidth > table.clientWidth) {
-                openEditModal(row, tableName);
+                await openEditModal(row, tableName);
             } else {
-                enableInlineEditing(row, tableName);
+                await enableInlineEditing(row, tableName);
             }
         };
         editTd.appendChild(editButton);
@@ -145,11 +146,21 @@ async function enableInlineEditing(row, tableName) {
         // Получаем метаинформацию
         const response = await fetch(`${options}/api/v1/${tableName}/metadata`);
         const metadata = await response.json();
-        // Убираем все остальные активные строки редактирования
-        const tableData = document.getElementById("table-data").querySelector("tbody");
-        tableData.innerHTML = "";
-        // Перезаполняем строку редактирования
-        const rowElement = document.createElement("tr");
+        // Получаем уникальное поле row[uniqueField.name]
+        const uniqueField = metadata.data.find(field => field.unique);
+        // Получаем строку по data-id
+        const rowElement = document.querySelector(`#table-data tbody tr[data-id="${row[uniqueField.name]}"]`)
+        if (!rowElement) {
+            console.error("Row with id " + row[uniqueField.name] + " not found.");
+            return;
+        }
+        const editButtons = document.querySelectorAll('.edit-button');
+        editButtons.forEach(button => {
+            button.style.display = 'none'; // Скрываем каждую кнопку
+        });
+        rowElement.innerHTML = "";
+        const td = document.createElement("td");
+        rowElement.appendChild(td);
         metadata.data.forEach(column => {
             const td = document.createElement("td");
             const input = document.createElement("input");
@@ -169,7 +180,7 @@ async function enableInlineEditing(row, tableName) {
             saveButton.textContent = "Save";
         saveButton.onclick = async function () {
             const updatedData = {};
-
+            event.preventDefault();
             // Заполняем данные для отправки, основываясь на метаинформации
             metadata.data.forEach(column => {
                 const input = document.getElementById(`edit-${column.name}`);
@@ -185,9 +196,8 @@ async function enableInlineEditing(row, tableName) {
         const cancelButton = createButton("Cancel", () => loadTableData(tableName));
         actionsTd.append(saveButton, cancelButton);
         rowElement.appendChild(actionsTd);
-
-        tableData.appendChild(rowElement);
     } catch (error) {
+        loadTableData(tableName);
         console.error("Error enabling inline editing:", error);
     }
 }
@@ -296,6 +306,7 @@ async function openAddModalWithMetadata(tableName) {
                 }
             };
     } catch (error) {
+        loadTableData(tableName);
         console.error("Error opening add modal:", error);
     }
 }
@@ -351,6 +362,7 @@ async function openEditModal(rowData, tableName) {
         form.appendChild(deleteButton);
         deleteButton.onclick = async function (event) {
             const DeleteData = {};
+            event.preventDefault();
             metadata.data.forEach(column => {
                 const input = document.getElementById(column.name);
                 if (column.type === "number") {
@@ -404,6 +416,7 @@ async function openEditModal(rowData, tableName) {
             loadTableData(tableName);
         };
     } catch (error) {
+        loadTableData(tableName);
         console.error("Error opening add modal:", error);
     };
 }
