@@ -56,7 +56,6 @@ header {
 main {
     display: flex;
     flex-direction: row;
-    min-height: 100vh;
     width: 100%;
     height: 100%;
     border:10px #2d6cff solid;
@@ -89,9 +88,14 @@ header h1 {
     text-align: center;
 }
 .table{
+    width: 100%;
     overflow-x: auto;
     margin:0px 20px;
     margin-bottom: 10px;
+}
+#table{
+    margin: 10px 20px;
+    overflow-x:auto;
 }
 table {
     width: 100%;

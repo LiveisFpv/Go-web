@@ -108,7 +108,13 @@ function loadTableData(tableName) {
                 const editButton = document.createElement("button");
                 editButton.textContent = "Edit";
                 editButton.onclick = function() {
-                    openEditModal(row,tableName);
+                    const table = document.getElementById("table");
+                    if(table.scrollWidth > table.clientWidth){
+                        openEditModal(row,tableName);
+                    } else{
+                        // Если прокрутки нет, можно редактировать данные прямо в таблице
+                        enableInlineEditing(row, tableName);
+                    }
                 };
                 editTd.appendChild(editButton);
                 rowElement.appendChild(editTd);
@@ -119,6 +125,95 @@ function loadTableData(tableName) {
         })
         .catch(error => {console.error('Error loading table data:', error)
         });
+}
+function enableInlineEditing(row, tableName) {
+    // Получаем метаинформацию
+    fetch(`${options}/api/v1/${tableName}/metadata`)
+        .then(response => response.json())
+        .then(metadata => {
+            const tableData = document.getElementById("table-data").getElementsByTagName("tbody")[0];
+            // Убираем все остальные активные строки редактирования
+            const editingRows = tableData.querySelectorAll(".editing");
+            editingRows.forEach(editingRow => {
+                editingRow.classList.remove("editing");
+                editingRow.innerHTML = ""; // Полностью очищаем, чтобы пересоздать
+            });
+
+            // Перезаполняем строку редактирования
+            const rowElement = document.createElement("tr");
+            rowElement.classList.add("editing");
+            const td = document.createElement("td");
+            rowElement.appendChild(td);
+            metadata.data.forEach(column => {
+                const td = document.createElement("td");
+                const input = document.createElement("input");
+                input.type = column.type || "text"; // Устанавливаем тип данных из метаинформации
+                input.value = row[column.name] || ""; // Заполняем текущими значениями
+                input.id = `edit-${column.name}`; // Уникальный ID для каждого input
+                if (column.required) {
+                    input.required = true; // Добавляем валидацию для обязательных полей
+                }
+                td.appendChild(input);
+                rowElement.appendChild(td);
+            });
+
+            // Кнопки "Сохранить" и "Отмена"
+            const actionsTd = document.createElement("td");
+            const saveButton = document.createElement("button");
+            saveButton.textContent = "Save";
+            saveButton.onclick = function () {
+                const updatedData = {};
+
+                // Заполняем данные для отправки, основываясь на метаинформации
+                metadata.data.forEach(column => {
+                    const input = document.getElementById(`edit-${column.name}`);
+                    if (input) {
+                        updatedData[column.name] = column.type === "number"
+                            ? parseFloat(input.value) || null
+                            : input.value || null;
+                    }
+                });
+
+                // Отправляем обновленные данные на сервер
+                fetch(`${options}/api/v1/${tableName}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(updatedData)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(responseData => {
+                        if (responseData.error) {
+                            alert(`Error: ${responseData.error}`);
+                            return;
+                        }
+                        alert("Record updated successfully");
+                        loadTableData(tableName); // Перезагружаем таблицу после успешного обновления
+                    })
+                    .catch(error => console.error("Error updating record:", error));
+            };
+
+            const cancelButton = document.createElement("button");
+            cancelButton.textContent = "Cancel";
+            cancelButton.onclick = function () {
+                loadTableData(tableName); // Просто перезагружаем таблицу, чтобы отменить редактирование
+            };
+
+            actionsTd.appendChild(saveButton);
+            actionsTd.appendChild(cancelButton);
+            rowElement.appendChild(actionsTd);
+
+            // Очищаем текущую строку и вставляем редактор
+            tableData.innerHTML = ""; // Очищаем тело таблицы
+            tableData.appendChild(rowElement);
+        })
+        .catch(error => console.error("Error loading metadata for inline editing:", error));
 }
 
 function openAddModalWithMetadata(tableName) {
