@@ -69,8 +69,22 @@ func StudentErrorResponse(err error) *gin.H {
 }
 
 type groupResponse struct {
-	Id_group                uint64    `json:"id_group"`
 	Name_group              string    `json:"name_group"`
+	Studies_direction_group string    `json:"studies_direction_group"`
+	Studies_profile_group   string    `json:"studies_profile_group"`
+	Start_date_group        time.Time `json:"start_date_group"`
+	Studies_period_group    uint8     `json:"studies_period_group"`
+}
+
+type createGroupRequest struct {
+	Name_group              string    `json:"name_group"`
+	Studies_direction_group string    `json:"studies_direction_group"`
+	Studies_profile_group   string    `json:"studies_profile_group"`
+	Start_date_group        time.Time `json:"start_date_group"`
+	Studies_period_group    uint8     `json:"studies_period_group"`
+}
+
+type updateGroupRequest struct {
 	Studies_direction_group string    `json:"studies_direction_group"`
 	Studies_profile_group   string    `json:"studies_profile_group"`
 	Start_date_group        time.Time `json:"start_date_group"`
@@ -80,8 +94,11 @@ type groupResponse struct {
 func GroupSuccessResponse(group *domain.Group) *gin.H {
 	return &gin.H{
 		"data": groupResponse{
-			Id_group:   group.Id_group,
-			Name_group: group.Name_group,
+			Name_group:              group.Name_group,
+			Studies_direction_group: group.Studies_direction_group,
+			Studies_profile_group:   group.Studies_profile_group,
+			Start_date_group:        group.Start_date_group,
+			Studies_period_group:    group.Studies_period_group,
 		},
 		"error": nil,
 	}
@@ -90,7 +107,6 @@ func AllGroupSuccessResponse(group []*domain.Group) *gin.H {
 	data := []groupResponse{}
 	for _, group := range group {
 		data = append(data, groupResponse{
-			Id_group:                group.Id_group,
 			Name_group:              group.Name_group,
 			Studies_direction_group: group.Studies_direction_group,
 			Studies_profile_group:   group.Studies_profile_group,

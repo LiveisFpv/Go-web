@@ -54,6 +54,22 @@ function loadTableData(tableName) {
 
             // Данные таблицы
             const tbody = document.createElement("tbody");
+            // Кнопка добавления новой записи
+            const rowElement = document.createElement("tr");
+            for (const _ in data.data[0]) {
+                const td = document.createElement("td");
+                rowElement.appendChild(td);
+            }
+            const addTd = document.createElement("td");
+            const addButton = document.createElement("button");
+            addButton.textContent = "Add";
+            addButton.onclick = function() {
+                openAddModalWithMetadata(tableName);
+            };
+            addTd.appendChild(addButton);
+            rowElement.appendChild(addTd);
+            tbody.appendChild(rowElement);
+            //Заносим полученные данные через Json в таблицу
             data.data.forEach(row => {
                 const rowElement = document.createElement("tr");
 
@@ -82,12 +98,99 @@ function loadTableData(tableName) {
         });
 }
 
+function openAddModalWithMetadata(tableName) {
+    fetch(`${options}/api/v1/${tableName}/metadata`)
+        .then(response => response.json())
+        .then(metadata => {
+            const modal = document.getElementById("add-modal");
+            const form = document.getElementById("add-form");
+            form.innerHTML = ""; // Очищаем форму перед добавлением новых полей
+
+            // Создаем поля формы на основе метаинформации
+            metadata.data.forEach(column => {
+                const div = document.createElement("div");
+                div.classList.add("card");
+
+                const label = document.createElement("label");
+                label.textContent = column.name.replace(/_/g, " ").replace(/\b\w/g, char => char.toUpperCase());
+
+                const input = document.createElement("input");
+                input.type = column.type;
+                input.id = column.name;
+                if (column.required) {
+                    input.required = true;
+                }
+                div.appendChild(label);
+                div.appendChild(input);
+                form.appendChild(div);
+            });
+
+            const addButton = document.createElement("button");
+            addButton.type = "submit";
+            addButton.textContent = "Add Record";
+            form.appendChild(addButton);
+            modal.style.display = "block";
+
+            form.onsubmit = function (event) {
+                event.preventDefault();
+                const data = {};
+                form.querySelectorAll("input").forEach(input => {
+                    // Получаем метаинформацию о текущем поле
+                    // Преобразуем значение в нужный тип
+                    switch (input.type) {
+                        case "number":
+                            data[input.id] = parseFloat(input.value); // Преобразуем в число
+                            break;
+                        case "text":
+                        case "email":
+                        default:
+                            data[input.id] = input.value; // Оставляем строку
+                    }
+                });
+
+                fetch(`${options}/api/v1/${tableName}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(responseData => {
+                        if (responseData.error) {
+                            alert(`Error: ${responseData.error}`);
+                            return;
+                        }
+                        alert("Record added successfully");
+                        modal.style.display = "none";
+                        loadTableData(tableName);
+                    })
+                    .catch(error => console.error("Error adding record:", error));
+            };
+
+            document.getElementById("add-close-modal").onclick = function () {
+                modal.style.display = "none";
+            };
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            };
+        })
+        .catch(error => console.error("Error fetching metadata:", error));
+}
+
 // Открыть модальное окно с данными для редактирования
-function openEditModal(rowData, columns,tableName) { 
+function openEditModal(rowData, columns, tableName) { 
     const modal = document.getElementById("edit-modal");
 
     // Закрытие модального окна
-    document.getElementById("close-modal").onclick = function() {
+    document.getElementById("edit-close-modal").onclick = function() {
         modal.style.display = "none";
     };
 
@@ -137,21 +240,30 @@ function openEditModal(rowData, columns,tableName) {
         });
 
         // Отправка данных на сервер
-        fetch(`${options}/api/v1/${tableName}/${rowData.id_num_student}`, {
+        fetch(`${options}/api/v1/${tableName}/${rowData[columns[0]]}`, {
             method: "PUT",  // Используем метод PUT для обновления данных
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(updatedData)
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                alert(`HTTP error! status: ${response.status}`);
+            }
+            return response.json()
+        })
         .then(data => {
-            console.log("Record updated:", data);
+            if (data.error!=null){
+                alert(`Error updating data: ${data.error}`);
+                return;
+            }
+            alert(`Record updated`);
             // Закрыть модальное окно после сохранения
             modal.style.display = "none";
             // Перезагрузить таблицу
             loadTableData(tableName);
         })
-        .catch(error => console.error("Error updating data:", error));
+        .catch(error => alert(`Error updating data: ${error}`));
     };
 }

@@ -107,6 +107,29 @@ func getAllStudent(c *gin.Context, a *app.App) {
 	c.JSON(http.StatusOK, AllStudentSuccessResponse(students))
 }
 
+func updateGroupbyName(c *gin.Context, a *app.App) {
+	groupName := c.Param("group_name")
+	var reqBody updateGroupRequest
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.Status(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, GroupErrorResponse(err))
+		return
+	}
+	group, err := a.UpdateGroupbyName(c,
+		groupName,
+		reqBody.Studies_direction_group,
+		reqBody.Studies_profile_group,
+		reqBody.Start_date_group,
+		reqBody.Studies_period_group,
+	)
+	if err != nil {
+		c.Status(http.StatusForbidden)
+		c.JSON(http.StatusForbidden, GroupErrorResponse(err))
+		return
+	}
+	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, GroupSuccessResponse(group))
+}
 func getAllGroup(c *gin.Context, a *app.App) {
 	groups, err := a.GetAllGroup(c)
 	if err != nil {
@@ -115,12 +138,4 @@ func getAllGroup(c *gin.Context, a *app.App) {
 		return
 	}
 	c.JSON(http.StatusOK, AllGroupSuccessResponse(groups))
-}
-
-func getTables(c *gin.Context) {
-	tables := []string{
-		"student",
-		"group",
-	}
-	c.JSON(http.StatusOK, gin.H{"data": tables})
 }
