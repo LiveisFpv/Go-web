@@ -368,7 +368,7 @@ async function openEditModal(rowData, tableName) {
                     body: JSON.stringify(DeleteData),
                 })
                 if (!response.ok) {
-                    alert(`HTTP error! status: ${response.status}`);
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const responseData = await response.json()
                 if (responseData.error) {
