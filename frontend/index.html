@@ -8,15 +8,32 @@
     <script src="/frontend/static/script.js" defer></script>
 </head>
 <body>
+    <header>
+        <h1>GoWeDB</h1>
+        <input type="text" id="search-input" placeholder="Search...">
+        <button id="refresh-button">Refresh</button>
+        <button id="settings-button">Settings</button>
+        <button id="help-button">Help</button>
+        <button id="about-button">About</button>
+        <button id="logout-button">Logout</button>
+        <div id="user-info">
+            <img src="/frontend/image/user.png" alt="User">
+        </div>
+    </header>
     <main>
         <div class="menu">
-            <h1>GoWeDB</h1>
             <div id="tables-list"></div>
         </div>
 
         <div class="table">
-            <h1 id="table-name"></h1>
-            <table id="table-data" border="1"></table>
+            <div id="table-controls">
+                <h1 id="table-name"></h1>
+                <button id="delete-button">Delete</button>
+                <button id="export-button">Export</button>
+            </div>
+            <div class="table">
+                <table id="table-data" border="1"></table>
+            </div>
         </div>
     </main>
     <div id="edit-modal">

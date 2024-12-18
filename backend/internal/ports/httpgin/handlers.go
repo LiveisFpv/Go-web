@@ -27,7 +27,7 @@ func getStudentbyID(c *gin.Context, a *app.App) {
 }
 
 func createStudent(c *gin.Context, a *app.App) {
-	var reqBody createStudentRequest
+	var reqBody StudentRequest
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.Status(http.StatusBadRequest)
 		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
@@ -54,20 +54,14 @@ func createStudent(c *gin.Context, a *app.App) {
 	c.JSON(http.StatusCreated, StudentSuccessResponse(student))
 }
 func updateStudentbyID(c *gin.Context, a *app.App) {
-	studentId, err := strconv.Atoi(c.Param("student_id"))
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
-		return
-	}
-	var reqBody updateStudentRequest
+	var reqBody StudentRequest
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.Status(http.StatusBadRequest)
 		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
 		return
 	}
 	student, err := a.UpdateStudentbyID(c,
-		uint64(studentId),
+		reqBody.Id_num_student,
 		reqBody.Name_group,
 		reqBody.Email_student,
 		reqBody.Second_name_student,
@@ -108,15 +102,14 @@ func getAllStudent(c *gin.Context, a *app.App) {
 }
 
 func updateGroupbyName(c *gin.Context, a *app.App) {
-	groupName := c.Param("group_name")
-	var reqBody updateGroupRequest
+	var reqBody GroupRequest
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.Status(http.StatusBadRequest)
 		c.JSON(http.StatusBadRequest, GroupErrorResponse(err))
 		return
 	}
 	group, err := a.UpdateGroupbyName(c,
-		groupName,
+		reqBody.Name_group,
 		reqBody.Studies_direction_group,
 		reqBody.Studies_profile_group,
 		reqBody.Start_date_group,

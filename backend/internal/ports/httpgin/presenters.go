@@ -15,15 +15,8 @@ type studentResponse struct {
 	First_name_student  string `json:"first_name_student"`
 	Surname_student     string `json:"surname_student"`
 }
-type createStudentRequest struct {
+type StudentRequest struct {
 	Id_num_student      uint64 `json:"id_num_student"`
-	Name_group          string `json:"name_group"`
-	Email_student       string `json:"email_student"`
-	Second_name_student string `json:"second_name_student"`
-	First_name_student  string `json:"first_name_student"`
-	Surname_student     string `json:"surname_student"`
-}
-type updateStudentRequest struct {
 	Name_group          string `json:"name_group"`
 	Email_student       string `json:"email_student"`
 	Second_name_student string `json:"second_name_student"`
@@ -76,15 +69,8 @@ type groupResponse struct {
 	Studies_period_group    uint8     `json:"studies_period_group"`
 }
 
-type createGroupRequest struct {
+type GroupRequest struct {
 	Name_group              string    `json:"name_group"`
-	Studies_direction_group string    `json:"studies_direction_group"`
-	Studies_profile_group   string    `json:"studies_profile_group"`
-	Start_date_group        time.Time `json:"start_date_group"`
-	Studies_period_group    uint8     `json:"studies_period_group"`
-}
-
-type updateGroupRequest struct {
 	Studies_direction_group string    `json:"studies_direction_group"`
 	Studies_profile_group   string    `json:"studies_profile_group"`
 	Start_date_group        time.Time `json:"start_date_group"`

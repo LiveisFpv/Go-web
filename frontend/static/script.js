@@ -6,14 +6,13 @@ document.addEventListener("DOMContentLoaded", function() {
             const tablesList = document.getElementById("tables-list");
             // Мы получаем массив названий таблиц из поля 'data' в ответе
             responseData.data.forEach(table => {
-                const link = document.createElement("a");
-                link.href = "#";
-                link.textContent = table;
-                link.addEventListener("click", function(event) {
+                const button = document.createElement("button");
+                button.textContent = table.replace(/\b\w/g, char => char.toUpperCase());
+                button.addEventListener("click", function(event) {
                     event.preventDefault();
                     loadTableData(table);
                 });
-                tablesList.appendChild(link);
+                tablesList.appendChild(button);
                 tablesList.appendChild(document.createElement("br"));
             });
         })
@@ -85,7 +84,7 @@ function loadTableData(tableName) {
                 const editButton = document.createElement("button");
                 editButton.textContent = "Edit";
                 editButton.onclick = function() {
-                    openEditModal(row,columns,tableName);
+                    openEditModal(row,tableName);
                 };
                 editTd.appendChild(editButton);
                 rowElement.appendChild(editTd);
@@ -186,84 +185,99 @@ function openAddModalWithMetadata(tableName) {
 }
 
 // Открыть модальное окно с данными для редактирования
-function openEditModal(rowData, columns, tableName) { 
+function openEditModal(rowData, tableName) {
     const modal = document.getElementById("edit-modal");
 
     // Закрытие модального окна
-    document.getElementById("edit-close-modal").onclick = function() {
+    document.getElementById("edit-close-modal").onclick = function () {
         modal.style.display = "none";
     };
 
     // Закрытие при клике на область за пределами окна
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         if (event.target == modal) {
             modal.style.display = "none";
         }
     };
 
-    const form = document.getElementById("edit-form");
-    form.innerHTML = ""; // Очищаем форму перед добавлением новых полей
+    // Запрос метаинформации у сервера
+    fetch(`${options}/api/v1/${tableName}/metadata`)
+        .then(response => response.json())
+        .then(metadata => {
+            const form = document.getElementById("edit-form");
+            form.innerHTML = ""; // Очищаем форму перед добавлением новых полей
 
-    // Создание динамических полей формы на основе данных
-    columns.forEach(column => {
-        if (column !== "Actions") {  // Пропускаем колонку с действиями
-            const div = document.createElement("div")
-            div.classList.add('card');
-            const label = document.createElement("label");
-            label.textContent = column;
-            const input = document.createElement("input");
-            input.type = "text";
-            input.id = column;
-            input.value = rowData[column] || ""; // Заполняем значением из строки
-            div.appendChild(label);
-            div.appendChild(input);
-            form.appendChild(div);
-        }
-    });
-    // Добавление кнопки внутри формы
-    const submitButton = document.createElement("button");
-    submitButton.type = "submit";
-    submitButton.textContent = "Save Changes";
-    form.appendChild(submitButton);
-    // Показать модальное окно
-    document.getElementById("edit-modal").style.display = "block";
+            // Создание динамических полей формы на основе метаинформации
+            metadata.data.forEach(column => {
+                const div = document.createElement("div");
+                div.classList.add("card");
 
-    // Обработчик отправки формы
-    form.onsubmit = function(event) {
-        event.preventDefault(); // Останавливаем обычную отправку формы
+                const label = document.createElement("label");
+                label.textContent = column.name.replace(/_/g, " ").replace(/\b\w/g, char => char.toUpperCase());
 
-        const updatedData = {};
-        columns.forEach(column => {
-            if (column !== "Actions") {
-                updatedData[column] = document.getElementById(column).value;
-            }
-        });
+                const input = document.createElement("input");
+                input.type = column.type
+                input.id = column.name;
+                input.value = rowData[column.name] || ""; // Заполняем значением из строки
+                if (column.required) {
+                    input.required = true;
+                }
 
-        // Отправка данных на сервер
-        fetch(`${options}/api/v1/${tableName}/${rowData[columns[0]]}`, {
-            method: "PUT",  // Используем метод PUT для обновления данных
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(updatedData)
+                div.appendChild(label);
+                div.appendChild(input);
+                form.appendChild(div);
+            });
+
+            // Добавление кнопки внутри формы
+            const submitButton = document.createElement("button");
+            submitButton.type = "submit";
+            submitButton.textContent = "Save Changes";
+            form.appendChild(submitButton);
+
+            // Показать модальное окно
+            modal.style.display = "block";
+
+            // Обработчик отправки формы
+            form.onsubmit = function (event) {
+                event.preventDefault(); // Останавливаем обычную отправку формы
+
+                const updatedData = {};
+                metadata.data.forEach(column => {
+                    const input = document.getElementById(column.name);
+                    if (column.type === "number") {
+                        updatedData[column.name] = parseFloat(input.value) || null;
+                    } else {
+                        updatedData[column.name] = input.value || null;
+                    }
+                });
+
+                // Отправка данных на сервер
+                fetch(`${options}/api/v1/${tableName}`, {
+                    method: "PUT", // Используем метод PUT для обновления данных
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(updatedData),
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.error != null) {
+                            alert(`Error updating data: ${data.error}`);
+                            return;
+                        }
+                        alert(`Record updated`);
+                        // Закрыть модальное окно после сохранения
+                        modal.style.display = "none";
+                        // Перезагрузить таблицу
+                        loadTableData(tableName);
+                    })
+                    .catch(error => alert(`Error updating data: ${error}`));
+            };
         })
-        .then(response => {
-            if (!response.ok) {
-                alert(`HTTP error! status: ${response.status}`);
-            }
-            return response.json()
-        })
-        .then(data => {
-            if (data.error!=null){
-                alert(`Error updating data: ${data.error}`);
-                return;
-            }
-            alert(`Record updated`);
-            // Закрыть модальное окно после сохранения
-            modal.style.display = "none";
-            // Перезагрузить таблицу
-            loadTableData(tableName);
-        })
-        .catch(error => alert(`Error updating data: ${error}`));
-    };
+        .catch(error => alert(`Error fetching metadata: ${error}`));
 }
