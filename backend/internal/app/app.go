@@ -81,7 +81,6 @@ func (a *App) UpdateGroupbyName(ctx context.Context, group_name, Studies_directi
 }
 
 // Удаление группы по имени
-
 func (a *App) DeleteGroupByName(ctx context.Context, group_name string) error {
 	err := a.repo.DeleteGroupByName(ctx, group_name)
 	return err

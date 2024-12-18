@@ -24,10 +24,10 @@ func getGroupMeta(c *gin.Context) {
 	meta := gin.H{
 		"data": []map[string]interface{}{
 			{"name": "name_group", "type": "text", "required": true},
-			{"name": "", "type": "text", "required": true},
-			{"name": "", "type": "text", "required": true},
-			{"name": "", "type": "text", "required": true},
-			{"name": "", "type": "number", "required": true},
+			{"name": "studies_direction_group", "type": "text", "required": true},
+			{"name": "studies_profile_group", "type": "text", "required": true},
+			{"name": "start_date_group", "type": "text", "required": true},
+			{"name": "studies_period_group", "type": "number", "required": true},
 		},
 	}
 	c.JSON(http.StatusOK, meta)
@@ -37,6 +37,12 @@ func getTables(c *gin.Context) {
 	tables := []string{
 		"student",
 		"group",
+		"mark",
+		"semester",
+		"scholarship",
+		"budget",
+		"achievement",
+		"category",
 	}
 	c.JSON(http.StatusOK, gin.H{"data": tables})
 }

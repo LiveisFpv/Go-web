@@ -95,7 +95,7 @@ function loadTableData(tableName) {
                 rowCheckbox.classList.add("row-checkbox");
                 checkboxTd.appendChild(rowCheckbox);
                 rowElement.appendChild(checkboxTd);
-                
+
                 // Заполнение строк таблицы данными
                 Object.values(row).forEach(cell => {
                     const td = document.createElement("td");
@@ -257,6 +257,47 @@ function openEditModal(rowData, tableName) {
             submitButton.type = "submit";
             submitButton.textContent = "Save Changes";
             form.appendChild(submitButton);
+            const deleteButton = document.createElement("button");
+            deleteButton.className="delete"
+            deleteButton.textContent = "Delete Record";
+            form.appendChild(deleteButton);
+            deleteButton.onclick = function (event) {
+                event.preventDefault(); // Останавливаем обычную отправку формы
+                const DeleteData = {};
+                metadata.data.forEach(column => {
+                    const input = document.getElementById(column.name);
+                    if (column.type === "number") {
+                        DeleteData[column.name] = parseFloat(input.value) || null;
+                    } else {
+                        DeleteData[column.name] = input.value || null;
+                    }
+                });
+                if (confirm("Are you sure you want to delete this record?")) {
+                    fetch(`${options}/api/v1/${tableName}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(DeleteData),
+                    })
+                       .then(response => {
+                            if (!response.ok) {
+                                alert(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                       .then(data => {
+                            if (data.error) {
+                                alert(`Error deleting record: ${data.error}`);
+                            } else {
+                                alert("Record deleted successfully");
+                                modal.style.display = "none";
+                                loadTableData(tableName);
+                            }
+                        })
+                       .catch(error => console.error("Error deleting record:", error));
+                }
+            };
 
             // Показать модальное окно
             modal.style.display = "block";

@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"backend/internal/app"
+	"backend/internal/domain"
 )
 
 func getStudentbyID(c *gin.Context, a *app.App) {
@@ -48,6 +49,7 @@ func createStudent(c *gin.Context, a *app.App) {
 	}
 	c.JSON(http.StatusCreated, StudentSuccessResponse(student))
 }
+
 func updateStudentbyID(c *gin.Context, a *app.App) {
 	var reqBody StudentRequest
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
@@ -69,18 +71,19 @@ func updateStudentbyID(c *gin.Context, a *app.App) {
 }
 
 func deleteStudentbyID(c *gin.Context, a *app.App) {
-	studentId, err := strconv.Atoi(c.Param("student_id"))
-	if err != nil {
+	var reqBody StudentRequest
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
 		return
 	}
-	err = a.DeleteStudentbyID(c, uint64(studentId))
+	err := a.DeleteStudentbyID(c, reqBody.Id_num_student)
 	if err != nil {
 		c.JSON(http.StatusForbidden, StudentErrorResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, StudentSuccessResponse(nil))
+	c.JSON(http.StatusOK, StudentSuccessResponse(&domain.Student{}))
 }
+
 func getAllStudent(c *gin.Context, a *app.App) {
 	students, err := a.GetAllStudent(c)
 	if err != nil {
@@ -89,6 +92,7 @@ func getAllStudent(c *gin.Context, a *app.App) {
 	}
 	c.JSON(http.StatusOK, AllStudentSuccessResponse(students))
 }
+
 func createGroup(c *gin.Context, a *app.App) {
 	var reqBody GroupRequest
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
@@ -107,6 +111,7 @@ func createGroup(c *gin.Context, a *app.App) {
 	}
 	c.JSON(http.StatusCreated, GroupSuccessResponse(group))
 }
+
 func updateGroupbyName(c *gin.Context, a *app.App) {
 	var reqBody GroupRequest
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
@@ -126,6 +131,7 @@ func updateGroupbyName(c *gin.Context, a *app.App) {
 	}
 	c.JSON(http.StatusOK, GroupSuccessResponse(group))
 }
+
 func deleteGroupbyName(c *gin.Context, a *app.App) {
 	var reqBody GroupRequest
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
@@ -137,7 +143,7 @@ func deleteGroupbyName(c *gin.Context, a *app.App) {
 		c.JSON(http.StatusForbidden, GroupErrorResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, GroupSuccessResponse(nil))
+	c.JSON(http.StatusOK, GroupSuccessResponse(&domain.Group{}))
 }
 
 func getAllGroup(c *gin.Context, a *app.App) {
