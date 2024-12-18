@@ -14,15 +14,22 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 10px 30px;
     padding-bottom: 15px;
     background: #2d6cff;
     color: #fff;
     font-size: 24px;
-    gap: 10px;
     margin-bottom: 30px;
     border-bottom-right-radius: 30px;
     border-bottom-left-radius: 30px;
+}
+.button-group {
+    min-width: 620px;
+    width: 60%;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
 }
 #search-input{
     max-width: 200px;

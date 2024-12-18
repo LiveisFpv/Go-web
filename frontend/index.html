@@ -10,14 +10,16 @@
 <body>
     <header>
         <h1>GoWeDB</h1>
-        <input type="text" id="search-input" placeholder="Search...">
-        <button id="refresh-button">Refresh</button>
-        <button id="settings-button">Settings</button>
-        <button id="help-button">Help</button>
-        <button id="about-button">About</button>
-        <button id="logout-button">Logout</button>
-        <div id="user-info">
-            <img src="/frontend/image/user.png" alt="User">
+        <div class="button-group">
+            <input type="text" id="search-input" placeholder="Search...">
+            <button id="refresh-button">Refresh</button>
+            <button id="settings-button">Settings</button>
+            <button id="help-button">Help</button>
+            <button id="about-button">About</button>
+            <button id="logout-button">Logout</button>
+            <div id="user-info">
+                <img src="/frontend/image/user.png" alt="User">
+            </div>
         </div>
     </header>
     <main>
@@ -28,8 +30,10 @@
         <div class="table">
             <div id="table-controls">
                 <h1 id="table-name"></h1>
+                <div>
                 <button id="delete-button">Delete</button>
                 <button id="export-button">Export</button>
+                </div>
             </div>
             <div class="table">
                 <table id="table-data" border="1"></table>
