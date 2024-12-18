@@ -56,6 +56,17 @@ func (a *App) GetAllGroup(ctx context.Context) ([]*domain.Group, error) {
 	return groups, err
 }
 
+func (a *App) CreateGroup(ctx context.Context, group_name, Studies_direction_group,
+	Studies_profile_group string, Start_date_group time.Time, Studies_period_group uint8) (*domain.Group, error) {
+	group, err := a.repo.CreateGroup(ctx,
+		group_name,
+		Studies_direction_group,
+		Studies_profile_group,
+		Start_date_group,
+		Studies_period_group)
+	return group, err
+}
+
 // Обновление группы по имени
 func (a *App) UpdateGroupbyName(ctx context.Context, group_name, Studies_direction_group,
 	Studies_profile_group string, Start_date_group time.Time, Studies_period_group uint8) (*domain.Group, error) {
@@ -67,4 +78,11 @@ func (a *App) UpdateGroupbyName(ctx context.Context, group_name, Studies_directi
 		Studies_period_group,
 	)
 	return group, err
+}
+
+// Удаление группы по имени
+
+func (a *App) DeleteGroupByName(ctx context.Context, group_name string) error {
+	err := a.repo.DeleteGroupByName(ctx, group_name)
+	return err
 }

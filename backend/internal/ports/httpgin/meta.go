@@ -19,6 +19,20 @@ func getStudentMeta(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, meta)
 }
+
+func getGroupMeta(c *gin.Context) {
+	meta := gin.H{
+		"data": []map[string]interface{}{
+			{"name": "name_group", "type": "text", "required": true},
+			{"name": "", "type": "text", "required": true},
+			{"name": "", "type": "text", "required": true},
+			{"name": "", "type": "text", "required": true},
+			{"name": "", "type": "number", "required": true},
+		},
+	}
+	c.JSON(http.StatusOK, meta)
+}
+
 func getTables(c *gin.Context) {
 	tables := []string{
 		"student",

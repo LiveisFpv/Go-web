@@ -34,6 +34,19 @@ function loadTableData(tableName) {
             // Заголовки таблицы
             const thead = document.createElement("thead");
             const headerRow = document.createElement("tr");
+            // Чекбокс для выбора всех элементов
+            const selectAllTh = document.createElement("th");
+            const selectAllCheckbox = document.createElement("input");
+            selectAllCheckbox.type = "checkbox";
+            selectAllCheckbox.id = "select-all";
+            selectAllCheckbox.onclick = function() {
+                const checkboxes = document.querySelectorAll('.row-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
+            };
+            selectAllTh.appendChild(selectAllCheckbox);
+            headerRow.appendChild(selectAllTh);
 
             // Делаем заголовки на основе ключей первого объекта в массиве данных
             if (data.data.length > 0) {
@@ -55,6 +68,8 @@ function loadTableData(tableName) {
             const tbody = document.createElement("tbody");
             // Кнопка добавления новой записи
             const rowElement = document.createElement("tr");
+            const td = document.createElement("td");
+                rowElement.appendChild(td);
             for (const _ in data.data[0]) {
                 const td = document.createElement("td");
                 rowElement.appendChild(td);
@@ -68,10 +83,19 @@ function loadTableData(tableName) {
             addTd.appendChild(addButton);
             rowElement.appendChild(addTd);
             tbody.appendChild(rowElement);
+            
             //Заносим полученные данные через Json в таблицу
             data.data.forEach(row => {
                 const rowElement = document.createElement("tr");
 
+                // Чекбокс для выбора записи для удаления
+                const checkboxTd = document.createElement("td");
+                const rowCheckbox = document.createElement("input");
+                rowCheckbox.type = "checkbox";
+                rowCheckbox.classList.add("row-checkbox");
+                checkboxTd.appendChild(rowCheckbox);
+                rowElement.appendChild(checkboxTd);
+                
                 // Заполнение строк таблицы данными
                 Object.values(row).forEach(cell => {
                     const td = document.createElement("td");

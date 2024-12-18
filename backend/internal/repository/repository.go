@@ -35,4 +35,7 @@ type Repository interface {
 	GetAllGroup(ctx context.Context) ([]*domain.Group, error)
 	UpdateGroupbyName(ctx context.Context, group_name, Studies_direction_group,
 		Studies_profile_group string, Start_date_group time.Time, Studies_period_group uint8) (*domain.Group, error)
+	CreateGroup(ctx context.Context, group_name, Studies_direction_group,
+		Studies_profile_group string, Start_date_group time.Time, Studies_period_group uint8) (*domain.Group, error)
+	DeleteGroupByName(ctx context.Context, group_name string) error
 }
