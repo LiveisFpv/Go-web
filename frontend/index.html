@@ -6,6 +6,11 @@
     <title>GoWeDB</title>
     <link rel="stylesheet" href="/frontend/static/style.css"> 
     <script src="/frontend/static/script.js" defer></script>
+    <script src="/frontend/static/export.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="/frontend/font/Roboto-Regular.js"> </script>
 </head>
 <body>
     <header>
@@ -18,7 +23,7 @@
             <button id="about-button">About</button>
             <button id="logout-button">Logout</button>
             <div id="user-info">
-                <img src="/frontend/image/user.png" alt="User">
+                <img src="/frontend/image/logo.jpg" alt="User">
             </div>
         </div>
     </header>
@@ -32,7 +37,7 @@
                 <h1 id="table-name"></h1>
                 <div class="nav-group">
                     <button id="delete-button">Delete</button>
-                    <button id="export-button">Export</button>
+                    <button id="export-button" onclick="exportToPDF()">Export</button>
                     <nav aria-label="pagination">
                         <ul id="pagination">
                         </ul>
@@ -43,6 +48,7 @@
                 <form id="filters-form"></form>
                 <table id="table-data" border="1"></table>
             </div>
+            <canvas id="reportChart" width="400" height="200"></canvas>
         </div>
     </main>
     <div id="edit-modal">

@@ -48,8 +48,8 @@ header {
     align-items: center;
 }
 #user-info img{
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     background: #f2f2f2;
 }
@@ -179,7 +179,9 @@ th{
     background: #7fa4fa;
     border: #2d6cff 1px solid ;
 }
-
+#reportChart{
+    display: none;
+}
 
 .hidden {
     display: none;
