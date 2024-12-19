@@ -88,12 +88,19 @@ func getAllStudent(c *gin.Context, a *app.App) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(err))
 		return
 	}
-	students, err := a.GetAllStudent(c)
+	// Собираем фильтры (все параметры, кроме page)
+	filters := make(map[string]string)
+	for key, value := range c.Request.URL.Query() {
+		if key != "page" {
+			filters[key] = value[0] // берем первое значение фильтра
+		}
+	}
+	students, count, err := a.GetAllStudent(c, filters, rowCount, page)
 	if err != nil {
 		c.JSON(http.StatusForbidden, ErrorResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, AllStudentSuccessResponse(students, rowCount, page))
+	c.JSON(http.StatusOK, AllStudentSuccessResponse(students, rowCount, page, count))
 }
 
 func createGroup(c *gin.Context, a *app.App) {

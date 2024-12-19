@@ -75,20 +75,27 @@ func ErrorResponse(err error) *gin.H {
 		"error": err.Error(),
 	}
 }
+func AllSuccessResponse(data ResponseData, pages int) *gin.H {
+	return &gin.H{
+		"data":  data,
+		"pages": pages,
+		"error": nil,
+	}
+}
+func Filter[R any](items []R, filter func(R) bool) []R {
+	result := make([]R, 0, len(items))
+	for _, item := range items {
+		if filter(item) {
+			result = append(result, item)
+		}
+	}
+	return result
+}
 
 // Универсальная функция для преобразования и пагинации
 func Paginate[T any, R any](items []T, countRow, page int, mapper func(T) R) []R {
-	start := (page - 1) * countRow
-	end := page * countRow
-	if start >= len(items) {
-		return []R{}
-	}
-	if end > len(items) {
-		end = len(items)
-	}
-
-	result := make([]R, 0, end-start)
-	for _, item := range items[start:end] {
+	result := make([]R, 0, countRow)
+	for _, item := range items {
 		result = append(result, mapper(item))
 	}
 	return result
@@ -131,9 +138,9 @@ func StudentSuccessResponse(student *domain.Student) *gin.H {
 	return SuccessResponse(mapStudentToResponse(student))
 }
 
-func AllStudentSuccessResponse(students []*domain.Student, countRow, page int) *gin.H {
+func AllStudentSuccessResponse(students []*domain.Student, countRow, page, count int) *gin.H {
 	data := Paginate(students, countRow, page, mapStudentToResponse)
-	return SuccessResponse(data)
+	return AllSuccessResponse(data, getPages(count, countRow))
 }
 
 func GroupSuccessResponse(group *domain.Group) *gin.H {
@@ -142,7 +149,7 @@ func GroupSuccessResponse(group *domain.Group) *gin.H {
 
 func AllGroupSuccessResponse(groups []*domain.Group, countRow, page int) *gin.H {
 	data := Paginate(groups, countRow, page, mapGroupToResponse)
-	return SuccessResponse(data)
+	return AllSuccessResponse(data, 1)
 }
 
 func MarkSuccessResponse(mark *domain.Mark) *gin.H {
@@ -151,5 +158,13 @@ func MarkSuccessResponse(mark *domain.Mark) *gin.H {
 
 func AllMarkSuccessResponse(marks []*domain.Mark, countRow, page int) *gin.H {
 	data := Paginate(marks, countRow, page, mapMarkToResponse)
-	return SuccessResponse(data)
+	return AllSuccessResponse(data, 1)
+}
+
+func getPages(count, countRow int) int {
+	pages := count / countRow
+	if count%countRow != 0 {
+		pages++
+	}
+	return pages
 }

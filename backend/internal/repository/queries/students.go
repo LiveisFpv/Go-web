@@ -25,12 +25,20 @@ func (q *Queries) FindStudentByID(ctx context.Context, id uint64) (*domain.Stude
 	return student, nil
 }
 
-const getAllStudent = `SELECT * FROM student`
-
-func (q *Queries) GetAllStudent(ctx context.Context) ([]*domain.Student, error) {
-	rows, err := q.pool.Query(ctx, getAllStudent)
+func (q *Queries) GetAllStudent(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Student, int, error) {
+	getAllStudent := `SELECT * FROM student WHERE 1=1`
+	countQuery := `SELECT COUNT(*) FROM student WHERE 1=1`
+	var args []interface{}
+	for key, value := range filters {
+		getAllStudent += fmt.Sprintf(" AND %s = $%d", key, len(args)+1)
+		countQuery += fmt.Sprintf(" AND %s = $%d", key, len(args)+1)
+		args = append(args, value)
+	}
+	offset := (page - 1) * rowCount
+	getAllStudent += fmt.Sprintf(" LIMIT %d OFFSET %d", rowCount, offset)
+	rows, err := q.pool.Query(ctx, getAllStudent, args...)
 	if err != nil {
-		return nil, fmt.Errorf("can't query students: %w", err)
+		return nil, 0, fmt.Errorf("can't query students: %w", err)
 	}
 	defer rows.Close()
 	students := []*domain.Student{}
@@ -44,14 +52,22 @@ func (q *Queries) GetAllStudent(ctx context.Context) ([]*domain.Student, error) 
 			&student.Second_name_student,
 			&student.Surname_student)
 		if err != nil {
-			return nil, fmt.Errorf("can't scan students: %w", err)
+			return nil, 0, fmt.Errorf("can't scan students: %w", err)
 		}
 		students = append(students, student)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return students, nil
+
+	// Получаем общее количество строк без пагинации
+	var count int
+	err = q.pool.QueryRow(ctx, countQuery, args...).Scan(&count)
+	if err != nil {
+		return nil, 0, fmt.Errorf("can't count students: %w", err)
+	}
+
+	return students, count, nil
 }
 func (q *Queries) CreateStudent(ctx context.Context, id_num_student uint64, name_group, email_student, second_name_student,
 	first_name_student, surname_student string) (*domain.Student, error) {

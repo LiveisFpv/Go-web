@@ -20,10 +20,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-async function loadTableData(tableName,page=1) {
+async function loadTableData(tableName,page=1,filters = {}) {
     try {
+        const filterParams = new URLSearchParams(filters).toString(); // Преобразуем фильтры в строку параметров
+        const url = `${options}/api/v1/${tableName}/?page=${page}${filterParams ? '&' + filterParams : ''}`;
+        console.log(url)
         const [dataResponse, metadataResponse] = await Promise.all([
-            fetch(`${options}/api/v1/${tableName}/?page=${page}`),
+            fetch(url),
             fetch(`${options}/api/v1/${tableName}/metadata`)
         ]);
 
@@ -34,18 +37,62 @@ async function loadTableData(tableName,page=1) {
         const tableNameElement = document.getElementById("table-name");
         tableNameElement.textContent = capitalizeWords(tableName);
         tableData.innerHTML = "";
-
+        // Создаем фильтры на основе метаданных
+        if (Object.keys(filters).length == 0) {
+            createFilters(metadata.data);  // Добавляем фильтры 
+        }
         if (data.data.length > 0) {
             createTableHeader(tableData, data.data[0], metadata.data);
-            createTableBody(tableData, data.data, metadata.data, tableName);
-            paginationLoad(tableName, page, metadata.pages);
+            createTableBody(tableData, data.data, metadata.data, tableName,page,filters);
+            paginationLoad(tableName, page, data.pages,filters);
         }
     } catch (error) {
         console.error("Error loading table data:", error);
     }
 }
 
-async function paginationLoad(tableName,pageStart, countPages){
+// Функция для динамического создания фильтров
+async function createFilters(metadata) {
+    const filterContainer = document.getElementById("filters-form");
+    filterContainer.innerHTML = ""; // Очищаем старые фильтры
+
+    const filters = {}; // Это объект для хранения фильтров
+
+    metadata.forEach(column => {
+        if (column.filterable !== false) {
+            const filterDiv = document.createElement("div");
+            const label = document.createElement("label");
+            label.textContent = capitalizeWords(column.name.replace(/_/g, " "));
+            const input = document.createElement("input");
+            input.type = column.type || "text"; // Используем текстовый input по умолчанию
+            input.id = `filter-${column.name}`;
+            // if (column.required) {
+            //     input.required = true; // Добавляем валидацию для обязательных полей
+            // }
+            // Сохраняем фильтры в объект
+            input.addEventListener("input", () => {
+                filters[column.name] = input.value;
+            });
+
+            filterDiv.appendChild(label);
+            filterDiv.appendChild(input);
+            filterContainer.appendChild(filterDiv);
+        }
+    });
+
+    // Кнопка применения фильтров
+    const applyButton = document.createElement("button");
+    applyButton.textContent = "Apply Filters";
+    applyButton.addEventListener("click", async (event) => applyFilters(filters,event));
+    filterContainer.appendChild(applyButton);
+}
+function applyFilters(filters,event) {
+    event.preventDefault();
+    const tableName = document.getElementById("table-name").textContent.toLowerCase();
+    loadTableData(tableName, 1, filters); // Перезагружаем таблицу с фильтрами
+}
+
+async function paginationLoad(tableName,pageStart, countPages,filters){
     if (countPages>0){
         const paginationContainer = document.getElementById("pagination");
         paginationContainer.innerHTML = "";
@@ -57,7 +104,7 @@ async function paginationLoad(tableName,pageStart, countPages){
         pageLink.href = "";
         pageLink.addEventListener("click", async (event) => {
             event.preventDefault();
-            await loadTableData(tableName, 1);
+            await loadTableData(tableName, 1,filters);
             // Убираем aria-current у всех ссылок
             const currentLink = paginationContainer.querySelector('a[aria-current="page"]');
             if (currentLink) {
@@ -77,7 +124,7 @@ async function paginationLoad(tableName,pageStart, countPages){
             pageLink.href = "";
             pageLink.addEventListener("click", async (event) => {
                 event.preventDefault();
-                await loadTableData(tableName, i);
+                await loadTableData(tableName, i, filters);
                 document.getElementById(`page-${i}`).setAttribute("aria-current", "page");
                 document.getElementById(`page-${i-1}`).removeAttribute("aria-current");
             });
@@ -93,7 +140,7 @@ async function paginationLoad(tableName,pageStart, countPages){
         pageLink.href = "";
         pageLink.addEventListener("click", async (event) => {
             event.preventDefault();
-            await loadTableData(tableName, countPages);
+            await loadTableData(tableName, countPages,filters);
             // Убираем aria-current у всех ссылок
             const currentLink = paginationContainer.querySelector('a[aria-current="page"]');
             if (currentLink) {
@@ -135,7 +182,7 @@ function createTableHeader(tableData, sampleRow, metadata) {
     tableData.appendChild(thead);
 }
 
-function createTableBody(tableData, rows, metadata, tableName) {
+function createTableBody(tableData, rows, metadata, tableName,page,filters) {
     const tbody = document.createElement("tbody");
     // Кнопка добавления новой записи
     const addRowElement = document.createElement("tr");
@@ -150,7 +197,7 @@ function createTableBody(tableData, rows, metadata, tableName) {
     const addButton = document.createElement("button");
     addButton.textContent = "Add";
     addButton.onclick = async function () {
-        await openAddModalWithMetadata(tableName);
+        await openAddModalWithMetadata(tableName,page,filters);
     };
     addTd.appendChild(addButton);
     addRowElement.appendChild(addTd);
@@ -189,9 +236,9 @@ function createTableBody(tableData, rows, metadata, tableName) {
         editButton.onclick = async function () {
             const table = document.getElementById("table");
             if (table.scrollWidth > table.clientWidth) {
-                await openEditModal(row, tableName);
+                await openEditModal(row, tableName,page,filters);
             } else {
-                await enableInlineEditing(row, tableName);
+                await enableInlineEditing(row, tableName,page,filters);
             }
         };
         editTd.appendChild(editButton);
@@ -203,7 +250,7 @@ function createTableBody(tableData, rows, metadata, tableName) {
     tableData.appendChild(tbody);
 }
 
-async function enableInlineEditing(row, tableName) {
+async function enableInlineEditing(row, tableName,page,filters) {
     try {
         // Получаем метаинформацию
         const response = await fetch(`${options}/api/v1/${tableName}/metadata`);
@@ -253,13 +300,13 @@ async function enableInlineEditing(row, tableName) {
                 }
             });
             await updateRow(tableName, updatedData);
-            loadTableData(tableName);
+            loadTableData(tableName,page,filters);
         }
-        const cancelButton = createButton("Cancel", () => loadTableData(tableName));
+        const cancelButton = createButton("Cancel", () => loadTableData(tableName,page,filters));
         actionsTd.append(saveButton, cancelButton);
         rowElement.appendChild(actionsTd);
     } catch (error) {
-        loadTableData(tableName);
+        loadTableData(tableName,page,filters);
         console.error("Error enabling inline editing:", error);
     }
 }
@@ -290,7 +337,7 @@ function createButton(text, onClick) {
 function capitalizeWords(string) {
     return string.replace(/\b\w/g, char => char.toUpperCase());
 }
-async function openAddModalWithMetadata(tableName) {
+async function openAddModalWithMetadata(tableName,page,filters) {
     try {
         // Получаем метаинформацию
         const response = await fetch(`${options}/api/v1/${tableName}/metadata`);
@@ -357,7 +404,7 @@ async function openAddModalWithMetadata(tableName) {
                 }
                 alert("Record added successfully");
                 modal.style.display = "none";
-                loadTableData(tableName);
+                loadTableData(tableName,page,filters);
             }
             document.getElementById("add-close-modal").onclick = function () {
                 modal.style.display = "none";
@@ -368,13 +415,13 @@ async function openAddModalWithMetadata(tableName) {
                 }
             };
     } catch (error) {
-        loadTableData(tableName);
+        loadTableData(tableName,page,filters);
         console.error("Error opening add modal:", error);
     }
 }
 
 // Открыть модальное окно с данными для редактирования
-async function openEditModal(rowData, tableName) {
+async function openEditModal(rowData, tableName,page,filters) {
     try{
         const modal = document.getElementById("edit-modal");
 
@@ -450,7 +497,7 @@ async function openEditModal(rowData, tableName) {
                 } else {
                     alert("Record deleted successfully");
                     modal.style.display = "none";
-                    loadTableData(tableName);
+                    loadTableData(tableName,page,filters);
                 }
 
             };
@@ -460,7 +507,7 @@ async function openEditModal(rowData, tableName) {
         modal.style.display = "block";
 
         // Обработчик отправки формы
-        submitButton.onclick = async function (event) {
+        submitButton.onsubmit = async function (event) {
             event.preventDefault(); // Останавливаем обычную отправку формы
 
             const updatedData = {};
@@ -475,10 +522,10 @@ async function openEditModal(rowData, tableName) {
             // Отправка данных на сервер
             await updateRow(tableName, updatedData);
             modal.style.display = "none";
-            loadTableData(tableName);
+            loadTableData(tableName,page,filters);
         };
     } catch (error) {
-        loadTableData(tableName);
+        loadTableData(tableName,page,filters);
         console.error("Error opening add modal:", error);
     };
 }

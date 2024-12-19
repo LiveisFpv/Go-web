@@ -28,9 +28,9 @@ func (a *App) GetStudentbyID(ctx context.Context, student_id uint64) (*domain.St
 }
 
 // Получение всех студентов из таблицы
-func (a *App) GetAllStudent(ctx context.Context) ([]*domain.Student, error) {
-	students, err := a.repo.GetAllStudent(ctx)
-	return students, err
+func (a *App) GetAllStudent(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Student, int, error) {
+	students, count, err := a.repo.GetAllStudent(ctx, filters, rowCount, page)
+	return students, count, err
 }
 
 // Добавление нового студента в таблицу
