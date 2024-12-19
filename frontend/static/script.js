@@ -20,10 +20,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-async function loadTableData(tableName) {
+async function loadTableData(tableName,page=1) {
     try {
         const [dataResponse, metadataResponse] = await Promise.all([
-            fetch(`${options}/api/v1/${tableName}`),
+            fetch(`${options}/api/v1/${tableName}/?page=${page}`),
             fetch(`${options}/api/v1/${tableName}/metadata`)
         ]);
 
@@ -204,7 +204,7 @@ async function enableInlineEditing(row, tableName) {
 
 async function updateRow(tableName, data) {
     try {
-        const response = await fetch(`${options}/api/v1/${tableName}`, {
+        const response = await fetch(`${options}/api/v1/${tableName}/`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
@@ -278,7 +278,7 @@ async function openAddModalWithMetadata(tableName) {
                             data[input.id] = input.value; // Оставляем строку
                     }
                 });
-                const response = await fetch(`${options}/api/v1/${tableName}`,{
+                const response = await fetch(`${options}/api/v1/${tableName}/`,{
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -372,7 +372,7 @@ async function openEditModal(rowData, tableName) {
                 }
             });
             if (confirm("Are you sure you want to delete this record?")) {
-                const response = await fetch(`${options}/api/v1/${tableName}`, {
+                const response = await fetch(`${options}/api/v1/${tableName}/`, {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",

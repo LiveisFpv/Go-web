@@ -85,12 +85,20 @@ func deleteStudentbyID(c *gin.Context, a *app.App) {
 }
 
 func getAllStudent(c *gin.Context, a *app.App) {
+	var rowCount int
+	param := c.Query("page")
+	page, err := strconv.Atoi(param)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
+		return
+	}
+	rowCount = 12
 	students, err := a.GetAllStudent(c)
 	if err != nil {
 		c.JSON(http.StatusForbidden, StudentErrorResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, AllStudentSuccessResponse(students))
+	c.JSON(http.StatusOK, AllStudentSuccessResponse(students, rowCount, page))
 }
 
 func createGroup(c *gin.Context, a *app.App) {
@@ -147,10 +155,19 @@ func deleteGroupbyName(c *gin.Context, a *app.App) {
 }
 
 func getAllGroup(c *gin.Context, a *app.App) {
+	var page int
+	var rowCount int
+	param := c.Query("page")
+	page, err := strconv.Atoi(param)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
+		return
+	}
+	rowCount = 12
 	groups, err := a.GetAllGroup(c)
 	if err != nil {
 		c.JSON(http.StatusForbidden, GroupErrorResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, AllGroupSuccessResponse(groups))
+	c.JSON(http.StatusOK, AllGroupSuccessResponse(groups, rowCount, page))
 }

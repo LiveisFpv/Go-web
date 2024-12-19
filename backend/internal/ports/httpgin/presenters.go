@@ -37,20 +37,25 @@ func StudentSuccessResponse(student *domain.Student) *gin.H {
 		"error": nil,
 	}
 }
-func AllStudentSuccessResponse(students []*domain.Student) *gin.H {
+func AllStudentSuccessResponse(students []*domain.Student, countRow, page int) *gin.H {
 	data := []studentResponse{}
-	for _, student := range students {
-		data = append(data, studentResponse{
-			Id_num_student:      student.Id_num_student,
-			Name_group:          student.Name_group,
-			Email_student:       student.Email_student,
-			Second_name_student: student.Second_name_student,
-			First_name_student:  student.First_name_student,
-			Surname_student:     student.Surname_student,
-		})
+	for i, student := range students {
+		if i >= (page)*countRow {
+			break
+		} else if i >= (page-1)*countRow {
+			data = append(data, studentResponse{
+				Id_num_student:      student.Id_num_student,
+				Name_group:          student.Name_group,
+				Email_student:       student.Email_student,
+				Second_name_student: student.Second_name_student,
+				First_name_student:  student.First_name_student,
+				Surname_student:     student.Surname_student,
+			})
+		}
 	}
 	return &gin.H{
 		"data":  data,
+		"page":  page,
 		"error": nil,
 	}
 }
@@ -89,16 +94,20 @@ func GroupSuccessResponse(group *domain.Group) *gin.H {
 		"error": nil,
 	}
 }
-func AllGroupSuccessResponse(group []*domain.Group) *gin.H {
+func AllGroupSuccessResponse(group []*domain.Group, countRow, page int) *gin.H {
 	data := []groupResponse{}
-	for _, group := range group {
-		data = append(data, groupResponse{
-			Name_group:              group.Name_group,
-			Studies_direction_group: group.Studies_direction_group,
-			Studies_profile_group:   group.Studies_profile_group,
-			Start_date_group:        group.Start_date_group,
-			Studies_period_group:    group.Studies_period_group,
-		})
+	for i, group := range group {
+		if i >= (page)*countRow {
+			break
+		} else if i >= (page-1)*countRow {
+			data = append(data, groupResponse{
+				Name_group:              group.Name_group,
+				Studies_direction_group: group.Studies_direction_group,
+				Studies_profile_group:   group.Studies_profile_group,
+				Start_date_group:        group.Start_date_group,
+				Studies_period_group:    group.Studies_period_group,
+			})
+		}
 	}
 	return &gin.H{
 		"data":  data,

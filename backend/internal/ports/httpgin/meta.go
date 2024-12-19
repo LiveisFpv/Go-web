@@ -1,12 +1,22 @@
 package httpgin
 
 import (
+	"backend/internal/app"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func getStudentMeta(c *gin.Context) {
+func getStudentMeta(c *gin.Context, a *app.App) {
+	count, err := a.GetCountRows(c, "student")
+	if err != nil {
+		meta := gin.H{
+			"data":  nil,
+			"error": err,
+		}
+		c.JSON(http.StatusForbidden, meta)
+		return
+	}
 	meta := gin.H{
 		"data": []map[string]interface{}{
 			{"name": "id_num_student", "type": "number", "required": true, "unique": true},
@@ -16,11 +26,22 @@ func getStudentMeta(c *gin.Context) {
 			{"name": "first_name_student", "type": "text", "required": true, "unique": false},
 			{"name": "surname_student", "type": "text", "required": false, "unique": false},
 		},
+		"count": count,
+		"error": err,
 	}
 	c.JSON(http.StatusOK, meta)
 }
 
-func getGroupMeta(c *gin.Context) {
+func getGroupMeta(c *gin.Context, a *app.App) {
+	count, err := a.GetCountRows(c, "group")
+	if err != nil {
+		meta := gin.H{
+			"data":  nil,
+			"error": err,
+		}
+		c.JSON(http.StatusForbidden, meta)
+		return
+	}
 	meta := gin.H{
 		"data": []map[string]interface{}{
 			{"name": "name_group", "type": "text", "required": true, "unique": true},
@@ -29,6 +50,8 @@ func getGroupMeta(c *gin.Context) {
 			{"name": "start_date_group", "type": "text", "required": true, "unique": false},
 			{"name": "studies_period_group", "type": "number", "required": true, "unique": false},
 		},
+		"count": count,
+		"error": err,
 	}
 	c.JSON(http.StatusOK, meta)
 }

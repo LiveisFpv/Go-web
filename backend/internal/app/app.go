@@ -16,6 +16,11 @@ func NewApp(repo repository.Repository) *App {
 	return &App{repo: repo}
 }
 
+func (a *App) GetCountRows(ctx context.Context, tableName string) (int, error) {
+	count, err := a.repo.GetCountRows(ctx, tableName)
+	return count, err
+}
+
 // Получение студента по ID
 func (a *App) GetStudentbyID(ctx context.Context, student_id uint64) (*domain.Student, error) {
 	student, err := a.repo.FindStudentByID(ctx, student_id)

@@ -25,6 +25,7 @@ func NewRepository(pgxPool *pgxpool.Pool, logger logrus.FieldLogger) Repository 
 }
 
 type Repository interface {
+	GetCountRows(ctx context.Context, TableName string) (int, error)
 	FindStudentByID(ctx context.Context, id uint64) (*domain.Student, error)
 	GetAllStudent(ctx context.Context) ([]*domain.Student, error)
 	CreateStudent(ctx context.Context, id_num_student uint64, name_group, email_student, second_name_student,
