@@ -35,14 +35,14 @@ type Repository interface {
 		first_name_student, surname_student string) (*domain.Student, error)
 	DeleteStudentbyID(ctx context.Context, id_num_student uint64) error
 
-	GetAllGroup(ctx context.Context) ([]*domain.Group, error)
+	GetAllGroup(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Group, int, error)
 	UpdateGroupbyName(ctx context.Context, group_name, Studies_direction_group,
 		Studies_profile_group string, Start_date_group mytype.JsonDate, Studies_period_group uint8) (*domain.Group, error)
 	CreateGroup(ctx context.Context, group_name, Studies_direction_group,
 		Studies_profile_group string, Start_date_group mytype.JsonDate, Studies_period_group uint8) (*domain.Group, error)
 	DeleteGroupByName(ctx context.Context, group_name string) error
 
-	GetAllMark(ctx context.Context) ([]*domain.Mark, error)
+	GetAllMark(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Mark, int, error)
 	CreateMark(ctx context.Context, id_mark, id_num_student int64,
 		lesson_name_mark, name_semester string, score_mark int8, type_mark string) (*domain.Mark, error)
 	UpdateMarkByID(ctx context.Context, id_mark, id_num_student int64,

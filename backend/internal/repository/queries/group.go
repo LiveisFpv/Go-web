@@ -59,11 +59,14 @@ func (q *Queries) DeleteGroupByName(ctx context.Context, name string) error {
 	return nil
 }
 
-func (q *Queries) GetAllGroup(ctx context.Context) ([]*domain.Group, error) {
-	sqlStatement := `SELECT * FROM "group"`
-	rows, err := q.pool.Query(ctx, sqlStatement)
+func (q *Queries) GetAllGroup(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Group, int, error) {
+	getAll := `SELECT * FROM "group" WHERE 1=1`
+	countQuery := `SELECT COUNT(*) FROM "group" WHERE 1=1`
+	var args []interface{}
+	getAll, countQuery, args = UnpackFilter(ctx, getAll, countQuery, filters, rowCount, page)
+	rows, err := q.pool.Query(ctx, getAll, args...)
 	if err != nil {
-		return nil, fmt.Errorf("can't query groups: %w", err)
+		return nil, 0, fmt.Errorf("can't query groups: %w", err)
 	}
 	defer rows.Close()
 
@@ -79,9 +82,18 @@ func (q *Queries) GetAllGroup(ctx context.Context) ([]*domain.Group, error) {
 			&group.Studies_period_group,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("can't scan groups: %w", err)
+			return nil, 0, fmt.Errorf("can't scan groups: %w", err)
 		}
 		groups = append(groups, group)
 	}
-	return groups, nil
+	if err = rows.Err(); err != nil {
+		return nil, 0, err
+	}
+	// Получаем общее количество строк без пагинации
+	var count int
+	err = q.pool.QueryRow(ctx, countQuery, args...).Scan(&count)
+	if err != nil {
+		return nil, 0, fmt.Errorf("can't count group: %w", err)
+	}
+	return groups, count, nil
 }

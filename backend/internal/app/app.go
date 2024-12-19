@@ -56,9 +56,9 @@ func (a *App) DeleteStudentbyID(ctx context.Context, id_num_student uint64) erro
 }
 
 // Получение всех групп из таблицы
-func (a *App) GetAllGroup(ctx context.Context) ([]*domain.Group, error) {
-	groups, err := a.repo.GetAllGroup(ctx)
-	return groups, err
+func (a *App) GetAllGroup(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Group, int, error) {
+	groups, count, err := a.repo.GetAllGroup(ctx, filters, rowCount, page)
+	return groups, count, err
 }
 
 func (a *App) CreateGroup(ctx context.Context, group_name, Studies_direction_group,
@@ -91,9 +91,9 @@ func (a *App) DeleteGroupByName(ctx context.Context, group_name string) error {
 	return err
 }
 
-func (a *App) GetAllMark(ctx context.Context) ([]*domain.Mark, error) {
-	marks, err := a.repo.GetAllMark(ctx)
-	return marks, err
+func (a *App) GetAllMark(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Mark, int, error) {
+	marks, count, err := a.repo.GetAllMark(ctx, filters, rowCount, page)
+	return marks, count, err
 }
 
 func (a *App) CreateMark(ctx context.Context, id_mark, id_num_student int64,

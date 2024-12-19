@@ -138,7 +138,7 @@ func StudentSuccessResponse(student *domain.Student) *gin.H {
 	return SuccessResponse(mapStudentToResponse(student))
 }
 
-func AllStudentSuccessResponse(students []*domain.Student, countRow, page, count int) *gin.H {
+func AllStudentSuccessResponse(students []*domain.Student, countRow, count, page int) *gin.H {
 	data := Paginate(students, countRow, page, mapStudentToResponse)
 	return AllSuccessResponse(data, getPages(count, countRow))
 }
@@ -147,18 +147,18 @@ func GroupSuccessResponse(group *domain.Group) *gin.H {
 	return SuccessResponse(mapGroupToResponse(group))
 }
 
-func AllGroupSuccessResponse(groups []*domain.Group, countRow, page int) *gin.H {
+func AllGroupSuccessResponse(groups []*domain.Group, countRow, count, page int) *gin.H {
 	data := Paginate(groups, countRow, page, mapGroupToResponse)
-	return AllSuccessResponse(data, 1)
+	return AllSuccessResponse(data, getPages(count, countRow))
 }
 
 func MarkSuccessResponse(mark *domain.Mark) *gin.H {
 	return SuccessResponse(mapMarkToResponse(mark))
 }
 
-func AllMarkSuccessResponse(marks []*domain.Mark, countRow, page int) *gin.H {
+func AllMarkSuccessResponse(marks []*domain.Mark, countRow, count, page int) *gin.H {
 	data := Paginate(marks, countRow, page, mapMarkToResponse)
-	return AllSuccessResponse(data, 1)
+	return AllSuccessResponse(data, getPages(count, countRow))
 }
 
 func getPages(count, countRow int) int {

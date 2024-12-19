@@ -29,13 +29,7 @@ func (q *Queries) GetAllStudent(ctx context.Context, filters map[string]string, 
 	getAllStudent := `SELECT * FROM student WHERE 1=1`
 	countQuery := `SELECT COUNT(*) FROM student WHERE 1=1`
 	var args []interface{}
-	for key, value := range filters {
-		getAllStudent += fmt.Sprintf(" AND %s = $%d", key, len(args)+1)
-		countQuery += fmt.Sprintf(" AND %s = $%d", key, len(args)+1)
-		args = append(args, value)
-	}
-	offset := (page - 1) * rowCount
-	getAllStudent += fmt.Sprintf(" LIMIT %d OFFSET %d", rowCount, offset)
+	getAllStudent, countQuery, args = UnpackFilter(ctx, getAllStudent, countQuery, filters, rowCount, page)
 	rows, err := q.pool.Query(ctx, getAllStudent, args...)
 	if err != nil {
 		return nil, 0, fmt.Errorf("can't query students: %w", err)

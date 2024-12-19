@@ -22,11 +22,14 @@ func (q *Queries) GetMarkByID(ctx context.Context, id int64) (*domain.Mark, erro
 	}
 	return mark, nil
 }
-func (q *Queries) GetAllMark(ctx context.Context) ([]*domain.Mark, error) {
-	sqlStatement := `SELECT * FROM "mark"`
-	rows, err := q.pool.Query(ctx, sqlStatement)
+func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Mark, int, error) {
+	getAll := `SELECT * FROM mark WHERE 1=1`
+	countQuery := `SELECT COUNT(*) FROM mark WHERE 1=1`
+	var args []interface{}
+	getAll, countQuery, args = UnpackFilter(ctx, getAll, countQuery, filters, rowCount, page)
+	rows, err := q.pool.Query(ctx, getAll, args...)
 	if err != nil {
-		return nil, fmt.Errorf("can't query mark: %w", err)
+		return nil, 0, fmt.Errorf("can't query mark: %w", err)
 	}
 	defer rows.Close()
 
@@ -43,11 +46,16 @@ func (q *Queries) GetAllMark(ctx context.Context) ([]*domain.Mark, error) {
 			&mark.Type_mark,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("can't scan marks: %w", err)
+			return nil, 0, fmt.Errorf("can't scan marks: %w", err)
 		}
 		marks = append(marks, mark)
 	}
-	return marks, nil
+	var count int
+	err = q.pool.QueryRow(ctx, countQuery, args...).Scan(&count)
+	if err != nil {
+		return nil, 0, fmt.Errorf("can't count marks: %w", err)
+	}
+	return marks, count, nil
 }
 func (q *Queries) CreateMark(ctx context.Context, id_mark, id_num_student int64,
 	lesson_name_mark, name_semester string, score_mark int8, type_mark string) (*domain.Mark, error) {
