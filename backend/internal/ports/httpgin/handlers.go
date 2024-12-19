@@ -11,6 +11,8 @@ import (
 	"backend/internal/domain"
 )
 
+const rowCount = 10
+
 func getStudentbyID(c *gin.Context, a *app.App) {
 	studentId, err := strconv.Atoi(c.Param("student_id"))
 	if err != nil {
@@ -85,14 +87,12 @@ func deleteStudentbyID(c *gin.Context, a *app.App) {
 }
 
 func getAllStudent(c *gin.Context, a *app.App) {
-	var rowCount int
 	param := c.Query("page")
 	page, err := strconv.Atoi(param)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
 		return
 	}
-	rowCount = 12
 	students, err := a.GetAllStudent(c)
 	if err != nil {
 		c.JSON(http.StatusForbidden, StudentErrorResponse(err))
@@ -155,15 +155,13 @@ func deleteGroupbyName(c *gin.Context, a *app.App) {
 }
 
 func getAllGroup(c *gin.Context, a *app.App) {
-	var page int
-	var rowCount int
 	param := c.Query("page")
 	page, err := strconv.Atoi(param)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, StudentErrorResponse(err))
 		return
 	}
-	rowCount = 12
+
 	groups, err := a.GetAllGroup(c)
 	if err != nil {
 		c.JSON(http.StatusForbidden, GroupErrorResponse(err))

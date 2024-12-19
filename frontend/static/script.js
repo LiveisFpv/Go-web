@@ -38,9 +38,71 @@ async function loadTableData(tableName,page=1) {
         if (data.data.length > 0) {
             createTableHeader(tableData, data.data[0], metadata.data);
             createTableBody(tableData, data.data, metadata.data, tableName);
+            paginationLoad(tableName, page, metadata.pages);
         }
     } catch (error) {
         console.error("Error loading table data:", error);
+    }
+}
+
+async function paginationLoad(tableName,pageStart, countPages){
+    if (countPages>0){
+        const paginationContainer = document.getElementById("pagination");
+        paginationContainer.innerHTML = "";
+        
+        //Созадем переход на первую страницу
+        let pageLi= document.createElement("li");
+        let pageLink = document.createElement("a");
+        pageLink.innerHTML = "&laquo;";
+        pageLink.href = "";
+        pageLink.addEventListener("click", async (event) => {
+            event.preventDefault();
+            await loadTableData(tableName, 1);
+            // Убираем aria-current у всех ссылок
+            const currentLink = paginationContainer.querySelector('a[aria-current="page"]');
+            if (currentLink) {
+                currentLink.removeAttribute("aria-current");
+            }
+            document.getElementById(`page-${1}`).setAttribute("aria-current", "page");
+        });
+        pageLi.appendChild(pageLink);
+        paginationContainer.appendChild(pageLi);
+
+        //Создаем кнопки для пагинации с нумерами страниц
+        for (let i = Math.max(1,pageStart-1); i <= Math.min(pageStart+1,countPages); i++) {
+            const pageLi= document.createElement("li");
+            const pageLink = document.createElement("a");
+            pageLink.id = `page-${i}`
+            pageLink.textContent = i;
+            pageLink.href = "";
+            pageLink.addEventListener("click", async (event) => {
+                event.preventDefault();
+                await loadTableData(tableName, i);
+                document.getElementById(`page-${i}`).setAttribute("aria-current", "page");
+                document.getElementById(`page-${i-1}`).removeAttribute("aria-current");
+            });
+            pageLi.appendChild(pageLink);
+            paginationContainer.appendChild(pageLi);
+        }
+        document.getElementById(`page-${pageStart}`).setAttribute("aria-current", "page");
+        
+        //Созадем переход на последнюю страницу
+        pageLi= document.createElement("li");
+        pageLink = document.createElement("a");
+        pageLink.innerHTML = "&raquo;";
+        pageLink.href = "";
+        pageLink.addEventListener("click", async (event) => {
+            event.preventDefault();
+            await loadTableData(tableName, countPages);
+            // Убираем aria-current у всех ссылок
+            const currentLink = paginationContainer.querySelector('a[aria-current="page"]');
+            if (currentLink) {
+                currentLink.removeAttribute("aria-current");
+            }
+            document.getElementById(`page-${countPages}`).setAttribute("aria-current", "page");
+        });
+        pageLi.appendChild(pageLink);
+        paginationContainer.appendChild(pageLi);
     }
 }
 

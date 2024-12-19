@@ -30,21 +30,24 @@
         <div class="table">
             <div id="table-controls">
                 <h1 id="table-name"></h1>
-                <nav>
+                <div class="nav-group">
                     <button id="delete-button">Delete</button>
                     <button id="export-button">Export</button>
-                    <ul class="pagination">
-                      <li class="page-item">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                      </li>
-                      <li class="page-item"><a class="page-link" href="#">1</a></li>
-                      <li class="page-item"><a class="page-link" href="#">2</a></li>
-                      <li class="page-item"><a class="page-link" href="#">3</a></li>
-                      <li class="page-item">
-                        <a class="page-link" href="#">Next</a>
-                      </li>
-                    </ul>
-                </nav>
+                    <nav aria-label="pagination">
+                        <ul id="pagination">
+                          <li>
+                            <a href="">
+                              &laquo;
+                            </a>
+                          </li>
+                          <li>
+                            <a href="">
+                             &raquo;
+                            </a>
+                          </li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
             <div id="table">
                 <table id="table-data" border="1"></table>

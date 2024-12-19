@@ -2,10 +2,13 @@ package httpgin
 
 import (
 	"backend/internal/app"
+	"math"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
+
+const countrows = 10
 
 func getStudentMeta(c *gin.Context, a *app.App) {
 	count, err := a.GetCountRows(c, "student")
@@ -26,7 +29,7 @@ func getStudentMeta(c *gin.Context, a *app.App) {
 			{"name": "first_name_student", "type": "text", "required": true, "unique": false},
 			{"name": "surname_student", "type": "text", "required": false, "unique": false},
 		},
-		"count": count,
+		"pages": math.Ceil(float64(count) / countrows),
 		"error": err,
 	}
 	c.JSON(http.StatusOK, meta)
@@ -50,7 +53,7 @@ func getGroupMeta(c *gin.Context, a *app.App) {
 			{"name": "start_date_group", "type": "text", "required": true, "unique": false},
 			{"name": "studies_period_group", "type": "number", "required": true, "unique": false},
 		},
-		"count": count,
+		"pages": math.Ceil(float64(count) / countrows),
 		"error": err,
 	}
 	c.JSON(http.StatusOK, meta)
