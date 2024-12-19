@@ -2,9 +2,9 @@ package app
 
 import (
 	"backend/internal/domain"
+	"backend/internal/mytype"
 	"backend/internal/repository"
 	"context"
-	"time"
 )
 
 type App struct {
@@ -62,7 +62,7 @@ func (a *App) GetAllGroup(ctx context.Context) ([]*domain.Group, error) {
 }
 
 func (a *App) CreateGroup(ctx context.Context, group_name, Studies_direction_group,
-	Studies_profile_group string, Start_date_group time.Time, Studies_period_group uint8) (*domain.Group, error) {
+	Studies_profile_group string, Start_date_group mytype.JsonDate, Studies_period_group uint8) (*domain.Group, error) {
 	group, err := a.repo.CreateGroup(ctx,
 		group_name,
 		Studies_direction_group,
@@ -74,7 +74,7 @@ func (a *App) CreateGroup(ctx context.Context, group_name, Studies_direction_gro
 
 // Обновление группы по имени
 func (a *App) UpdateGroupbyName(ctx context.Context, group_name, Studies_direction_group,
-	Studies_profile_group string, Start_date_group time.Time, Studies_period_group uint8) (*domain.Group, error) {
+	Studies_profile_group string, Start_date_group mytype.JsonDate, Studies_period_group uint8) (*domain.Group, error) {
 	group, err := a.repo.UpdateGroupbyName(ctx,
 		group_name,
 		Studies_direction_group,
@@ -88,5 +88,40 @@ func (a *App) UpdateGroupbyName(ctx context.Context, group_name, Studies_directi
 // Удаление группы по имени
 func (a *App) DeleteGroupByName(ctx context.Context, group_name string) error {
 	err := a.repo.DeleteGroupByName(ctx, group_name)
+	return err
+}
+
+func (a *App) GetAllMark(ctx context.Context) ([]*domain.Mark, error) {
+	marks, err := a.repo.GetAllMark(ctx)
+	return marks, err
+}
+
+func (a *App) CreateMark(ctx context.Context, id_mark, id_num_student int64,
+	lesson_name_mark, name_semester string, score_mark int8, type_mark string) (*domain.Mark, error) {
+	mark, err := a.repo.CreateMark(ctx,
+		id_mark,
+		id_num_student,
+		lesson_name_mark,
+		name_semester,
+		score_mark,
+		type_mark,
+	)
+	return mark, err
+}
+func (a *App) UpdateMarkByID(ctx context.Context, id_mark, id_num_student int64,
+	lesson_name_mark, name_semester string, score_mark int8, type_mark string) (*domain.Mark, error) {
+	mark, err := a.repo.UpdateMarkByID(ctx,
+		id_mark,
+		id_num_student,
+		lesson_name_mark,
+		name_semester,
+		score_mark,
+		type_mark,
+	)
+	return mark, err
+}
+
+func (a *App) DeleteMarkByID(ctx context.Context, id_mark int64) error {
+	err := a.repo.DeleteMarkByID(ctx, id_mark)
 	return err
 }

@@ -50,8 +50,33 @@ func getGroupMeta(c *gin.Context, a *app.App) {
 			{"name": "name_group", "type": "text", "required": true, "unique": true},
 			{"name": "studies_direction_group", "type": "text", "required": true, "unique": false},
 			{"name": "studies_profile_group", "type": "text", "required": true, "unique": false},
-			{"name": "start_date_group", "type": "text", "required": true, "unique": false},
+			{"name": "start_date_group", "type": "date", "required": true, "unique": false},
 			{"name": "studies_period_group", "type": "number", "required": true, "unique": false},
+		},
+		"pages": math.Ceil(float64(count) / countrows),
+		"error": err,
+	}
+	c.JSON(http.StatusOK, meta)
+}
+
+func getMarkMeta(c *gin.Context, a *app.App) {
+	count, err := a.GetCountRows(c, "mark")
+	if err != nil {
+		meta := gin.H{
+			"data":  nil,
+			"error": err,
+		}
+		c.JSON(http.StatusForbidden, meta)
+		return
+	}
+	meta := gin.H{
+		"data": []map[string]interface{}{
+			{"name": "id_mark", "type": "number", "required": true, "unique": true},
+			{"name": "id_num_student", "type": "number", "required": true, "unique": false},
+			{"name": "name_semester", "type": "text", "required": true, "unique": false},
+			{"name": "lesson_name_mark", "type": "text", "required": true, "unique": false},
+			{"name": "score_mark", "type": "number", "required": true, "unique": false},
+			{"name": "type_mark", "type": "text", "required": true, "unique": false},
 		},
 		"pages": math.Ceil(float64(count) / countrows),
 		"error": err,

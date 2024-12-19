@@ -11,6 +11,7 @@ func AppRouter(r *gin.RouterGroup, a *app.App) {
 	r.GET("/tables", func(c *gin.Context) { getTables(c) })
 	r.GET("/student/metadata", func(c *gin.Context) { getStudentMeta(c, a) })
 	r.GET("/group/metadata", func(c *gin.Context) { getGroupMeta(c, a) })
+	r.GET("/mark/metadata", func(c *gin.Context) { getMarkMeta(c, a) })
 
 	//Запросы на получение и редактирование таблиц
 	r.GET("/student/:student_id", func(c *gin.Context) { getStudentbyID(c, a) })
@@ -25,4 +26,13 @@ func AppRouter(r *gin.RouterGroup, a *app.App) {
 	r.DELETE("/group/", func(c *gin.Context) { deleteGroupbyName(c, a) })
 	r.GET("/group/", func(c *gin.Context) { getAllGroup(c, a) })
 
+	r.POST("/mark/", func(c *gin.Context) { createMark(c, a) })
+	r.PUT("/mark/", func(c *gin.Context) { updateMarkbyID(c, a) })
+	r.DELETE("/mark/", func(c *gin.Context) { deleteMarkbyID(c, a) })
+	r.GET("/mark/", func(c *gin.Context) { getAllMark(c, a) })
+
+	// r.POST("/mark/", func(c *gin.Context) { createScholarship(c, a) })
+	// r.PUT("/mark/", func(c *gin.Context) { updateScholarshipbyID(c, a) })
+	// r.DELETE("/mark/", func(c *gin.Context) { deleteScholarshipbyID(c, a) })
+	// r.GET("/mark/", func(c *gin.Context) { getAllScholarship(c, a) })
 }
