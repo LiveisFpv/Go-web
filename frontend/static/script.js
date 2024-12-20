@@ -386,7 +386,7 @@ async function openAddModalWithMetadata(tableName,page,filters) {
                 const input = document.createElement("input");
                 input.type = column.type;
                 input.id = column.name;
-                if (column.required) {
+                if (column.required && !column.id) {
                     input.required = true;
                 }
                 div.appendChild(label);
