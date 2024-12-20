@@ -187,8 +187,8 @@ func createMark(c *gin.Context, a *app.App) {
 	mark, err := a.CreateMark(c,
 		reqBody.Id_mark,
 		reqBody.Id_num_student,
-		reqBody.Lesson_name_mark,
 		reqBody.Name_semester,
+		reqBody.Lesson_name_mark,
 		reqBody.Score_mark,
 		reqBody.Type_mark)
 	if err != nil {
@@ -207,8 +207,8 @@ func updateMarkbyID(c *gin.Context, a *app.App) {
 	mark, err := a.UpdateMarkByID(c,
 		reqBody.Id_mark,
 		reqBody.Id_num_student,
-		reqBody.Lesson_name_mark,
 		reqBody.Name_semester,
+		reqBody.Lesson_name_mark,
 		reqBody.Score_mark,
 		reqBody.Type_mark)
 	if err != nil {

@@ -40,8 +40,8 @@ func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, row
 		err := rows.Scan(
 			&mark.Id_mark,
 			&mark.Id_num_student,
-			&mark.Lesson_name_mark,
 			&mark.Name_semester,
+			&mark.Lesson_name_mark,
 			&mark.Score_mark,
 			&mark.Type_mark,
 		)
@@ -58,9 +58,9 @@ func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, row
 	return marks, count, nil
 }
 func (q *Queries) CreateMark(ctx context.Context, id_mark, id_num_student int64,
-	lesson_name_mark, name_semester string, score_mark int8, type_mark string) (*domain.Mark, error) {
-	sqlStatement := `INSERT INTO "mark" (id_mark, id_num_student, lesson_name_mark, name_semester, score_mark, type_mark) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_mark`
-	row := q.pool.QueryRow(ctx, sqlStatement, id_mark, id_num_student, lesson_name_mark, name_semester, score_mark, type_mark)
+	name_semester, lesson_name_mark string, score_mark int8, type_mark string) (*domain.Mark, error) {
+	sqlStatement := `INSERT INTO "mark" (id_mark, id_num_student,  name_semester,lesson_name_mark, score_mark, type_mark) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_mark`
+	row := q.pool.QueryRow(ctx, sqlStatement, id_mark, id_num_student, name_semester, lesson_name_mark, score_mark, type_mark)
 	var id int64
 	err := row.Scan(&id)
 	if err != nil {
@@ -73,9 +73,9 @@ func (q *Queries) CreateMark(ctx context.Context, id_mark, id_num_student int64,
 	return mark, nil
 }
 func (q *Queries) UpdateMarkByID(ctx context.Context, id_mark, id_num_student int64,
-	lesson_name_mark, name_semester string, score_mark int8, type_mark string) (*domain.Mark, error) {
-	sqlStatement := `UPDATE "mark" SET id_num_student=$2, lesson_name_mark=$3, name_semester=$4, score_mark=$5, type_mark=$6 WHERE id_mark=$1 RETURNING id_mark`
-	row := q.pool.QueryRow(ctx, sqlStatement, id_mark, id_num_student, lesson_name_mark, name_semester, score_mark, type_mark)
+	name_semester, lesson_name_mark string, score_mark int8, type_mark string) (*domain.Mark, error) {
+	sqlStatement := `UPDATE "mark" SET id_num_student=$2, name_semester=$3, lesson_name_mark=$4, score_mark=$5, type_mark=$6 WHERE id_mark=$1 RETURNING id_mark`
+	row := q.pool.QueryRow(ctx, sqlStatement, id_mark, id_num_student, name_semester, lesson_name_mark, score_mark, type_mark)
 	var id int64
 	err := row.Scan(&id)
 	if err != nil {
