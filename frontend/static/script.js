@@ -19,11 +19,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Error loading tables:", error);
     }
 });
-
+function openFilter(){
+    const filterContainer = document.getElementById("filters-form");
+    if (filterContainer.style.display=="none"){
+        filterContainer.style.display="block";
+    } else {
+        filterContainer.style.display="none";
+    }
+}
 async function loadTableData(tableName,page=1,filters = {}) {
     try {
         const filterParams = new URLSearchParams(filters).toString(); // Преобразуем фильтры в строку параметров
-        const url = `${options}/api/v1/${tableName}/?page=${page}${filterParams ? '&' + filterParams : ''}`;
+        try{
+        search=document.getElementById("search-input").value; //Получаем данные из строки
+        } catch{
+            search='';
+        }
+        const url = `${options}/api/v1/${tableName}/?page=${page}${filterParams ? '&' + filterParams : ''}&search=${search}`;
         console.log(url)
         const [dataResponse, metadataResponse] = await Promise.all([
             fetch(url),
@@ -42,7 +54,7 @@ async function loadTableData(tableName,page=1,filters = {}) {
             createFilters(metadata.data);  // Добавляем фильтры 
         }
         if (data.data.length > 0) {
-            createTableHeader(tableData, data.data[0], metadata.data);
+            createTableHeader(tableData, metadata.data);
             createTableBody(tableData, data.data, metadata.data, tableName,page,filters);
             paginationLoad(tableName, page, data.pages,filters);
         }
@@ -54,8 +66,8 @@ async function loadTableData(tableName,page=1,filters = {}) {
 // Функция для динамического создания фильтров
 async function createFilters(metadata) {
     const filterContainer = document.getElementById("filters-form");
-    filterContainer.innerHTML = ""; // Очищаем старые фильтры
-
+    filterContainer.innerHTML = `<input type="text" id="search-input" placeholder="Search...">`; // Очищаем старые фильтры
+    
     const filters = {}; // Это объект для хранения фильтров
 
     metadata.forEach(column => {
@@ -73,7 +85,9 @@ async function createFilters(metadata) {
             input.addEventListener("input", () => {
                 filters[column.name] = input.value;
             });
-
+            if (column.id){
+                filterDiv.style.display ="none";
+            }
             filterDiv.appendChild(label);
             filterDiv.appendChild(input);
             filterContainer.appendChild(filterDiv);
@@ -153,7 +167,7 @@ async function paginationLoad(tableName,pageStart, countPages,filters){
     }
 }
 
-function createTableHeader(tableData, sampleRow, metadata) {
+function createTableHeader(tableData, data) {
     const thead = document.createElement("thead");
     const headerRow = document.createElement("tr");
 
@@ -168,10 +182,13 @@ function createTableHeader(tableData, sampleRow, metadata) {
     selectAllTh.appendChild(selectAllCheckbox);
     headerRow.appendChild(selectAllTh);
 
-    Object.keys(sampleRow).forEach(key => {
+    data.forEach(column => {
         const th = document.createElement("th");
-        th.textContent = capitalizeWords(key.replace(/_/g, " "));
+        th.textContent = capitalizeWords(column.name.replace(/_/g, " "));
         headerRow.appendChild(th);
+        if (column.id==true){
+            th.classList.add("hide-column");
+        }
     });
 
     const actionsTh = document.createElement("th");
@@ -188,11 +205,13 @@ function createTableBody(tableData, rows, metadata, tableName,page,filters) {
     const addRowElement = document.createElement("tr");
     const emptyTd = document.createElement("td");
     addRowElement.appendChild(emptyTd);
-    
-    for (const _ in rows[0]) {
+    metadata.forEach(column => {
         const td = document.createElement("td");
+        if (column.id==true){
+            td.classList.add("hide-column");
+        }
         addRowElement.appendChild(td);
-    }
+    })
     const addTd = document.createElement("td");
     const addButton = document.createElement("button");
     addButton.textContent = "Add";
@@ -221,12 +240,14 @@ function createTableBody(tableData, rows, metadata, tableName,page,filters) {
         checkbox.classList.add("row-checkbox");
         checkboxTd.appendChild(checkbox);
         rowElement.appendChild(checkboxTd);
-
-        Object.values(row).forEach(cell => {
+        metadata.forEach(column => {
             const td = document.createElement("td");
-            td.textContent = cell;
+            td.textContent = row[column.name];
+            if (column.id==true){
+                td.classList.add("hide-column");
+            }
             rowElement.appendChild(td);
-        });
+        })
 
         // Кнопка редактирования
         const editTd = document.createElement("td");
@@ -279,6 +300,9 @@ async function enableInlineEditing(row, tableName,page,filters) {
             if (column.required) {
                 input.required = true; // Добавляем валидацию для обязательных полей
             }
+            if (column.id==true){
+                td.classList.add("hide-column");
+            }
             td.appendChild(input);
             rowElement.appendChild(td);
         });
@@ -287,7 +311,7 @@ async function enableInlineEditing(row, tableName,page,filters) {
         const actionsTd = document.createElement("td");
         const saveButton = document.createElement("button");
             saveButton.textContent = "Save";
-        saveButton.onclick = async function () {
+        saveButton.onclick = async function (event) {
             const updatedData = {};
             event.preventDefault();
             // Заполняем данные для отправки, основываясь на метаинформации
@@ -349,7 +373,12 @@ async function openAddModalWithMetadata(tableName,page,filters) {
             // Создаем поля формы на основе метаинформации
             metadata.data.forEach(column => {
                 const div = document.createElement("div");
-                div.classList.add("card");
+                if (column.id != true){
+                    div.classList.add("card");
+                }
+                else{
+                    div.style.display = "none";
+                }
 
                 const label = document.createElement("label");
                 label.textContent = column.name.replace(/_/g, " ").replace(/\b\w/g, char => char.toUpperCase());
@@ -444,7 +473,12 @@ async function openEditModal(rowData, tableName,page,filters) {
         form.innerHTML = ""; // Очищаем форму перед добавлением новых полей
         metadata.data.forEach(column => {
             const div = document.createElement("div");
-            div.classList.add("card");
+            if (column.id != true){
+                div.classList.add("card");
+            }
+            else{
+                div.style.display = "none";
+            }
 
             const label = document.createElement("label");
             label.textContent = capitalizeWords(column.name.replace(/_/g, " "));

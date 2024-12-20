@@ -22,9 +22,13 @@ func (q *Queries) GetMarkByID(ctx context.Context, id int64) (*domain.Mark, erro
 	}
 	return mark, nil
 }
-func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Mark, int, error) {
+func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Mark, int, error) {
 	getAll := `SELECT * FROM mark WHERE 1=1`
 	countQuery := `SELECT COUNT(*) FROM mark WHERE 1=1`
+	if search != "" {
+		getAll += ` AND (lesson_name_mark ILIKE '%` + search + `%' OR name_semester ILIKE '%` + search + `%' OR type_mark ILIKE '%` + search + `%')`
+		countQuery += ` AND (lesson_name_mark ILIKE '%` + search + `%' OR name_semester ILIKE '%` + search + `%' OR type_mark ILIKE '%` + search + `%')`
+	}
 	var args []interface{}
 	getAll, countQuery, args = UnpackFilter(ctx, getAll, countQuery, filters, rowCount, page)
 	rows, err := q.pool.Query(ctx, getAll, args...)

@@ -59,9 +59,13 @@ func (q *Queries) DeleteGroupByName(ctx context.Context, name string) error {
 	return nil
 }
 
-func (q *Queries) GetAllGroup(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Group, int, error) {
+func (q *Queries) GetAllGroup(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Group, int, error) {
 	getAll := `SELECT * FROM "group" WHERE 1=1`
 	countQuery := `SELECT COUNT(*) FROM "group" WHERE 1=1`
+	if search != "" {
+		getAll += ` AND (name_group ILIKE '%` + search + `%' OR studies_direction_group ILIKE '%` + search + `%' OR studies_profile_group ILIKE '%` + search + `%')`
+		countQuery += ` AND (name_group ILIKE '%` + search + `%' OR studies_direction_group ILIKE '%` + search + `%' OR studies_profile_group ILIKE '%` + search + `%')`
+	}
 	var args []interface{}
 	getAll, countQuery, args = UnpackFilter(ctx, getAll, countQuery, filters, rowCount, page)
 	rows, err := q.pool.Query(ctx, getAll, args...)

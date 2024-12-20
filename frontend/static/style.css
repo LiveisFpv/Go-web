@@ -36,9 +36,8 @@ header {
     align-items: center;
 }
 #search-input{
-    max-width: 200px;
-    min-width: 100px;
     padding: 10px;
+    margin-bottom: 5px;
     border: none;
     border-radius: 5px;
     background: #f2f2f2;
@@ -135,6 +134,19 @@ nav {
     display: flex;
     justify-content: center;
     margin-right: 15px;
+}
+#filters-form{
+    display:none;
+    margin-left: 40%;
+    padding:20px;
+    margin-right: 20px;
+    border: #2d6cff 1px solid;
+    border-radius: 20px;
+    background: #7fa4fa;
+    font-family:Calibri,sans-serif;
+}
+#filters-form input{
+    margin-bottom: 5px;
 }
 #pagination {
     list-style: none;
@@ -277,3 +289,4 @@ button:hover{
     right: 25px;
     font-family: sans-serif;
 }
+.hide-column { display: none; }

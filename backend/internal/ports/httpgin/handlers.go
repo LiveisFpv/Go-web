@@ -88,14 +88,17 @@ func getAllStudent(c *gin.Context, a *app.App) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(err))
 		return
 	}
+	search := c.Query("search")
 	// Собираем фильтры (все параметры, кроме page)
 	filters := make(map[string]string)
 	for key, value := range c.Request.URL.Query() {
-		if key != "page" {
-			filters[key] = value[0] // берем первое значение фильтра
+		if key != "page" && key != "search" {
+			if len(value[0]) > 0 {
+				filters[key] = value[0] // берем первое значение фильтра
+			}
 		}
 	}
-	students, count, err := a.GetAllStudent(c, filters, rowCount, page)
+	students, count, err := a.GetAllStudent(c, filters, rowCount, page, search)
 	if err != nil {
 		c.JSON(http.StatusForbidden, ErrorResponse(err))
 		return
@@ -163,14 +166,19 @@ func getAllGroup(c *gin.Context, a *app.App) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(err))
 		return
 	}
+	search := c.Query("search")
+	if search != "" {
+	}
 	// Собираем фильтры (все параметры, кроме page)
 	filters := make(map[string]string)
 	for key, value := range c.Request.URL.Query() {
-		if key != "page" {
-			filters[key] = value[0] // берем первое значение фильтра
+		if key != "page" && key != "search" {
+			if len(value[0]) > 0 {
+				filters[key] = value[0] // берем первое значение фильтра
+			}
 		}
 	}
-	groups, count, err := a.GetAllGroup(c, filters, rowCount, page)
+	groups, count, err := a.GetAllGroup(c, filters, rowCount, page, search)
 	if err != nil {
 		c.JSON(http.StatusForbidden, ErrorResponse(err))
 		return
@@ -239,14 +247,19 @@ func getAllMark(c *gin.Context, a *app.App) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(err))
 		return
 	}
+	search := c.Query("search")
+	if search != "" {
+	}
 	// Собираем фильтры (все параметры, кроме page)
 	filters := make(map[string]string)
 	for key, value := range c.Request.URL.Query() {
-		if key != "page" {
-			filters[key] = value[0] // берем первое значение фильтра
+		if key != "page" && key != "search" {
+			if len(value[0]) > 0 {
+				filters[key] = value[0] // берем первое значение фильтра
+			}
 		}
 	}
-	marks, count, err := a.GetAllMark(c, filters, rowCount, page)
+	marks, count, err := a.GetAllMark(c, filters, rowCount, page, search)
 	if err != nil {
 		c.JSON(http.StatusForbidden, ErrorResponse(err))
 		return

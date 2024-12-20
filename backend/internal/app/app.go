@@ -28,8 +28,8 @@ func (a *App) GetStudentbyID(ctx context.Context, student_id uint64) (*domain.St
 }
 
 // Получение всех студентов из таблицы
-func (a *App) GetAllStudent(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Student, int, error) {
-	students, count, err := a.repo.GetAllStudent(ctx, filters, rowCount, page)
+func (a *App) GetAllStudent(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Student, int, error) {
+	students, count, err := a.repo.GetAllStudent(ctx, filters, rowCount, page, search)
 	return students, count, err
 }
 
@@ -56,8 +56,8 @@ func (a *App) DeleteStudentbyID(ctx context.Context, id_num_student uint64) erro
 }
 
 // Получение всех групп из таблицы
-func (a *App) GetAllGroup(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Group, int, error) {
-	groups, count, err := a.repo.GetAllGroup(ctx, filters, rowCount, page)
+func (a *App) GetAllGroup(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Group, int, error) {
+	groups, count, err := a.repo.GetAllGroup(ctx, filters, rowCount, page, search)
 	return groups, count, err
 }
 
@@ -91,8 +91,8 @@ func (a *App) DeleteGroupByName(ctx context.Context, group_name string) error {
 	return err
 }
 
-func (a *App) GetAllMark(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Mark, int, error) {
-	marks, count, err := a.repo.GetAllMark(ctx, filters, rowCount, page)
+func (a *App) GetAllMark(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Mark, int, error) {
+	marks, count, err := a.repo.GetAllMark(ctx, filters, rowCount, page, search)
 	return marks, count, err
 }
 

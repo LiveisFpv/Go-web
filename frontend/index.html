@@ -16,7 +16,6 @@
     <header>
         <h1>GoWeDB</h1>
         <div class="button-group">
-            <input type="text" id="search-input" placeholder="Search...">
             <button id="refresh-button">Refresh</button>
             <button id="settings-button">Settings</button>
             <button id="help-button">Help</button>
@@ -38,10 +37,12 @@
                 <div class="nav-group">
                     <button id="delete-button">Delete</button>
                     <button id="export-button" onclick="exportToPDF()">Export</button>
+                    
                     <nav aria-label="pagination">
                         <ul id="pagination">
                         </ul>
                     </nav>
+                    <button id="hamburger" onclick="openFilter()">☰</button>
                 </div>
             </div>
             <form id="filters-form"></form>

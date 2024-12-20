@@ -15,8 +15,8 @@ func (q *Queries) FindStudentByID(ctx context.Context, id uint64) (*domain.Stude
 	err := row.Scan(&student.Id_num_student,
 		&student.Name_group,
 		&student.Email_student,
-		&student.First_name_student,
 		&student.Second_name_student,
+		&student.First_name_student,
 		&student.Surname_student)
 	if err != nil {
 		return nil, fmt.Errorf("can't scan students: %w", err)
@@ -25,9 +25,13 @@ func (q *Queries) FindStudentByID(ctx context.Context, id uint64) (*domain.Stude
 	return student, nil
 }
 
-func (q *Queries) GetAllStudent(ctx context.Context, filters map[string]string, rowCount, page int) ([]*domain.Student, int, error) {
+func (q *Queries) GetAllStudent(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Student, int, error) {
 	getAllStudent := `SELECT * FROM student WHERE 1=1`
 	countQuery := `SELECT COUNT(*) FROM student WHERE 1=1`
+	if search != "" {
+		getAllStudent += ` AND (name_group ILIKE '%` + search + `%' OR email_student ILIKE '%` + search + `%' OR second_name_student ILIKE '%` + search + `%' OR first_name_student ILIKE '%` + search + `%' OR surname_student ILIKE '%` + search + `%')`
+		countQuery += ` AND (name_group ILIKE '%` + search + `%' OR email_student ILIKE '%` + search + `%' OR second_name_student ILIKE '%` + search + `%' OR first_name_student ILIKE '%` + search + `%' OR surname_student ILIKE '%` + search + `%')`
+	}
 	var args []interface{}
 	getAllStudent, countQuery, args = UnpackFilter(ctx, getAllStudent, countQuery, filters, rowCount, page)
 	rows, err := q.pool.Query(ctx, getAllStudent, args...)
@@ -42,8 +46,8 @@ func (q *Queries) GetAllStudent(ctx context.Context, filters map[string]string, 
 			&student.Id_num_student,
 			&student.Name_group,
 			&student.Email_student,
-			&student.First_name_student,
 			&student.Second_name_student,
+			&student.First_name_student,
 			&student.Surname_student)
 		if err != nil {
 			return nil, 0, fmt.Errorf("can't scan students: %w", err)
