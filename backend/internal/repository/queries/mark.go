@@ -63,8 +63,8 @@ func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, row
 }
 func (q *Queries) CreateMark(ctx context.Context, id_mark, id_num_student int64,
 	name_semester, lesson_name_mark string, score_mark int8, type_mark string) (*domain.Mark, error) {
-	sqlStatement := `INSERT INTO "mark" (id_mark, id_num_student,  name_semester,lesson_name_mark, score_mark, type_mark) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_mark`
-	row := q.pool.QueryRow(ctx, sqlStatement, id_mark, id_num_student, name_semester, lesson_name_mark, score_mark, type_mark)
+	sqlStatement := `INSERT INTO "mark" (id_num_student,  name_semester,lesson_name_mark, score_mark, type_mark) VALUES ($1, $2, $3, $4, $5) RETURNING id_mark`
+	row := q.pool.QueryRow(ctx, sqlStatement, id_num_student, name_semester, lesson_name_mark, score_mark, type_mark)
 	var id int64
 	err := row.Scan(&id)
 	if err != nil {

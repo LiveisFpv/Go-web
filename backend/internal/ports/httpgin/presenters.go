@@ -23,6 +23,12 @@ type StudentRequest struct {
 	First_name_student  string `json:"first_name_student"`
 	Surname_student     string `json:"surname_student"`
 }
+type StudentDeleteRequest struct {
+	Ids_num_student []string `json:"ids"`
+}
+type GroupDeleteRequest struct {
+	Group_names []string `json:"ids"`
+}
 
 type groupResponse struct {
 	Name_group              string          `json:"name_group"`
@@ -55,6 +61,10 @@ type MarkRequest struct {
 	Lesson_name_mark string `json:"lesson_name_mark"`
 	Score_mark       int8   `json:"score_mark"`
 	Type_mark        string `json:"type_mark"`
+}
+
+type MarksDeleteRequest struct {
+	Ids_mark []string `json:"ids"`
 }
 
 // Общий интерфейс ответа

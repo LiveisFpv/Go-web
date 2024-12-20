@@ -80,6 +80,26 @@ func deleteStudentbyID(c *gin.Context, a *app.App) {
 	}
 	c.JSON(http.StatusOK, StudentSuccessResponse(&domain.Student{}))
 }
+func deleteStudents(c *gin.Context, a *app.App) {
+	var reqBody StudentDeleteRequest
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse(err))
+		return
+	}
+	for _, id := range reqBody.Ids_num_student {
+		id_num_student, err := strconv.Atoi(id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, ErrorResponse(err))
+			return
+		}
+		err = a.DeleteStudentbyID(c, uint64(id_num_student))
+		if err != nil {
+			c.JSON(http.StatusForbidden, ErrorResponse(err))
+			return
+		}
+	}
+	c.JSON(http.StatusOK, StudentSuccessResponse(&domain.Student{}))
+}
 
 func getAllStudent(c *gin.Context, a *app.App) {
 	param := c.Query("page")
@@ -155,6 +175,22 @@ func deleteGroupbyName(c *gin.Context, a *app.App) {
 	if err != nil {
 		c.JSON(http.StatusForbidden, ErrorResponse(err))
 		return
+	}
+	c.JSON(http.StatusOK, GroupSuccessResponse(&domain.Group{}))
+}
+
+func deleteGroups(c *gin.Context, a *app.App) {
+	var reqBody GroupDeleteRequest
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse(err))
+		return
+	}
+	for _, group_name := range reqBody.Group_names {
+		err := a.DeleteGroupByName(c, group_name)
+		if err != nil {
+			c.JSON(http.StatusForbidden, ErrorResponse(err))
+			return
+		}
 	}
 	c.JSON(http.StatusOK, GroupSuccessResponse(&domain.Group{}))
 }
@@ -236,6 +272,27 @@ func deleteMarkbyID(c *gin.Context, a *app.App) {
 	if err != nil {
 		c.JSON(http.StatusForbidden, ErrorResponse(err))
 		return
+	}
+	c.JSON(http.StatusOK, MarkSuccessResponse(&domain.Mark{}))
+}
+
+func deleteMarks(c *gin.Context, a *app.App) {
+	var reqBody MarksDeleteRequest
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse(err))
+		return
+	}
+	for _, id := range reqBody.Ids_mark {
+		id_mark, err := strconv.Atoi(id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, ErrorResponse(err))
+			return
+		}
+		err = a.DeleteMarkByID(c, int64(id_mark))
+		if err != nil {
+			c.JSON(http.StatusForbidden, ErrorResponse(err))
+			return
+		}
 	}
 	c.JSON(http.StatusOK, MarkSuccessResponse(&domain.Mark{}))
 }

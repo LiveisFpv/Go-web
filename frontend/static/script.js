@@ -1,4 +1,5 @@
 const options = "http://127.0.0.1:15432";
+let currentURL = "";
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -27,6 +28,71 @@ function openFilter(){
         filterContainer.style.display="none";
     }
 }
+async function deleteRows() {
+    tableName=document.getElementById("table-name").textContent.toLowerCase();
+    // Найти все отмеченные чекбоксы
+    const table=document.getElementById("table-data");
+    const selectedCheckboxes = table.querySelectorAll(".row-checkbox:checked");
+
+    // Получить идентификаторы строк
+    const idsToDelete = Array.from(selectedCheckboxes).map(checkbox => {
+        const row = checkbox.closest("tr");
+        return row.getAttribute("data-id");
+    }).filter(id => id !== null); // Убедиться, что id не пустой
+
+    if (idsToDelete.length === 0) {
+        alert("Please, select rows for remove.");
+        return;
+    }
+
+    // Отправить запрос на backend
+    try {
+        const response = await fetch(`${options}/api/v1/${tableName}/ids`, { // Замените '/api/deleteRows' на ваш реальный URL
+            method: 'Delete',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ids: idsToDelete }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error remove rows: ${response.statusText}`);
+        }
+        
+        await loadTableData(tableName); // Обновляем таблицу после удаления
+
+        alert("All rows deleted successfully");
+    } catch (error) {
+        console.error("Error remove rows:", error);
+        alert("Error remove rows.");
+    }
+}
+async function generatePDF() {
+    const jsonData = {
+        url: currentURL
+    };
+
+    const response = await fetch("http://localhost:5000/generate-pdf", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(jsonData)
+    });
+
+    if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "report.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    } else {
+        console.error("Failed to generate PDF");
+    }
+}
 async function loadTableData(tableName,page=1,filters = {}) {
     try {
         const filterParams = new URLSearchParams(filters).toString(); // Преобразуем фильтры в строку параметров
@@ -36,6 +102,7 @@ async function loadTableData(tableName,page=1,filters = {}) {
             search='';
         }
         const url = `${options}/api/v1/${tableName}/?page=${page}${filterParams ? '&' + filterParams : ''}&search=${search}`;
+        currentURL = url;
         console.log(url)
         const [dataResponse, metadataResponse] = await Promise.all([
             fetch(url),
