@@ -5,6 +5,8 @@ import (
 	"backend/internal/ports/httpgin"
 	"backend/internal/repository"
 	"context"
+	"fmt"
+	"os"
 
 	pgxLogrus "github.com/jackc/pgx-logrus"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -12,12 +14,30 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func getEnv(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
+}
+
 func main() {
+	//Парсим для подключения к БД
+	dbHost := getEnv("DB_HOST", "localhost")
+	dbPort := getEnv("DB_PORT", "5432")
+	dbUser := getEnv("DB_USER", "postgres")
+	dbPassword := getEnv("DB_PASSWORD", "0000")
+	dbName := getEnv("DB_NAME", "University_DB")
+
+	//Подключаемся к БД
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		dbUser, dbPassword, dbHost, dbPort, dbName)
+
 	logger := log.New()
 	logger.SetLevel(log.InfoLevel)
 	logger.SetFormatter(&log.TextFormatter{})
 
-	config, err := pgxpool.ParseConfig("postgres://postgres:0000@localhost:5432/University_DB")
+	config, err := pgxpool.ParseConfig(connStr)
 	if err != nil {
 		logger.WithError(err).Fatalf("can't parse pgxpool config")
 	}

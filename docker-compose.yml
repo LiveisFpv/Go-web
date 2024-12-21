@@ -1,0 +1,67 @@
+networks:
+  app-network:
+    driver: bridge
+services:
+  backend:
+    container_name: backend-go
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    networks:
+      - app-network
+    ports:
+      - "15432:15432"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=0000
+      - DB_NAME=University_DB
+    depends_on:
+      - db
+
+  backend-python:
+    container_name: backend-py
+    build:
+      context: .
+      dockerfile: backend-pdf/Dockerfile
+    networks:
+      - app-network
+    ports:
+      - "9000:9000"
+    depends_on:
+      - backend
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    environment:
+      - GO_HOST=backend-go
+      - PYTHON_HOST=backend-py
+    networks:
+      - app-network
+    ports:
+      - "14000:14000"
+    depends_on:
+      - backend
+      - backend-python
+
+  db:
+    image: postgres:16
+    container_name: postgres_db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=0000
+      - POSTGRES_DB=University_DB
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./server_conf/clone_db.sql:/docker-entrypoint-initdb.d/clone_db.sql
+    command: postgres -c password_encryption=md5
+
+volumes:
+  db_data:

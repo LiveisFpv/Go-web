@@ -6,21 +6,10 @@ FROM python:${PYTHON_VERSION}-slim as base
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-COPY . /app
-WORKDIR /app/server_conf
+WORKDIR /app
 
-# Создаем пользователя с домашним каталогом
-ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/home/appuser" \
-    --shell "/bin/bash" \
-    --uid "${UID}" \
-    appuser \
-    && chown -R appuser:appuser /home/appuser
+COPY backend-pdf ./
 
-# Устанавливаем зависимости
 RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -30,15 +19,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=server_conf/requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
-ENV HOME=/home/appuser
-
-# Переключаемся на пользователя
-USER appuser
 
 # Порт, используемый приложением
-EXPOSE 5000
-
-WORKDIR /app
+EXPOSE 9000
 
 # Запускаем приложение
-CMD ["python", "./backend-pdf/app.py"]
+CMD ["python", "./app.py"]

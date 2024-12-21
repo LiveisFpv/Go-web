@@ -1,4 +1,5 @@
 const options = "http://127.0.0.1:15432";
+const py_options = "http://127.0.0.1:9000";
 let currentURL = "";
 let currentTable = "";
 
@@ -70,11 +71,11 @@ async function deleteRows() {
 }
 async function generatePDF() {
     const jsonData = {
-        url: currentURL,
+        url: currentURL.replace('127.0.0.1','backend-go'),
         name: currentTable
     };
-
-    const response = await fetch("http://localhost:5000/generate-pdf", {
+    
+    const response = await fetch(`${py_options}/generate-pdf`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
