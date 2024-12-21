@@ -1,5 +1,6 @@
 const options = "http://127.0.0.1:15432";
 let currentURL = "";
+let currentTable = "";
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -69,7 +70,8 @@ async function deleteRows() {
 }
 async function generatePDF() {
     const jsonData = {
-        url: currentURL
+        url: currentURL,
+        name: currentTable
     };
 
     const response = await fetch("http://localhost:5000/generate-pdf", {
@@ -103,6 +105,7 @@ async function loadTableData(tableName,page=1,filters = {}) {
         }
         const url = `${options}/api/v1/${tableName}/?page=${page}${filterParams ? '&' + filterParams : ''}&search=${search}`;
         currentURL = url;
+        currentTable = tableName;
         console.log(url)
         const [dataResponse, metadataResponse] = await Promise.all([
             fetch(url),

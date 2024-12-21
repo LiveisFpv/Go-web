@@ -9,24 +9,45 @@ app = Flask(__name__)
 CORS(app)
 
 class PDF(FPDF):
-    def header(self):
-        self.set_font('DejaVu', 'B', 12)
-        self.cell(0, 10, 'Динамический Отчет', 0, 1, 'C')
 
-    def dynamic_table(self, data):
-        # Извлечение ключей из первой записи для создания заголовков таблицы
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('DejaVu', '', 8)
+        self.cell(0, 10, f'Страница {self.page_no()}', 0, 0, 'C')
+    
+    def dynamic_table(self, data, table_name):
+        # Заголовок таблицы
+        self.set_font('DejaVu', 'B', 14)
+        self.cell(0, 10, table_name, 0, 1, 'C')
+        self.ln(5)
+
+        # Отображение шапки таблицы
         headers = data[0].keys()
+        column_width = 45
+        line_height = 10
+
         self.set_font('DejaVu', 'B', 10)
+        self.set_fill_color(180, 180, 180)
+        self.set_text_color(255, 255, 255)
         for header in headers:
-            self.cell(40, 10, header.replace("_", " ").capitalize(), 1, 0, 'C')
+            self.cell(column_width, line_height, header.replace("_", " ").capitalize(), 1, 0, 'C', fill=True)
         self.ln()
 
-        # Заполнение данных
+        # Отображение данных таблицы
         self.set_font('DejaVu', '', 10)
+        self.set_text_color(0, 0, 0)
+        fill = False
+
         for row in data:
             for value in row.values():
-                self.cell(40, 10, str(value), 1, 0, 'C')
+                x = self.get_x()
+                y = self.get_y()
+                self.multi_cell(column_width, line_height, str(value), border=1, align='C', fill=fill)
+                self.set_xy(x + column_width, y)
             self.ln()
+            fill = not fill
+
+
 
 @app.route('/generate-pdf', methods=['POST'])
 def generate_pdf():
@@ -45,22 +66,30 @@ def generate_pdf():
     data = response.json()
 
     table_data = data["data"]
-    
+    table_name = request_data["name"].capitalize()
     # Генерация PDF
     pdf = PDF()
-    font_dir = os.path.join(os.path.dirname(__file__), 'font')
-    print(font_dir )
     # Подключение шрифта
     pdf.add_font('DejaVu', '', './font/DejaVuSans.ttf', uni=True)
     pdf.add_font('DejaVu', 'B', './font/DejaVuSans-Bold.ttf', uni=True)
     pdf.set_font('DejaVu', '', 12)
     pdf.add_page(orientation='L')
-    
-    pdf.dynamic_table(table_data)
+    pdf.dynamic_table(table_data,table_name)
+    url=request_data['url']
+    for i in range(1,int(data["pages"])):
+        # Получение следующей страницы
+        url=url.replace(f"page={i}",f"page={i+1}")
+        response = requests.get(f"{url}")
+        if response.status_code!= 200:
+            return jsonify({"error": f"Failed to retrieve data from API: {response.status_code}"}), 403
+        data=response.json()
+
+        table_data = data["data"]
+        pdf.add_page(orientation='L')
+        pdf.dynamic_table(table_data,table_name)
     
     # Использование BytesIO для сохранения PDF в памяти
     pdf_buffer = io.BytesIO()
-    # Теперь выводим в байтовый поток
     pdf_buffer.write(pdf.output(dest='S').encode('latin1'))  # 'S' возвращает строку, кодируем в 'latin1'
     pdf_buffer.seek(0)  # Устанавливаем указатель в начало
     return send_file(pdf_buffer, as_attachment=True, download_name="report.pdf", mimetype="application/pdf")
