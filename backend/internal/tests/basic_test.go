@@ -6,140 +6,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateAd(t *testing.T) {
+func TestCreateStudent(t *testing.T) {
 	client := getTestClient()
 
-	response, err := client.createAd(123, "hello", "world")
+	response, err := client.createStudent(1, "ПИ-22-1", "a@mail.ru", "test2", "test1", "test3")
 	assert.NoError(t, err)
-	assert.Zero(t, response.Data.ID)
-	assert.Equal(t, response.Data.Title, "hello")
-	assert.Equal(t, response.Data.Text, "world")
-	assert.Equal(t, response.Data.AuthorID, int64(123))
-	assert.False(t, response.Data.Published)
+	assert.Equal(t, response.Data.Id_num_student, int64(1))
+	assert.Equal(t, response.Data.Name_group, "ПИ-22-1")
+	assert.Equal(t, response.Data.Email_student, "a@mail.ru")
+	assert.Equal(t, response.Data.Second_name_student, "test2")
+	assert.Equal(t, response.Data.First_name_student, "test1")
+	assert.Equal(t, response.Data.Surname_student, "test3")
 }
-
-func TestChangeAdStatus(t *testing.T) {
+func TestGetStudent(t *testing.T) {
 	client := getTestClient()
 
-	response, err := client.createAd(123, "hello", "world")
+	student, err := client.getStudent(1)
 	assert.NoError(t, err)
-
-	response, err = client.changeAdStatus(123, response.Data.ID, true)
-	assert.NoError(t, err)
-	assert.True(t, response.Data.Published)
-
-	response, err = client.changeAdStatus(123, response.Data.ID, false)
-	assert.NoError(t, err)
-	assert.False(t, response.Data.Published)
-
-	response, err = client.changeAdStatus(123, response.Data.ID, false)
-	assert.NoError(t, err)
-	assert.False(t, response.Data.Published)
-}
-
-func TestUpdateAd(t *testing.T) {
-	client := getTestClient()
-
-	response, err := client.createAd(123, "hello", "world")
-	assert.NoError(t, err)
-
-	response, err = client.updateAd(123, response.Data.ID, "привет", "мир")
-	assert.NoError(t, err)
-	assert.Equal(t, response.Data.Title, "привет")
-	assert.Equal(t, response.Data.Text, "мир")
-}
-
-func TestListAds(t *testing.T) {
-	client := getTestClient()
-
-	response, err := client.createAd(123, "hello", "world")
-	assert.NoError(t, err)
-
-	publishedAd, err := client.changeAdStatus(123, response.Data.ID, true)
-	assert.NoError(t, err)
-
-	_, err = client.createAd(123, "best cat", "not for sale")
-	assert.NoError(t, err)
-
-	ads, err := client.listAds()
-	assert.NoError(t, err)
-	assert.Len(t, ads.Data, 2)
-	assert.Equal(t, ads.Data[0].ID, publishedAd.Data.ID)
-	assert.Equal(t, ads.Data[0].Title, publishedAd.Data.Title)
-	assert.Equal(t, ads.Data[0].Text, publishedAd.Data.Text)
-	assert.Equal(t, ads.Data[0].AuthorID, publishedAd.Data.AuthorID)
-	assert.True(t, ads.Data[0].Published)
-}
-
-func TestListAdsbyName(t *testing.T) {
-	client := getTestClient()
-
-	response, err := client.createAd(123, "hello", "world")
-	assert.NoError(t, err)
-
-	publishedAd, err := client.changeAdStatus(123, response.Data.ID, true)
-	assert.NoError(t, err)
-
-	_, err = client.createAd(123, "best cat", "not for sale")
-	assert.NoError(t, err)
-
-	ads, err := client.listAdsByName("hello")
-	assert.NoError(t, err)
-	assert.Len(t, ads.Data, 1)
-	assert.Equal(t, ads.Data[0].ID, publishedAd.Data.ID)
-	assert.Equal(t, ads.Data[0].Title, publishedAd.Data.Title)
-	assert.Equal(t, ads.Data[0].Text, publishedAd.Data.Text)
-	assert.Equal(t, ads.Data[0].AuthorID, publishedAd.Data.AuthorID)
-	assert.True(t, ads.Data[0].Published)
-}
-func TestFiltedListCreate(t *testing.T) {
-	client := getTestClient()
-
-	response, err := client.createAd(123, "hello", "world")
-	assert.NoError(t, err)
-
-	publishedAd, err := client.changeAdStatus(123, response.Data.ID, true)
-	assert.NoError(t, err)
-
-	_, err = client.createAd(123, "best cat", "not for sale")
-	assert.NoError(t, err)
-
-	ads, err := client.filteredList("createdat")
-	assert.NoError(t, err)
-	assert.Len(t, ads.Data, 1)
-	assert.Equal(t, ads.Data[0].ID, publishedAd.Data.ID)
-	assert.Equal(t, ads.Data[0].Title, publishedAd.Data.Title)
-}
-func TestFiltedListUpdate(t *testing.T) {
-	client := getTestClient()
-
-	response, err := client.createAd(123, "hello", "world")
-	assert.NoError(t, err)
-
-	publishedAd, err := client.changeAdStatus(123, response.Data.ID, true)
-	assert.NoError(t, err)
-
-	_, err = client.createAd(123, "best cat", "not for sale")
-	assert.NoError(t, err)
-
-	ads, err := client.filteredList("updatedat")
-	assert.NoError(t, err)
-	assert.Len(t, ads.Data, 1)
-	assert.Equal(t, ads.Data[0].ID, publishedAd.Data.ID)
-	assert.Equal(t, ads.Data[0].Title, publishedAd.Data.Title)
-}
-func TestFiltedListNF(t *testing.T) {
-	client := getTestClient()
-
-	response, err := client.createAd(123, "hello", "world")
-	assert.NoError(t, err)
-
-	_, err = client.changeAdStatus(123, response.Data.ID, true)
-	assert.NoError(t, err)
-
-	_, err = client.createAd(123, "best cat", "not for sale")
-	assert.NoError(t, err)
-
-	_, err = client.filteredList("don")
-	assert.Error(t, err)
+	assert.Equal(t, student.Data.Id_num_student, int64(1))
+	assert.Equal(t, student.Data.Name_group, "ПИ-22-1")
+	assert.Equal(t, student.Data.Email_student, "a@mail.ru")
+	assert.Equal(t, student.Data.Second_name_student, "test2")
+	assert.Equal(t, student.Data.First_name_student, "test1")
+	assert.Equal(t, student.Data.Surname_student, "test3")
 }

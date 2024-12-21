@@ -102,7 +102,7 @@ func Filter[R any](items []R, filter func(R) bool) []R {
 	return result
 }
 
-// Универсальная функция для преобразования и пагинации
+// Универсальная функция для преобразования
 func Paginate[T any, R any](items []T, countRow, page int, mapper func(T) R) []R {
 	result := make([]R, 0, countRow)
 	for _, item := range items {

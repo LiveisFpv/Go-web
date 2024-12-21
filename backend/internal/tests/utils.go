@@ -2,46 +2,87 @@ package tests
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 
-	"backend/internal/adrepo"
 	"backend/internal/app"
+	"backend/internal/mytype"
 	"backend/internal/ports/httpgin"
+	"backend/internal/repository"
+
+	pgxLogrus "github.com/jackc/pgx-logrus"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/tracelog"
+	log "github.com/sirupsen/logrus"
 )
 
-type adData struct {
-	ID        int64  `json:"id"`
-	Title     string `json:"title"`
-	Text      string `json:"text"`
-	AuthorID  int64  `json:"author_id"`
-	Published bool   `json:"published"`
+type StudentData struct {
+	Id_num_student      int64  `json:"id_num_student"`
+	Name_group          string `json:"name_group"`
+	Email_student       string `json:"email_student"`
+	Second_name_student string `json:"second_name_student"`
+	First_name_student  string `json:"first_name_student"`
+	Surname_student     string `json:"surname_student"`
+}
+type studentResponse struct {
+	Data StudentData `json:"data"`
+}
+type StudentRequest struct {
+	Id_num_student      uint64 `json:"id_num_student"`
+	Name_group          string `json:"name_group"`
+	Email_student       string `json:"email_student"`
+	Second_name_student string `json:"second_name_student"`
+	First_name_student  string `json:"first_name_student"`
+	Surname_student     string `json:"surname_student"`
+}
+type StudentDeleteRequest struct {
+	Ids_num_student []string `json:"ids"`
+}
+type GroupDeleteRequest struct {
+	Group_names []string `json:"ids"`
 }
 
-type adResponse struct {
-	Data adData `json:"data"`
+type groupResponse struct {
+	Name_group              string          `json:"name_group"`
+	Studies_direction_group string          `json:"studies_direction_group"`
+	Studies_profile_group   string          `json:"studies_profile_group"`
+	Start_date_group        mytype.JsonDate `json:"start_date_group"`
+	Studies_period_group    uint8           `json:"studies_period_group"`
 }
 
-type adsResponse struct {
-	Data []adData `json:"data"`
+type GroupRequest struct {
+	Name_group              string          `json:"name_group"`
+	Studies_direction_group string          `json:"studies_direction_group"`
+	Studies_profile_group   string          `json:"studies_profile_group"`
+	Start_date_group        mytype.JsonDate `json:"start_date_group"`
+	Studies_period_group    uint8           `json:"studies_period_group"`
+}
+type markResponce struct {
+	Id_mark          int64  `json:"id_mark"`
+	Id_num_student   int64  `json:"id_num_student"`
+	Name_semester    string `json:"name_semester"`
+	Lesson_name_mark string `json:"lesson_name_mark"`
+	Score_mark       int8   `json:"score_mark"`
+	Type_mark        string `json:"type_mark"`
 }
 
-type userData struct {
-	Id       int64
-	Nickname string
-	Email    string
-}
-type userResponse struct {
-	Data userData `json:"data"`
+type MarkRequest struct {
+	Id_mark          int64  `json:"id_mark"`
+	Id_num_student   int64  `json:"id_num_student"`
+	Name_semester    string `json:"name_semester"`
+	Lesson_name_mark string `json:"lesson_name_mark"`
+	Score_mark       int8   `json:"score_mark"`
+	Type_mark        string `json:"type_mark"`
 }
 
-var (
-	ErrBadRequest = fmt.Errorf("bad request")
-	ErrForbidden  = fmt.Errorf("forbidden")
-)
+type MarksDeleteRequest struct {
+	Ids_mark []string `json:"ids"`
+}
 
 type testClient struct {
 	client  *http.Client
@@ -49,7 +90,31 @@ type testClient struct {
 }
 
 func getTestClient() *testClient {
-	server := httpgin.NewHTTPServer(":18080", app.NewApp(adrepo.New(), usrepo.New()))
+	dbHost := "localhost"
+	dbPort := "5432"
+	dbUser := "postgres"
+	dbPassword := "0000"
+	dbName := "University_DB_test"
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+		dbUser, dbPassword, dbHost, dbPort, dbName)
+	logger := log.New()
+	logger.SetLevel(log.InfoLevel)
+	logger.SetFormatter(&log.TextFormatter{})
+	config, err := pgxpool.ParseConfig(connStr)
+	if err != nil {
+		logger.WithError(err).Fatalf("can't parse pgxpool config")
+	}
+	config.ConnConfig.Tracer = &tracelog.TraceLog{
+		Logger:   pgxLogrus.NewLogger(logger),
+		LogLevel: tracelog.LogLevelDebug,
+	}
+	pool, err := pgxpool.NewWithConfig(context.Background(), config)
+	if err != nil {
+		logger.WithError(err).Fatalf("can't create new pool")
+	}
+	repo := repository.NewRepository(pool, logger)
+	usecase := app.NewApp(repo)
+	server := httpgin.NewHTTPServer(":18080", usecase)
 	testServer := httptest.NewServer(server.Handler())
 
 	return &testClient{
@@ -57,57 +122,11 @@ func getTestClient() *testClient {
 		baseURL: testServer.URL,
 	}
 }
-func (tc *testClient) createUser(Nickname string, email string) (userResponse, error) {
-	body := map[string]any{
-		"Nickname": Nickname,
-		"Email":    email,
-	}
 
-	data, err := json.Marshal(body)
-	if err != nil {
-		return userResponse{}, fmt.Errorf("unable to marshal: %w", err)
-	}
-
-	req, err := http.NewRequest(http.MethodPost, tc.baseURL+"/api/v1/user", bytes.NewReader(data))
-	if err != nil {
-		return userResponse{}, fmt.Errorf("unable to create request: %w", err)
-	}
-
-	req.Header.Add("Content-Type", "application/json")
-
-	var response userResponse
-	err = tc.getResponse(req, &response)
-	if err != nil {
-		return userResponse{}, err
-	}
-	return response, nil
-}
-
-func (tc *testClient) updateUser(id int, Nickname string, email string) (userResponse, error) {
-	body := map[string]any{
-		"Nickname": Nickname,
-		"Email":    email,
-	}
-
-	data, err := json.Marshal(body)
-	if err != nil {
-		return userResponse{}, fmt.Errorf("unable to marshal: %w", err)
-	}
-
-	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf(tc.baseURL+"/api/v1/user/%d", id), bytes.NewReader(data))
-	if err != nil {
-		return userResponse{}, fmt.Errorf("unable to create request: %w", err)
-	}
-
-	req.Header.Add("Content-Type", "application/json")
-
-	var response userResponse
-	err = tc.getResponse(req, &response)
-	if err != nil {
-		return userResponse{}, err
-	}
-	return response, nil
-}
+var (
+	ErrBadRequest = fmt.Errorf("bad request")
+	ErrForbidden  = fmt.Errorf("forbidden")
+)
 
 func (tc *testClient) getResponse(req *http.Request, out any) error {
 	resp, err := tc.client.Do(req)
@@ -115,7 +134,7 @@ func (tc *testClient) getResponse(req *http.Request, out any) error {
 		return fmt.Errorf("unexpected error: %w", err)
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if (resp.StatusCode != http.StatusOK) && (resp.StatusCode != http.StatusCreated) {
 		if resp.StatusCode == http.StatusBadRequest {
 			return ErrBadRequest
 		}
@@ -137,130 +156,42 @@ func (tc *testClient) getResponse(req *http.Request, out any) error {
 
 	return nil
 }
-
-func (tc *testClient) createAd(userID int64, title string, text string) (adResponse, error) {
-	body := map[string]any{
-		"user_id": userID,
-		"title":   title,
-		"text":    text,
+func (tc *testClient) getStudent(id_num_student int) (studentResponse, error) {
+	req, err := http.NewRequest(http.MethodGet, tc.baseURL+"/api/v1/student/"+strconv.Itoa(id_num_student), &bytes.Reader{})
+	if err != nil {
+		return studentResponse{}, fmt.Errorf("unable to create request: %w", err)
 	}
-
+	req.Header.Add("Content-Type", "application/json")
+	var response studentResponse
+	err = tc.getResponse(req, &response)
+	if err != nil {
+		return studentResponse{}, err
+	}
+	return response, nil
+}
+func (tc *testClient) createStudent(id_num_student uint64, name_group, email_student,
+	second_name_student, first_name_student, surname_student string) (studentResponse, error) {
+	body := StudentRequest{
+		Id_num_student:      id_num_student,
+		Name_group:          name_group,
+		Email_student:       email_student,
+		Second_name_student: second_name_student,
+		First_name_student:  first_name_student,
+		Surname_student:     surname_student,
+	}
 	data, err := json.Marshal(body)
 	if err != nil {
-		return adResponse{}, fmt.Errorf("unable to marshal: %w", err)
+		return studentResponse{}, fmt.Errorf("unable to marshal: %w", err)
 	}
-
-	req, err := http.NewRequest(http.MethodPost, tc.baseURL+"/api/v1/ads", bytes.NewReader(data))
+	req, err := http.NewRequest(http.MethodPost, tc.baseURL+"/api/v1/student/", bytes.NewReader(data))
 	if err != nil {
-		return adResponse{}, fmt.Errorf("unable to create request: %w", err)
+		return studentResponse{}, fmt.Errorf("unable to create request: %w", err)
 	}
-
 	req.Header.Add("Content-Type", "application/json")
-
-	var response adResponse
+	var response studentResponse
 	err = tc.getResponse(req, &response)
 	if err != nil {
-		return adResponse{}, err
+		return studentResponse{}, err
 	}
-
-	return response, nil
-}
-
-func (tc *testClient) changeAdStatus(userID int64, adID int64, published bool) (adResponse, error) {
-	body := map[string]any{
-		"user_id":   userID,
-		"published": published,
-	}
-
-	data, err := json.Marshal(body)
-	if err != nil {
-		return adResponse{}, fmt.Errorf("unable to marshal: %w", err)
-	}
-
-	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf(tc.baseURL+"/api/v1/ads/%d/status", adID), bytes.NewReader(data))
-	if err != nil {
-		return adResponse{}, fmt.Errorf("unable to create request: %w", err)
-	}
-
-	req.Header.Add("Content-Type", "application/json")
-
-	var response adResponse
-	err = tc.getResponse(req, &response)
-	if err != nil {
-		return adResponse{}, err
-	}
-
-	return response, nil
-}
-
-func (tc *testClient) updateAd(userID int64, adID int64, title string, text string) (adResponse, error) {
-	body := map[string]any{
-		"user_id": userID,
-		"title":   title,
-		"text":    text,
-	}
-
-	data, err := json.Marshal(body)
-	if err != nil {
-		return adResponse{}, fmt.Errorf("unable to marshal: %w", err)
-	}
-
-	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf(tc.baseURL+"/api/v1/ads/%d", adID), bytes.NewReader(data))
-	if err != nil {
-		return adResponse{}, fmt.Errorf("unable to create request: %w", err)
-	}
-
-	req.Header.Add("Content-Type", "application/json")
-
-	var response adResponse
-	err = tc.getResponse(req, &response)
-	if err != nil {
-		return adResponse{}, err
-	}
-
-	return response, nil
-}
-
-func (tc *testClient) listAds() (adsResponse, error) {
-	req, err := http.NewRequest(http.MethodGet, tc.baseURL+"/api/v1/ads", nil)
-	if err != nil {
-		return adsResponse{}, fmt.Errorf("unable to create request: %w", err)
-	}
-
-	var response adsResponse
-	err = tc.getResponse(req, &response)
-	if err != nil {
-		return adsResponse{}, err
-	}
-
-	return response, nil
-}
-func (tc *testClient) listAdsByName(name string) (adsResponse, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf(tc.baseURL+"/api/v1/ads/search?name=%s", name), nil)
-	if err != nil {
-		return adsResponse{}, fmt.Errorf("unable to create request: %w", err)
-	}
-
-	var response adsResponse
-	err = tc.getResponse(req, &response)
-	if err != nil {
-		return adsResponse{}, err
-	}
-
-	return response, nil
-}
-
-func (tc *testClient) filteredList(name string) (adsResponse, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf(tc.baseURL+"/api/v1/ads/filter?param=%s", name), nil)
-	if err != nil {
-		return adsResponse{}, fmt.Errorf("unable to create request: %w", err)
-	}
-
-	var response adsResponse
-	err = tc.getResponse(req, &response)
-	if err != nil {
-		return adsResponse{}, err
-	}
-
 	return response, nil
 }
