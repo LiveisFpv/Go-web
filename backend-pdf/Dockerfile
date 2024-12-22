@@ -24,4 +24,4 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 EXPOSE 9000
 
 # Запускаем приложение
-CMD ["python", "./app.py"]
+CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:9000", "app:app"]
