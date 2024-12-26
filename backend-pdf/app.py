@@ -4,17 +4,29 @@ from flask_cors import CORS
 import requests
 from fpdf import FPDF
 import io
+import datetime
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
 
 class PDF(FPDF):
-
     def footer(self):
         self.set_y(-15)
         self.set_font('DejaVu', '', 8)
         self.cell(0, 10, f'Страница {self.page_no()}', 0, 0, 'C')
-    
+    def report_info(self, report_data):
+        self.set_font('DejaVu', 'B', 12)
+        self.ln(5)
+
+        self.set_font('DejaVu', '', 10)
+        column_width = 60
+        line_height = 8
+
+        for key, value in report_data.items():
+            self.cell(column_width, line_height, key + ":", border=1)
+            self.cell(0, line_height, str(value), border=1)
+            self.ln()
     def dynamic_table(self, data, table_name):
         # Заголовок таблицы
         self.set_font('DejaVu', 'B', 14)
@@ -67,6 +79,14 @@ def generate_pdf():
 
     table_data = data["data"]
     table_name = request_data["name"].capitalize()
+    now=datetime.now()
+    report_data = {
+        "Дата и время создания": now.strftime("%Y-%m-%d %H:%M:%S"),
+        "Создатель": request_data.get("creator", "Иванов Иван Иванович"),
+        "Организация": request_data.get("organization", "Ниженский Государственный институт"),
+        "Примечание": request_data.get("note", "Создан пример отчета")
+    }
+
     # Генерация PDF
     pdf = PDF()
     # Подключение шрифта
@@ -74,6 +94,7 @@ def generate_pdf():
     pdf.add_font('DejaVu', 'B', './font/DejaVuSans-Bold.ttf', uni=True)
     pdf.set_font('DejaVu', '', 12)
     pdf.add_page(orientation='L')
+    pdf.report_info(report_data)
     pdf.dynamic_table(table_data,table_name)
     url=request_data['url']
     for i in range(1,int(data["pages"])):
