@@ -20,6 +20,14 @@ func (a *App) GetCountRows(ctx context.Context, tableName string) (int, error) {
 	count, err := a.repo.GetCountRows(ctx, tableName)
 	return count, err
 }
+func (a *App) Login(ctx context.Context, login, password string) (string, error) {
+	token, err := a.repo.Login(ctx, login, password)
+	return token, err
+}
+func (a *App) Register(ctx context.Context, email, login, password string) error {
+	err := a.repo.Register(ctx, email, login, password)
+	return err
+}
 
 // Получение студента по ID
 func (a *App) GetStudentbyID(ctx context.Context, student_id uint64) (*domain.Student, error) {

@@ -7,6 +7,10 @@ import (
 )
 
 func AppRouter(r *gin.RouterGroup, a *app.App) {
+	//Аутентификация и регистрация
+	r.POST("/auth", func(c *gin.Context) { auth(c, a) })
+	r.POST("/register", func(c *gin.Context) { register(c, a) })
+
 	//Информация передоваемя на фронт для динамического поддержания работы
 	r.GET("/tables", func(c *gin.Context) { getTables(c) })
 	r.GET("/student/metadata", func(c *gin.Context) { getStudentMeta(c, a) })

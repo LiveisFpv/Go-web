@@ -7,6 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type RegisterRequest struct {
+	Email    string `json:"email"`
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}
+type AuthRequest struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}
 type studentResponse struct {
 	Id_num_student      int64  `json:"id_num_student"`
 	Name_group          string `json:"name_group"`
@@ -164,6 +173,9 @@ func AllGroupSuccessResponse(groups []*domain.Group, countRow, count, page int) 
 
 func MarkSuccessResponse(mark *domain.Mark) *gin.H {
 	return SuccessResponse(mapMarkToResponse(mark))
+}
+func LoginSuccessResponse(token *domain.Token) *gin.H {
+	return SuccessResponse(token)
 }
 
 func AllMarkSuccessResponse(marks []*domain.Mark, countRow, count, page int) *gin.H {
