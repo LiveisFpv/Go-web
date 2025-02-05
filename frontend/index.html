@@ -10,6 +10,26 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <div id="registerWindow" class="hidden">
+        <div class="registerContent">
+        <h2>Signup</h2>
+        <input type="text" id="signup-email" placeholder="Email">
+        <input type="text" id="signup-login" placeholder="Login">
+        <input type="password" id="signup-password" placeholder="Password">
+        <button id="signup-submit">Sign up</button>
+        <button id="closeButtonsignup">Close</button>
+        <p class="error-message" id="signup-error"></p>
+        <p id="terms-and-conditions">By signing up, you agree to our <a href="#">Terms and Conditions</a></p>
+    </div></div>
+    <div id="loginWindow" class="hidden">
+        <div class="registerContent">    
+        <h2>Login</h2>
+        <input type="text" id="login" placeholder="Email">
+        <input type="password" id="login-password" placeholder="Password">
+        <button id="login-submit">Login</button>
+        <button id="closeButtonlogin">Close</button>
+        <p class="error-message" id="login-error"></p>
+    </div></div>
     <header>
         <h1>GoWeDB</h1>
         <div class="button-group">
@@ -17,8 +37,10 @@
             <button id="settings-button">Settings</button>
             <button id="help-button">Help</button>
             <button id="about-button">About</button>
-            <button id="logout-button">Logout</button>
-            <div id="user-info">
+            <button id="login-button" class>Login</button>
+            <button id="signup-button" class>Signup</button>
+            <button id="logout-button" class="hidden">Logout</button>
+            <div id="user-info" class="hidden">
                 <img src="./image/logo.jpg" alt="User">
             </div>
         </div>

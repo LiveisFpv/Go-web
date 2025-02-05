@@ -7,12 +7,7 @@ import (
 )
 
 func AppRouter(r *gin.RouterGroup, a *app.App) {
-	//Аутентификация и регистрация
-	r.POST("/auth", func(c *gin.Context) { auth(c, a) })
-	r.POST("/register", func(c *gin.Context) { register(c, a) })
-
 	//Информация передоваемя на фронт для динамического поддержания работы
-	r.GET("/tables", func(c *gin.Context) { getTables(c) })
 	r.GET("/student/metadata", func(c *gin.Context) { getStudentMeta(c, a) })
 	r.GET("/group/metadata", func(c *gin.Context) { getGroupMeta(c, a) })
 	r.GET("/mark/metadata", func(c *gin.Context) { getMarkMeta(c, a) })
@@ -42,4 +37,11 @@ func AppRouter(r *gin.RouterGroup, a *app.App) {
 	// r.PUT("/mark/", func(c *gin.Context) { updateScholarshipbyID(c, a) })
 	// r.DELETE("/mark/", func(c *gin.Context) { deleteScholarshipbyID(c, a) })
 	// r.GET("/mark/", func(c *gin.Context) { getAllScholarship(c, a) })
+}
+
+func OpenRouter(r *gin.RouterGroup, a *app.App) {
+	//Аутентификация и регистрация
+	r.POST("/auth", func(c *gin.Context) { auth(c, a) })
+	r.POST("/register", func(c *gin.Context) { register(c, a) })
+	r.GET("/tables", func(c *gin.Context) { getTables(c) })
 }

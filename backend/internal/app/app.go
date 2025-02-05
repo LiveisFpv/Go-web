@@ -29,7 +29,11 @@ func (a *App) Login(ctx context.Context, login, password string) (bool, error) {
 	return crypt.CheckPassword(user.Password, password), nil
 }
 func (a *App) Register(ctx context.Context, email, login, password string) error {
-	err := a.repo.Register(ctx, email, login, password)
+	hashedPassword, err := crypt.HashPassword(password)
+	if err != nil {
+		return err
+	}
+	err = a.repo.Register(ctx, email, login, hashedPassword)
 	return err
 }
 

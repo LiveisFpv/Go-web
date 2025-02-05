@@ -16,7 +16,7 @@ func auth(c *gin.Context, a *app.App) {
 		return
 	}
 	check, err := a.Login(c, reqBody.Login, reqBody.Password)
-	if err != nil || check != true {
+	if err != nil || !check {
 		c.JSON(http.StatusUnauthorized, ErrorResponse(err))
 		return
 	}
@@ -40,7 +40,7 @@ func register(c *gin.Context, a *app.App) {
 		return
 	}
 	flag, err := a.Login(c, reqBody.Login, reqBody.Password)
-	if err != nil || flag == false {
+	if err != nil || !flag {
 		c.JSON(http.StatusUnauthorized, ErrorResponse(err))
 		return
 	}

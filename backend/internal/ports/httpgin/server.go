@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"backend/internal/app"
+	"backend/internal/crypt"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -17,8 +18,16 @@ type Server struct {
 func NewHTTPServer(port string, a *app.App) Server {
 	gin.SetMode(gin.ReleaseMode)
 	s := Server{port: port, app: gin.Default()}
-	s.app.Use(cors.Default())
-	api := s.app.Group("/api/v1")
+	s.app.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},                                       // Разрешаем запросы с любых доменов
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, // Разрешаем все нужные методы
+		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}))
+	open := s.app.Group("/")
+	OpenRouter(open, a)
+	api := open.Group("api/v1")
+	api.Use(crypt.AuthMiddleware())
 	AppRouter(api, a)
 	return s
 }

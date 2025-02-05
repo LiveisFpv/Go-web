@@ -2,10 +2,100 @@ const options = "http://127.0.0.1:15432";
 const py_options = "http://127.0.0.1:9000";
 let currentURL = "";
 let currentTable = "";
+const registerButton = document.getElementById('signup-button');
+const loginButton = document.getElementById('login-button');
+const logountButton = document.getElementById('logout-button');
+const userinfo = document.getElementById('user-info');
+const registerWindow = document.getElementById('registerWindow');
+const loginWindow = document.getElementById('loginWindow');
+const closeButtonsignup = document.getElementById('closeButtonsignup');
+const closeButtonlogin = document.getElementById('closeButtonlogin');
+var token=""
+
+function auth(){
+    logountButton.classList.remove('hidden');
+    userinfo.classList.remove('hidden');
+    loginButton.classList.add('hidden');
+    registerButton.classList.add('hidden');
+}
+
+registerButton.addEventListener('click', () => {
+  registerWindow.classList.remove('hidden');
+});
+loginButton.addEventListener('click', () => {
+    loginWindow.classList.remove('hidden');
+})
+
+closeButtonsignup.addEventListener('click', () => {
+    registerWindow.classList.add('hidden');
+});
+closeButtonlogin.addEventListener('click', () => {
+    loginWindow.classList.add('hidden');
+});
+
+const signupsubmit =document.getElementById("signup-submit")
+const loginsubmit = document.getElementById("login-submit")
+
+signupsubmit.addEventListener('click', async () => {
+    const email = document.getElementById("signup-email").value;
+    const login = document.getElementById("signup-login").value;
+    const password = document.getElementById("signup-password").value;
+    const response = await fetch(`${options}/register`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(
+            {
+                email: email,
+                login: login,
+                password: password
+            }
+        )
+    });
+    const responseData = await response.json()
+    if (responseData.error) {
+        alert(`Error: ${responseData.error}`);
+        return;
+    }
+    else{
+    token=responseData.data.token;
+    auth();
+    registerWindow.classList.add('hidden');
+    }
+
+});
+
+loginsubmit.addEventListener('click', async () => {
+    const login = document.getElementById("login").value;
+    const password = document.getElementById("login-password").value;
+    const response = await fetch(`${options}/auth`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(
+            {
+                login: login,
+                password: password
+            }
+        )
+    });
+    const responseData = await response.json()
+    if (responseData.error) {
+        alert(`Error: ${responseData.error}`);
+        return;
+    }
+    else{
+        token=responseData.data.token;
+        auth();
+        loginWindow.classList.add('hidden');
+    }
+});
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const response = await fetch(`${options}/api/v1/tables`);
+        const response = await fetch(`${options}/tables`);
         const responseData = await response.json();
 
         const tablesList = document.getElementById("tables-list");
@@ -49,9 +139,10 @@ async function deleteRows() {
 
     // Отправить запрос на backend
     try {
-        const response = await fetch(`${options}/api/v1/${tableName}/ids`, { // Замените '/api/deleteRows' на ваш реальный URL
+        const response = await fetch(`${options}/api/v1/${tableName}/ids`, { 
             method: 'Delete',
             headers: {
+                'Authorization': 'Bearer ' + token,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ ids: idsToDelete }),
@@ -78,6 +169,7 @@ async function generatePDF() {
     const response = await fetch(`${py_options}/generate-pdf`, {
         method: "POST",
         headers: {
+            'Authorization': 'Bearer ' + token,
             "Content-Type": "application/json"
         },
         body: JSON.stringify(jsonData)
@@ -109,8 +201,20 @@ async function loadTableData(tableName,page=1,filters = {}) {
         currentTable = tableName;
         console.log(url)
         const [dataResponse, metadataResponse] = await Promise.all([
-            fetch(url),
-            fetch(`${options}/api/v1/${tableName}/metadata`)
+            fetch(url, {
+                method: "GET",
+                headers: {
+                    "Authorization": 'Bearer '+token,
+                    "Content-Type": "application/json"
+                }
+            }),
+            fetch(`${options}/api/v1/${tableName}/metadata`,{
+                method: "GET",
+                headers: {
+                    "Authorization": 'Bearer '+token,
+                    "Content-Type": "application/json"
+                }
+            })
         ]);
 
         const data = await dataResponse.json();
@@ -345,7 +449,11 @@ function createTableBody(tableData, rows, metadata, tableName,page,filters) {
 async function enableInlineEditing(row, tableName,page,filters) {
     try {
         // Получаем метаинформацию
-        const response = await fetch(`${options}/api/v1/${tableName}/metadata`);
+        const response = await fetch(`${options}/api/v1/${tableName}/metadata`,{
+            method: "GET",
+            headers: {
+                'Authorization': 'Bearer ' + token,
+            }});
         const metadata = await response.json();
         // Получаем уникальное поле row[uniqueField.name]
         const uniqueField = metadata.data.find(field => field.unique);
@@ -410,7 +518,10 @@ async function updateRow(tableName, data) {
     try {
         const response = await fetch(`${options}/api/v1/${tableName}/`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                'Authorization': 'Bearer ' + token,
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify(data)
         });
         if (!response.ok) {
@@ -435,7 +546,11 @@ function capitalizeWords(string) {
 async function openAddModalWithMetadata(tableName,page,filters) {
     try {
         // Получаем метаинформацию
-        const response = await fetch(`${options}/api/v1/${tableName}/metadata`);
+        const response = await fetch(`${options}/api/v1/${tableName}/metadata`,{
+            method: "GET",
+            headers: {
+                'Authorization': 'Bearer ' + token,
+            }});
         const metadata = await response.json();
         const modal = document.getElementById("add-modal");
             const form = document.getElementById("add-form");
@@ -490,6 +605,7 @@ async function openAddModalWithMetadata(tableName,page,filters) {
                 const response = await fetch(`${options}/api/v1/${tableName}/`,{
                     method: "POST",
                     headers: {
+                        'Authorization': 'Bearer ' + token,
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify(data)
@@ -538,7 +654,11 @@ async function openEditModal(rowData, tableName,page,filters) {
         };
 
         // Запрос метаинформации у сервера
-        const response = await fetch(`${options}/api/v1/${tableName}/metadata`);
+        const response = await fetch(`${options}/api/v1/${tableName}/metadata`,{
+            method: "GET",
+            headers: {
+                'Authorization': 'Bearer ' + token,
+            }});
         const metadata = await response.json();
         const form = document.getElementById("edit-form");
         form.innerHTML = ""; // Очищаем форму перед добавлением новых полей
@@ -589,6 +709,7 @@ async function openEditModal(rowData, tableName,page,filters) {
                 const response = await fetch(`${options}/api/v1/${tableName}/`, {
                     method: "DELETE",
                     headers: {
+                        'Authorization': 'Bearer ' + token,
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(DeleteData),
