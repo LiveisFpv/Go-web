@@ -25,7 +25,7 @@ func NewRepository(pgxPool *pgxpool.Pool, logger logrus.FieldLogger) Repository 
 }
 
 type Repository interface {
-	Login(ctx context.Context, login, password string) (string, error)
+	Login(ctx context.Context, login, password string) (*domain.User, error)
 	Register(ctx context.Context, email, login, password string) error
 	GetCountRows(ctx context.Context, TableName string) (int, error)
 

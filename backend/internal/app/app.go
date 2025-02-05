@@ -1,6 +1,7 @@
 package app
 
 import (
+	"backend/internal/crypt"
 	"backend/internal/domain"
 	"backend/internal/mytype"
 	"backend/internal/repository"
@@ -20,9 +21,12 @@ func (a *App) GetCountRows(ctx context.Context, tableName string) (int, error) {
 	count, err := a.repo.GetCountRows(ctx, tableName)
 	return count, err
 }
-func (a *App) Login(ctx context.Context, login, password string) (string, error) {
-	token, err := a.repo.Login(ctx, login, password)
-	return token, err
+func (a *App) Login(ctx context.Context, login, password string) (bool, error) {
+	user, err := a.repo.Login(ctx, login, password)
+	if err != nil {
+		return false, err
+	}
+	return crypt.CheckPassword(user.Password, password), nil
 }
 func (a *App) Register(ctx context.Context, email, login, password string) error {
 	err := a.repo.Register(ctx, email, login, password)

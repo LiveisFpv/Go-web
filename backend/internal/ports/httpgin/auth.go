@@ -2,6 +2,7 @@ package httpgin
 
 import (
 	"backend/internal/app"
+	"backend/internal/crypt"
 	"backend/internal/domain"
 	"net/http"
 
@@ -14,7 +15,12 @@ func auth(c *gin.Context, a *app.App) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(err))
 		return
 	}
-	token, err := a.Login(c, reqBody.Login, reqBody.Password)
+	check, err := a.Login(c, reqBody.Login, reqBody.Password)
+	if err != nil || check != true {
+		c.JSON(http.StatusUnauthorized, ErrorResponse(err))
+		return
+	}
+	token, err := crypt.GenerateJWT(reqBody.Login)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, ErrorResponse(err))
 		return
@@ -33,7 +39,12 @@ func register(c *gin.Context, a *app.App) {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
 	}
-	token, err := a.Login(c, reqBody.Login, reqBody.Password)
+	flag, err := a.Login(c, reqBody.Login, reqBody.Password)
+	if err != nil || flag == false {
+		c.JSON(http.StatusUnauthorized, ErrorResponse(err))
+		return
+	}
+	token, err := crypt.GenerateJWT(reqBody.Login)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, ErrorResponse(err))
 		return
