@@ -15,12 +15,12 @@ func auth(c *gin.Context, a *app.App) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(err))
 		return
 	}
-	check, err := a.Login(c, reqBody.Login, reqBody.Password)
+	check, err := a.Login(c, reqBody.Email, reqBody.Password)
 	if err != nil || !check {
 		c.JSON(http.StatusUnauthorized, ErrorResponse(err))
 		return
 	}
-	token, err := crypt.GenerateJWT(reqBody.Login)
+	token, err := crypt.GenerateJWT(reqBody.Email)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, ErrorResponse(err))
 		return
@@ -34,17 +34,17 @@ func register(c *gin.Context, a *app.App) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(err))
 		return
 	}
-	err := a.Register(c, reqBody.Email, reqBody.Login, reqBody.Password)
+	err := a.Register(c, reqBody.Email, reqBody.Email, reqBody.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
 	}
-	flag, err := a.Login(c, reqBody.Login, reqBody.Password)
+	flag, err := a.Login(c, reqBody.Email, reqBody.Password)
 	if err != nil || !flag {
 		c.JSON(http.StatusUnauthorized, ErrorResponse(err))
 		return
 	}
-	token, err := crypt.GenerateJWT(reqBody.Login)
+	token, err := crypt.GenerateJWT(reqBody.Email)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, ErrorResponse(err))
 		return

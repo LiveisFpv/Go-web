@@ -14,9 +14,9 @@ services:
     environment:
       - DB_HOST=db
       - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=0000
-      - DB_NAME=University_DB
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
     depends_on:
       - db
 
@@ -51,16 +51,16 @@ services:
     image: postgres:16
     container_name: postgres_db
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=0000
-      - POSTGRES_DB=University_DB
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     networks:
       - app-network
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./server_conf/clone_db.sql:/docker-entrypoint-initdb.d/clone_db.sql
+      - ./server_conf/clone_db.sql:/docker-entrypoint-initdb.d/init.sql
     command: postgres -c password_encryption=md5
 
 volumes:

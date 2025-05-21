@@ -377,6 +377,14 @@ CREATE TABLE public.student (
     surname_student character varying(40)
 );
 
+CREATE TABLE public.user (
+    user_id serial NOT NULL,
+    user_login character varying(40) NOT NULL UNIQUE,
+    user_email character varying(40) NOT NULL UNIQUE,
+    user_password text NOT NULL,
+    PRIMARY KEY (user_id)
+);
+
 
 ALTER TABLE public.student OWNER TO postgres;
 

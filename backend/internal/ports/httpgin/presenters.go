@@ -9,11 +9,10 @@ import (
 
 type RegisterRequest struct {
 	Email    string `json:"email"`
-	Login    string `json:"login"`
 	Password string `json:"password"`
 }
 type AuthRequest struct {
-	Login    string `json:"login"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 type studentResponse struct {
