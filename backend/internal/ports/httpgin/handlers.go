@@ -108,11 +108,17 @@ func getAllStudent(c *gin.Context, a *app.App) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(err))
 		return
 	}
+	param = c.Query("limit")
+	rowCount, err := strconv.Atoi(param)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse(err))
+		return
+	}
 	search := c.Query("search")
 	// Собираем фильтры (все параметры, кроме page)
 	filters := make(map[string]string)
 	for key, value := range c.Request.URL.Query() {
-		if key != "page" && key != "search" {
+		if key != "page" && key != "search" && key != "limit" {
 			if len(value[0]) > 0 {
 				filters[key] = value[0] // берем первое значение фильтра
 			}

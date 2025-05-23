@@ -60,6 +60,7 @@ export const googleAuth = async (data: GoogleAuthRequest): Promise<AuthResponse>
 
   try {
     const response = await authApi.post<AuthResponse>('/auth/google', data)
+    localStorage.setItem('token', response.data.data.token)
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.data) {

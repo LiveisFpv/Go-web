@@ -7,6 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type Pagination struct {
+	Total     int `json:"total"`
+	Page      int `json:"page"`
+	Page_size int `json:"page_size"`
+}
+
 type RegisterRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -93,11 +99,11 @@ func ErrorResponse(err error) *gin.H {
 		"error": err.Error(),
 	}
 }
-func AllSuccessResponse(data ResponseData, pages int) *gin.H {
+func AllSuccessResponse(data ResponseData, pagination Pagination) *gin.H {
 	return &gin.H{
-		"data":  data,
-		"pages": pages,
-		"error": nil,
+		"data":       data,
+		"pagination": pagination,
+		"error":      nil,
 	}
 }
 func Filter[R any](items []R, filter func(R) bool) []R {
@@ -158,7 +164,11 @@ func StudentSuccessResponse(student *domain.Student) *gin.H {
 
 func AllStudentSuccessResponse(students []*domain.Student, countRow, count, page int) *gin.H {
 	data := Paginate(students, countRow, page, mapStudentToResponse)
-	return AllSuccessResponse(data, getPages(count, countRow))
+	return AllSuccessResponse(data, Pagination{
+		Total:     count,
+		Page:      page,
+		Page_size: countRow,
+	})
 }
 
 func GroupSuccessResponse(group *domain.Group) *gin.H {
@@ -167,7 +177,11 @@ func GroupSuccessResponse(group *domain.Group) *gin.H {
 
 func AllGroupSuccessResponse(groups []*domain.Group, countRow, count, page int) *gin.H {
 	data := Paginate(groups, countRow, page, mapGroupToResponse)
-	return AllSuccessResponse(data, getPages(count, countRow))
+	return AllSuccessResponse(data, Pagination{
+		Total:     count,
+		Page:      page,
+		Page_size: countRow,
+	})
 }
 
 func MarkSuccessResponse(mark *domain.Mark) *gin.H {
@@ -179,13 +193,9 @@ func LoginSuccessResponse(token *domain.Token) *gin.H {
 
 func AllMarkSuccessResponse(marks []*domain.Mark, countRow, count, page int) *gin.H {
 	data := Paginate(marks, countRow, page, mapMarkToResponse)
-	return AllSuccessResponse(data, getPages(count, countRow))
-}
-
-func getPages(count, countRow int) int {
-	pages := count / countRow
-	if count%countRow != 0 {
-		pages++
-	}
-	return pages
+	return AllSuccessResponse(data, Pagination{
+		Total:     count,
+		Page:      page,
+		Page_size: countRow,
+	})
 }

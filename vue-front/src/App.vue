@@ -116,9 +116,9 @@ header {
   align-items: flex-start;
   gap: 50px;
   margin-top: 0.5rem;
-  position: fixed;
+  position:absolute;
   top: 80px;
-  left: 40px;
+  left: 3.5rem;
   background-color: var(--color-background);
   z-index: 1000;
   padding: 2rem 0rem;

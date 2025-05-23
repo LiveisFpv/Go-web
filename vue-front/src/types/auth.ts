@@ -13,10 +13,8 @@ export interface GoogleAuthRequest {
 }
 
 export interface AuthResponse {
-  token: string
-  user: {
-    id: number
-    email: string
+  data: {
+    token: string
   }
 }
 
@@ -24,4 +22,4 @@ export interface AuthError {
   message: string
   field?: string
   value?: string
-} 
+}

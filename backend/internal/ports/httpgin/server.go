@@ -19,8 +19,8 @@ func NewHTTPServer(port string, a *app.App) Server {
 	gin.SetMode(gin.ReleaseMode)
 	s := Server{port: port, app: gin.Default()}
 	s.app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},                                       // Разрешаем запросы с любых доменов
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, // Разрешаем все нужные методы
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:14000"}, // Explicitly allow frontend origin
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}))

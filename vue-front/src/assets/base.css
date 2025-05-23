@@ -35,6 +35,7 @@
 
   --section-gap: 160px;
   --color-accent: hsla(160, 100%, 37%, 1);
+  --color-accent-hover: hsla(160, 100%, 37%, 0.8);
 }
 
 *,

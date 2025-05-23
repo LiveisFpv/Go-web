@@ -45,7 +45,7 @@ watch([email], () => {
 watch(password, () => {
   const passwordError = validatePassword(password.value)
   updateValidationError('password', passwordError)
-  
+
   // Если есть подтверждение пароля, проверяем его тоже
   if (confirmPassword.value) {
     const confirmationError = validatePasswordConfirmation(password.value, confirmPassword.value)
@@ -60,7 +60,7 @@ watch(confirmPassword, () => {
 
 const updateValidationError = (field: string, error: string | null) => {
   const existingErrorIndex = validationErrors.value.findIndex(e => e.field === field)
-  
+
   if (error) {
     if (existingErrorIndex === -1) {
       validationErrors.value.push({ field, message: error })
@@ -98,7 +98,7 @@ const handleLogin = async () => {
       email: email.value,
       password: password.value
     })
-    authStore.login(response.token)
+    authStore.login(response.data.token)
     router.push('/')
   } catch (e) {
     const error = e as AuthError
@@ -121,7 +121,7 @@ const handleRegister = async () => {
       email: email.value,
       password: password.value
     })
-    authStore.login(response.token)
+    authStore.login(response.data.token)
     router.push('/')
   } catch (e) {
     const error = e as AuthError
@@ -211,6 +211,7 @@ const getFieldError = (field: string) => {
         <button type="button" @click="toggleForm" class="toggle-btn">
           {{ isLogin ? 'Создать аккаунт' : 'Уже есть аккаунт? Войти' }}
         </button>
+        <p id="text" v-if="!isLogin">By registering, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
       </form>
     </div>
   </div>
@@ -340,5 +341,10 @@ input.error-input {
 .error {
   color: #dc2626;
   font-size: 0.875rem;
+}
+
+#text{
+  font-size: 0.75rem;
+  text-align: center;
 }
 </style>

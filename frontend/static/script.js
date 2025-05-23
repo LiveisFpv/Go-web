@@ -76,7 +76,7 @@ loginsubmit.addEventListener('click', async () => {
         },
         body: JSON.stringify(
             {
-                login: login,
+                email: login,
                 password: password
             }
         )
