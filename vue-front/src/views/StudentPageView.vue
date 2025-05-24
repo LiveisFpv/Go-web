@@ -2,13 +2,12 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-import StudentsTable from '@/components/StudentsTable.vue';
+import StudentsTable from '@/components/Student/StudentsTable.vue';
 import { studentService } from '@/services/studentService';
 import type { StudentResp } from '@/types/student';
 import type { AxiosError } from 'axios';
 import { watch } from 'vue';
 import PaginationBlock from '@/components/PaginationBlock.vue';
-import type { Filter } from '@/types/meta';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -45,10 +44,10 @@ const fetchStudents = async () => {
   try {
     loading.value = true;
     const response = await studentService.getStudents(
-      page.value, 
-      limit.value, 
-      sortField.value, 
-      sortOrder.value, 
+      page.value,
+      limit.value,
+      sortField.value,
+      sortOrder.value,
       filters.value
     );
     students.value = response.data;
@@ -73,11 +72,11 @@ const handleFiltersUpdate = (newFilters: Record<string, string>) => {
     sortField.value = newFilters.sort;
     sortOrder.value = newFilters.order as 'asc' | 'desc';
   }
-  
+
   // Remove sort parameters from filters
   const { sort, order, ...filterParams } = newFilters;
   filters.value = filterParams;
-  
+
   page.value = 1; // Reset to first page when filters change
   fetchStudents();
 };
@@ -91,8 +90,8 @@ onMounted(() => {
 
 <template>
   <div class="student">
-    <StudentsTable 
-      :students="students" 
+    <StudentsTable
+      :students="students"
       :sort-field="sortField"
       :sort-order="sortOrder"
       :current-filters="filters"
