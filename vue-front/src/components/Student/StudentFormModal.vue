@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import type { StudentReq, StudentResp } from '@/types/student';
+import { groupService } from '@/services/groupService';
+import type { GroupResp } from '@/types/group';
+import { useAuthStore } from '@/stores/auth';
+import router from '@/router';
+import type { AxiosError } from 'axios';
 
 const props = defineProps<{
   show: boolean;
@@ -83,6 +88,36 @@ const handleSubmit = () => {
 const handleClose = () => {
   emit('close');
 };
+
+const groups = ref<string[]>([]);
+const authStore = useAuthStore();
+const checkAuth = () => {
+  if (!authStore.isAuthenticated) {
+    router.push('/auth');
+    return false;
+  }
+  return true;
+};
+
+const onclick = async () => {
+  if (!checkAuth()) return;
+  // Fetch groups from a service or prop
+  if (groups.value.length > 0) return;
+  try{
+    const response = await groupService.getGroups(1, 1000);
+    groups.value = response.data.map((group: GroupResp) => group.name_group);
+    groups.value.sort((a, b) => a.localeCompare(b));
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    if (axiosError.response?.status === 401) {
+      authStore.logout();
+      router.push('/auth');
+    } else {
+      console.error(err);
+    }
+  }
+};
+
 </script>
 
 <template>
@@ -106,11 +141,14 @@ const handleClose = () => {
 
         <div class="form-group">
           <label for="name_group">Группа:</label>
-          <input
-            type="text"
+          <select
             id="name_group"
             v-model="formData.name_group"
-          />
+            @click="onclick"
+            placeholder="Выберите группу"
+            >
+            <option v-for="group in groups" :key="group" :value="group">{{ group }}</option>
+          </select>
           <span class="error" v-if="errors.name_group">{{ errors.name_group }}</span>
         </div>
 

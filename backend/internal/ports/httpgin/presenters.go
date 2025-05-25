@@ -66,6 +66,11 @@ type markResponce struct {
 	Lesson_name_mark string `json:"lesson_name_mark"`
 	Score_mark       int8   `json:"score_mark"`
 	Type_mark        string `json:"type_mark"`
+	// Student information
+	Student_surname     string `json:"surname_student"`
+	Student_name        string `json:"first_name_student"`
+	Student_second_name string `json:"second_name_student"`
+	Student_group       string `json:"name_group"`
 }
 
 type MarkRequest struct {
@@ -149,12 +154,16 @@ func mapGroupToResponse(group *domain.Group) groupResponse {
 
 func mapMarkToResponse(mark *domain.Mark) markResponce {
 	return markResponce{
-		Id_mark:          mark.Id_mark,
-		Id_num_student:   mark.Id_num_student,
-		Name_semester:    mark.Name_semester,
-		Lesson_name_mark: mark.Lesson_name_mark,
-		Score_mark:       mark.Score_mark,
-		Type_mark:        mark.Type_mark,
+		Id_mark:             mark.Id_mark,
+		Id_num_student:      mark.Id_num_student,
+		Name_semester:       mark.Name_semester,
+		Lesson_name_mark:    mark.Lesson_name_mark,
+		Score_mark:          mark.Score_mark,
+		Type_mark:           mark.Type_mark,
+		Student_surname:     mark.Student_surname,
+		Student_name:        mark.Student_name,
+		Student_second_name: mark.Student_second_name,
+		Student_group:       mark.Student_group,
 	}
 }
 

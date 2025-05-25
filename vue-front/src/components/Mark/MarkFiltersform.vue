@@ -1,41 +1,40 @@
 <script setup lang="ts">
-import type { Filter } from '@/types/meta';
-import { groupService } from '@/services/groupService';
-
-import { onMounted, ref } from 'vue';
-import type { GroupResp } from '@/types/group';
-import { useAuthStore } from '@/stores/auth';
 import router from '@/router';
+import { groupService } from '@/services/groupService';
+import { studentService } from '@/services/studentService';
+import { useAuthStore } from '@/stores/auth';
+import type { GroupResp } from '@/types/group';
+import type { StudentResp } from '@/types/student';
 import type { AxiosError } from 'axios';
+import { onMounted, ref } from 'vue';
 
-interface StudentFilters {
-  id_num_student: string;
-  name_group: string;
-  email_student: string;
-  second_name_student: string;
-  first_name_student: string;
-  surname_student: string;
+
+interface MarkFilters {
+  id_num_student: number;
+  name_semester: string;
+  lesson_name_mark: string;
+  type_mark: string;
+  name_group?: string; // Optional field for group name
 }
 
 const emit = defineEmits<{
   (e: 'update-filters', filters: Record<string, string>): void;
-}>();
+}>()
 
-const localFilters = ref<StudentFilters>({
-  id_num_student: '',
+const localFilters = ref<MarkFilters>({
+  id_num_student: 0,
+  name_semester: '',
+  lesson_name_mark: '',
+  type_mark: '',
   name_group: '',
-  email_student: '',
-  second_name_student: '',
-  first_name_student: '',
-  surname_student: '',
 });
 
 const apply = () => {
   // Only include non-empty filters
   const activeFilters = Object.entries(localFilters.value)
     .reduce((acc, [key, value]) => {
-      if (value.trim()) {
-        acc[key] = value.trim();
+      if (value || value === 0) { // Include zero values
+        acc[key] = String(value);
       }
       return acc;
     }, {} as Record<string, string>);
@@ -45,12 +44,12 @@ const apply = () => {
 
 const clearFilters = () => {
   Object.keys(localFilters.value).forEach(key => {
-    (localFilters.value as any)[key] = '';
+    (localFilters.value as any)[key] = key === 'score_mark' || key === 'id_num_student' || key === 'id_mark' ? 0 : '';
   });
   emit('update-filters', {});
 };
 
-const groups = ref<string[]>([]);
+const students = ref<StudentResp[]>([]);
 const authStore = useAuthStore();
 const checkAuth = () => {
   if (!authStore.isAuthenticated) {
@@ -59,6 +58,24 @@ const checkAuth = () => {
   }
   return true;
 };
+
+onMounted(async () => {
+  if (!checkAuth()) return;
+  if (students.value.length > 0) return;
+  try {
+    const response = await studentService.getStudents(1, 1000);
+    students.value = response.data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    if (axiosError.response?.status === 401) {
+      authStore.logout();
+      router.push('/auth');
+    } else {
+      console.error('Failed to fetch students:', axiosError);
+    }
+  }
+});
+const groups = ref<string[]>([]);
 
 const onclick = async () => {
   if (!checkAuth()) return;
@@ -85,8 +102,10 @@ const onclick = async () => {
   <div class="filters-form">
     <div class="filters-grid">
       <div class="filter-group">
-        <label>Номер билета</label>
-        <input v-model="localFilters.id_num_student" placeholder="Введите номер" />
+        <label>Номер студента</label>
+        <select v-model="localFilters.id_num_student">
+          <option v-for="student in students" :key="student.id_num_student" :value="student.id_num_student">{{ student.second_name_student+" "+student.first_name_student+" "+student.surname_student+" "+student.id_num_student }}</option>
+        </select>
       </div>
       <div class="filter-group">
         <label>Группа</label>
@@ -95,20 +114,16 @@ const onclick = async () => {
         </select>
       </div>
       <div class="filter-group">
-        <label>Почта</label>
-        <input v-model="localFilters.email_student" placeholder="Введите почту" />
+        <label>Семестр</label>
+        <input v-model="localFilters.name_semester" placeholder="Введите семестр" />
       </div>
       <div class="filter-group">
-        <label>Фамилия</label>
-        <input v-model="localFilters.second_name_student" placeholder="Введите фамилию" />
+        <label>Название предмета</label>
+        <input v-model="localFilters.lesson_name_mark" placeholder="Введите название предмета" />
       </div>
       <div class="filter-group">
-        <label>Имя</label>
-        <input v-model="localFilters.first_name_student" placeholder="Введите имя" />
-      </div>
-      <div class="filter-group">
-        <label>Отчество</label>
-        <input v-model="localFilters.surname_student" placeholder="Введите отчество" />
+        <label>Тип оценки</label>
+        <input v-model="localFilters.type_mark" placeholder="Введите тип оценки" />
       </div>
     </div>
     <div class="filters-actions">

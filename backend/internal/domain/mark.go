@@ -7,4 +7,9 @@ type Mark struct {
 	Lesson_name_mark string
 	Score_mark       int8
 	Type_mark        string
+	// Student information
+	Student_surname     string
+	Student_name        string
+	Student_second_name string
+	Student_group       string
 }
