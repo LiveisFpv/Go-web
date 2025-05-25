@@ -34,6 +34,13 @@ func AppRouter(r *gin.RouterGroup, a *app.App) {
 	r.GET("/mark/", func(c *gin.Context) { handlers.GetAllMark(c, a) })
 	r.DELETE("/mark/ids", func(c *gin.Context) { handlers.DeleteMarks(c, a) })
 
+	// Scholarship operations
+	r.POST("/scholarship/", func(c *gin.Context) { handlers.CreateScholarship(c, a) })
+	r.PUT("/scholarship/", func(c *gin.Context) { handlers.UpdateScholarshipByID(c, a) })
+	r.DELETE("/scholarship/", func(c *gin.Context) { handlers.DeleteScholarshipByID(c, a) })
+	r.GET("/scholarship/", func(c *gin.Context) { handlers.GetAllScholarship(c, a) })
+	r.DELETE("/scholarship/ids", func(c *gin.Context) { handlers.DeleteScholarships(c, a) })
+
 	// Semester operations
 	r.GET("/semester/", func(c *gin.Context) { handlers.GetAllSemester(c, a) })
 	r.POST("/semester/", func(c *gin.Context) { handlers.CreateSemester(c, a) })

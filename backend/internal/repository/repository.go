@@ -51,6 +51,14 @@ type Repository interface {
 		name_semester, lesson_name_mark string, score_mark int8, type_mark string) (*domain.Mark, error)
 	DeleteMarkByID(ctx context.Context, id_mark int64) error
 
+	// Scholarship operations
+	GetAllScholarship(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Scholarship, int, error)
+	CreateScholarship(ctx context.Context, id_num_student int64,
+		name_semester string, size_scholarshp float64, id_budget int64) (*domain.Scholarship, error)
+	UpdateScholarshipByID(ctx context.Context, id_scholarship, id_num_student int64,
+		name_semester string, size_scholarshp float64, id_budget int64) (*domain.Scholarship, error)
+	DeleteScholarshipByID(ctx context.Context, id_scholarship int64) error
+
 	// Semester operations
 	GetAllSemester(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Semester, int, error)
 	CreateSemester(ctx context.Context, name_semester string, date_start_semester, date_end_semester string) (*domain.Semester, error)

@@ -73,12 +73,11 @@ const handleModalSubmit = async (mark: MarkReq) => {
     emit('refresh');
   } catch (error) {
     console.error('Error saving mark:', error);
-    // Here you might want to show an error message to the user
   }
 };
 
 const handleDelete = async (mark: MarkResp) => {
-  if (confirm('Вы уверены, что хотите удалить этого студента?')) {
+  if (confirm('Вы уверены, что хотите удалить оценку?')) {
     try {
       await markService.deleteMarks([mark.id_mark.toString()]);
       emit('refresh');
@@ -112,6 +111,9 @@ const handleDelete = async (mark: MarkResp) => {
               <th @click="handleSort('id_num_student')" class="sortable">
                 Cтудент {{ getSortIcon('id_num_student') }}
               </th>
+              <th @click="handleSort('second_name_student')" class="sortable">
+                  ФИО {{ getSortIcon('second_name_student') }}
+                </th>
               <th @click="handleSort('name_group')" class="sortable">
                 Группа {{ getSortIcon('name_group') }}
               </th>
@@ -136,7 +138,8 @@ const handleDelete = async (mark: MarkResp) => {
               @dblclick="handleRowDoubleClick(mark)"
               class="editable-row">
               <td hidden>{{ mark.id_mark }}</td>
-              <td>{{ mark.second_name_student+" "+mark.first_name_student+" "+mark.surname_student+" "+mark.id_num_student }}</td>
+              <td>{{ mark.id_num_student }}</td>
+              <td>{{ mark.second_name_student+" "+mark.first_name_student+" "+mark.surname_student }}</td>
               <td>{{ mark.name_group }}</td>
               <td>{{ mark.name_semester }}</td>
               <td>{{ mark.lesson_name_mark }}</td>
@@ -147,7 +150,7 @@ const handleDelete = async (mark: MarkResp) => {
               </td>
             </tr>
             <tr class="create-row" @click="handleCreateClick">
-              <td colspan="8" class="create-cell">
+              <td colspan="9" class="create-cell">
                 <span class="create-icon">+</span> Добавить новую оценку
               </td>
             </tr>

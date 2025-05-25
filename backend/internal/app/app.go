@@ -142,6 +142,40 @@ func (a *App) DeleteMarkByID(ctx context.Context, id_mark int64) error {
 	return err
 }
 
+// Scholarship operations
+func (a *App) GetAllScholarship(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Scholarship, int, error) {
+	scholarships, count, err := a.repo.GetAllScholarship(ctx, filters, rowCount, page, search)
+	return scholarships, count, err
+}
+
+func (a *App) CreateScholarship(ctx context.Context, id_num_student int64,
+	name_semester string, size_scholarshp float64, id_budget int64) (*domain.Scholarship, error) {
+	scholarship, err := a.repo.CreateScholarship(ctx,
+		id_num_student,
+		name_semester,
+		size_scholarshp,
+		id_budget,
+	)
+	return scholarship, err
+}
+
+func (a *App) UpdateScholarshipByID(ctx context.Context, id_scholarship, id_num_student int64,
+	name_semester string, size_scholarshp float64, id_budget int64) (*domain.Scholarship, error) {
+	scholarship, err := a.repo.UpdateScholarshipByID(ctx,
+		id_scholarship,
+		id_num_student,
+		name_semester,
+		size_scholarshp,
+		id_budget,
+	)
+	return scholarship, err
+}
+
+func (a *App) DeleteScholarshipByID(ctx context.Context, id_scholarship int64) error {
+	err := a.repo.DeleteScholarshipByID(ctx, id_scholarship)
+	return err
+}
+
 // Semester operations
 func (a *App) GetAllSemester(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Semester, int, error) {
 	semesters, count, err := a.repo.GetAllSemester(ctx, filters, rowCount, page, search)
