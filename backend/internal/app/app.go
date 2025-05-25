@@ -201,3 +201,29 @@ func (a *App) DeleteSemesters(ctx context.Context, names []string) error {
 	err := a.repo.DeleteSemesters(ctx, names)
 	return err
 }
+
+// Budget operations
+func (a *App) GetAllBudget(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Budget, int, error) {
+	budgets, count, err := a.repo.GetAllBudget(ctx, filters, rowCount, page, search)
+	return budgets, count, err
+}
+
+func (a *App) CreateBudget(ctx context.Context, type_scholarship_budget string, name_semester string, size_budget float64) (*domain.Budget, error) {
+	budget, err := a.repo.CreateBudget(ctx, type_scholarship_budget, name_semester, size_budget)
+	return budget, err
+}
+
+func (a *App) UpdateBudgetByID(ctx context.Context, id_budget int, type_scholarship_budget string, name_semester string, size_budget float64) (*domain.Budget, error) {
+	budget, err := a.repo.UpdateBudgetByID(ctx, id_budget, type_scholarship_budget, name_semester, size_budget)
+	return budget, err
+}
+
+func (a *App) DeleteBudgetByID(ctx context.Context, id_budget int) error {
+	err := a.repo.DeleteBudgetByID(ctx, id_budget)
+	return err
+}
+
+func (a *App) DeleteBudgets(ctx context.Context, ids []int) error {
+	err := a.repo.DeleteBudgets(ctx, ids)
+	return err
+}

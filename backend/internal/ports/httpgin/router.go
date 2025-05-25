@@ -47,6 +47,13 @@ func AppRouter(r *gin.RouterGroup, a *app.App) {
 	r.PUT("/semester/", func(c *gin.Context) { handlers.UpdateSemesterByName(c, a) })
 	r.DELETE("/semester/", func(c *gin.Context) { handlers.DeleteSemesterByName(c, a) })
 	r.DELETE("/semester/ids", func(c *gin.Context) { handlers.DeleteSemesters(c, a) })
+
+	// Budget operations
+	r.GET("/budget/", func(c *gin.Context) { handlers.GetAllBudget(c, a) })
+	r.POST("/budget/", func(c *gin.Context) { handlers.CreateBudget(c, a) })
+	r.PUT("/budget/", func(c *gin.Context) { handlers.UpdateBudgetByID(c, a) })
+	r.DELETE("/budget/:id", func(c *gin.Context) { handlers.DeleteBudgetByID(c, a) })
+	r.DELETE("/budget/ids", func(c *gin.Context) { handlers.DeleteBudgets(c, a) })
 }
 
 func OpenRouter(r *gin.RouterGroup, a *app.App) {

@@ -65,4 +65,11 @@ type Repository interface {
 	UpdateSemesterByName(ctx context.Context, name_semester string, date_start_semester, date_end_semester string) (*domain.Semester, error)
 	DeleteSemesterByName(ctx context.Context, name_semester string) error
 	DeleteSemesters(ctx context.Context, names []string) error
+
+	// Budget operations
+	GetAllBudget(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Budget, int, error)
+	CreateBudget(ctx context.Context, type_scholarship_budget string, name_semester string, size_budget float64) (*domain.Budget, error)
+	UpdateBudgetByID(ctx context.Context, id_budget int, type_scholarship_budget string, name_semester string, size_budget float64) (*domain.Budget, error)
+	DeleteBudgetByID(ctx context.Context, id_budget int) error
+	DeleteBudgets(ctx context.Context, ids []int) error
 }
