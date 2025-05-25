@@ -141,3 +141,29 @@ func (a *App) DeleteMarkByID(ctx context.Context, id_mark int64) error {
 	err := a.repo.DeleteMarkByID(ctx, id_mark)
 	return err
 }
+
+// Semester operations
+func (a *App) GetAllSemester(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Semester, int, error) {
+	semesters, count, err := a.repo.GetAllSemester(ctx, filters, rowCount, page, search)
+	return semesters, count, err
+}
+
+func (a *App) CreateSemester(ctx context.Context, name_semester string, date_start_semester, date_end_semester string) (*domain.Semester, error) {
+	semester, err := a.repo.CreateSemester(ctx, name_semester, date_start_semester, date_end_semester)
+	return semester, err
+}
+
+func (a *App) UpdateSemesterByName(ctx context.Context, name_semester string, date_start_semester, date_end_semester string) (*domain.Semester, error) {
+	semester, err := a.repo.UpdateSemesterByName(ctx, name_semester, date_start_semester, date_end_semester)
+	return semester, err
+}
+
+func (a *App) DeleteSemesterByName(ctx context.Context, name_semester string) error {
+	err := a.repo.DeleteSemesterByName(ctx, name_semester)
+	return err
+}
+
+func (a *App) DeleteSemesters(ctx context.Context, names []string) error {
+	err := a.repo.DeleteSemesters(ctx, names)
+	return err
+}

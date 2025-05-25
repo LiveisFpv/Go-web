@@ -50,4 +50,11 @@ type Repository interface {
 	UpdateMarkByID(ctx context.Context, id_mark, id_num_student int64,
 		name_semester, lesson_name_mark string, score_mark int8, type_mark string) (*domain.Mark, error)
 	DeleteMarkByID(ctx context.Context, id_mark int64) error
+
+	// Semester operations
+	GetAllSemester(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Semester, int, error)
+	CreateSemester(ctx context.Context, name_semester string, date_start_semester, date_end_semester string) (*domain.Semester, error)
+	UpdateSemesterByName(ctx context.Context, name_semester string, date_start_semester, date_end_semester string) (*domain.Semester, error)
+	DeleteSemesterByName(ctx context.Context, name_semester string) error
+	DeleteSemesters(ctx context.Context, names []string) error
 }

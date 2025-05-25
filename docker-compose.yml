@@ -31,22 +31,7 @@ services:
       - "9000:9000"
     depends_on:
       - backend
-
-  frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    environment:
-      - GO_HOST=backend-go
-      - PYTHON_HOST=backend-py
-    networks:
-      - app-network
-    ports:
-      - "14000:14000"
-    depends_on:
-      - backend
-      - backend-python
-
+      
   db:
     image: postgres:16
     container_name: postgres_db
@@ -56,8 +41,6 @@ services:
       - POSTGRES_DB=${DB_NAME}
     networks:
       - app-network
-    ports:
-      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./server_conf/clone_db.sql:/docker-entrypoint-initdb.d/init.sql
