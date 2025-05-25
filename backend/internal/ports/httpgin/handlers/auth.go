@@ -1,4 +1,4 @@
-package httpgin
+package handlers
 
 import (
 	"backend/internal/app"
@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func auth(c *gin.Context, a *app.App) {
+func Auth(c *gin.Context, a *app.App) {
 	var reqBody AuthRequest
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse(err))
@@ -28,7 +28,7 @@ func auth(c *gin.Context, a *app.App) {
 	c.JSON(http.StatusOK, LoginSuccessResponse(&domain.Token{Token: token}))
 }
 
-func register(c *gin.Context, a *app.App) {
+func Register(c *gin.Context, a *app.App) {
 	var reqBody RegisterRequest
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse(err))
@@ -50,4 +50,8 @@ func register(c *gin.Context, a *app.App) {
 		return
 	}
 	c.JSON(http.StatusOK, LoginSuccessResponse(&domain.Token{Token: token}))
+}
+
+func GetTables(c *gin.Context) {
+	// ... existing code ...
 }

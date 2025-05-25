@@ -1,4 +1,4 @@
-package httpgin
+package handlers
 
 import (
 	"backend/internal/app"
@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func getStudentMeta(c *gin.Context, a *app.App) {
+func GetStudentMeta(c *gin.Context, a *app.App) {
 	meta := gin.H{
 		"data": []map[string]interface{}{
 			{"name": "id_num_student", "type": "number", "required": true, "unique": true, "id": false},
@@ -22,7 +22,7 @@ func getStudentMeta(c *gin.Context, a *app.App) {
 	c.JSON(http.StatusOK, meta)
 }
 
-func getGroupMeta(c *gin.Context, a *app.App) {
+func GetGroupMeta(c *gin.Context, a *app.App) {
 	meta := gin.H{
 		"data": []map[string]interface{}{
 			{"name": "name_group", "type": "text", "required": true, "unique": true, "id": false},
@@ -36,7 +36,7 @@ func getGroupMeta(c *gin.Context, a *app.App) {
 	c.JSON(http.StatusOK, meta)
 }
 
-func getMarkMeta(c *gin.Context, a *app.App) {
+func GetMarkMeta(c *gin.Context, a *app.App) {
 	meta := gin.H{
 		"data": []map[string]interface{}{
 			{"name": "id_mark", "type": "number", "required": true, "unique": true, "id": true},
