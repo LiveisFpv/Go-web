@@ -76,14 +76,14 @@ const handleModalSubmit = async (scholarship: ScholarshipReq) => {
     console.error('Error saving scholarship:', error);
   }
 };
+
 const handleDelete = async (scholarship: ScholarshipResp) => {
   if (confirm('Вы уверены, что хотите удалить стипендию?')) {
     try {
       await scholarshipService.deleteScholarships([scholarship.id_scholarship.toString()]);
       emit('refresh');
     } catch (error) {
-      console.error('Error deleting mark:', error);
-      // Here you might want to show an error message to the user
+      console.error('Error deleting scholarship:', error);
     }
   }
 };
@@ -164,7 +164,7 @@ const handleDelete = async (scholarship: ScholarshipResp) => {
     v-if="showModal"
     :show="showModal"
     :mode="modalMode"
-    :mark="selectedScholarship"
+    :scholarship="selectedScholarship"
     @close="showModal = false"
     @submit="handleModalSubmit"
   />

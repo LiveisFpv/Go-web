@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import type { ScholarshipReq, ScholarshipResp } from '@/types/scholarship';
 import { scholarshipService } from '@/services/scholarshipService';
 import type { StudentResp } from '@/types/student';
@@ -7,6 +7,10 @@ import { useAuthStore } from '@/stores/auth';
 import router from '@/router';
 import { studentService } from '@/services/studentService';
 import type { AxiosError } from 'axios';
+import type { BudgetResp } from '@/types/budget';
+import { budgetService } from '@/services/budgetService';
+import { semesterService } from '@/services/semesterService';
+import type { SemesterResp } from '@/types/semester';
 
 const props = defineProps<{
   show: boolean;
@@ -28,10 +32,90 @@ const formData = ref<ScholarshipReq>({
 });
 
 const errors = ref<Record<string, string>>({});
+const students = ref<StudentResp[]>([]);
+const semesters = ref<SemesterResp[]>([]);
+const budget = ref<BudgetResp[]>([]);
+const authStore = useAuthStore();
+
+const checkAuth = () => {
+  if (!authStore.isAuthenticated) {
+    router.push('/auth');
+    return false;
+  }
+  return true;
+};
+
+const getSemesters = async () => {
+  if (!checkAuth()) return;
+  if (semesters.value.length > 0) return;
+  try {
+    const response = await semesterService.getSemesters(1, 1000);
+    semesters.value = response.data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    if (axiosError.response?.status === 401) {
+      authStore.logout();
+      router.push('/auth');
+    } else {
+      console.error('Failed to fetch semesters', err);
+    }
+  }
+};
+
+const getBudget = async () => {
+  if (!checkAuth()) return;
+  if (budget.value.length > 0) return;
+  try {
+    const response = await budgetService.getBudgets(1, 1000);
+    budget.value = response.data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    if (axiosError.response?.status === 401) {
+      authStore.logout();
+      router.push('/auth');
+    } else {
+      console.error('Failed to fetch budget', err);
+    }
+  }
+};
+
+const onclick = async () => {
+  if (!checkAuth()) return;
+  if (students.value.length > 0) return;
+  try {
+    const response = await studentService.getStudents(1, 1000);
+    students.value = response.data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    if (axiosError.response?.status === 401) {
+      authStore.logout();
+      router.push('/auth');
+    } else {
+      console.error('Failed to fetch students', err);
+    }
+  }
+};
+
+const filteredBudgets = computed(() => {
+  if (!formData.value.name_semester) return [];
+  return budget.value.filter(bud => {
+    return bud.name_semester === formData.value.name_semester;
+  });
+});
 
 watch(() => props.scholarship, (newScholarship) => {
   if (newScholarship && props.mode === 'edit') {
-    formData.value = { ...newScholarship };
+    formData.value = {
+      id_scholarship: newScholarship.id_scholarship,
+      id_num_student: newScholarship.id_num_student,
+      name_semester: newScholarship.name_semester,
+      size_scholarshp: newScholarship.size_scholarshp,
+      id_budget: newScholarship.id_budget
+    };
+    // Загружаем данные для выпадающих списков
+    getSemesters();
+    getBudget();
+    onclick();
   } else {
     formData.value = {
       id_scholarship: 0,
@@ -64,49 +148,30 @@ const validateForm = (): boolean => {
     isValid = false;
   }
 
-   return isValid;
+  return isValid;
 };
 
-const handleSubmit = () =>{
+const handleSubmit = async () => {
   if (validateForm()) {
-    emit('submit', formData.value);
+    try {
+      if (props.mode === 'create') {
+        await scholarshipService.createScholarship(formData.value);
+      } else {
+        await scholarshipService.updateScholarship(formData.value);
+      }
+      emit('submit', formData.value);
+      handleClose();
+    } catch (error) {
+      console.error('Error saving scholarship:', error);
+      // Можно добавить отображение ошибки пользователю
+    }
   }
-}
+};
 
 const handleClose = () => {
   emit('close');
 };
-
-const students = ref<StudentResp[]>([]);
-const authStore = useAuthStore();
-const checkAuth = () => {
-  if (!authStore.isAuthenticated) {
-    router.push('/auth');
-    return false;
-  }
-  return true;
-};
-
-const onclick = async () => {
-  if (!checkAuth()) return;
-  if (students.value.length > 0) return;
-  try{
-    const response = await studentService.getStudents(1, 1000);
-    students.value = response.data
-  } catch (err) {
-    const axiosError = err as AxiosError;
-    if (axiosError.response?.status === 401) {
-      authStore.logout();
-      router.push('/auth');
-    } else {
-      console.error('Failed to fetch students', err);
-    }
-  }
-}
-
 </script>
-
-
 
 <template>
   <div v-if="show" class="modal-overlay" @click="handleClose">
@@ -129,7 +194,7 @@ const onclick = async () => {
           </span>
         </div>
         <div class="form-group">
-          <label for="id_num_student">ID студента:</label>
+          <label for="id_num_student">Cтудент:</label>
           <select v-model.number="formData.id_num_student" id="id_num_student" @click="onclick">
             <option v-for="student in students" :key="student.id_num_student" :value="student.id_num_student">{{ student.second_name_student+" "+student.first_name_student+" "+student.surname_student+" "+student.name_group+" "+student.id_num_student }}</option>
           </select>
@@ -138,12 +203,20 @@ const onclick = async () => {
 
         <div class="form-group">
           <label for="name_semester">Семестр:</label>
-          <input
-            type="text"
+          <select
             id="name_semester"
             v-model="formData.name_semester"
             required
-          />
+            @click="getSemesters"
+            @change="formData.id_budget = 0"
+          >
+            <option value="">Выберите семестр</option>
+            <option v-for="semester in semesters"
+                    :key="semester.name_semester"
+                    :value="semester.name_semester">
+              {{ semester.name_semester }}
+            </option>
+          </select>
           <span class="error-message" v-if="errors.name_semester">
             {{ errors.name_semester }}
           </span>
@@ -164,13 +237,20 @@ const onclick = async () => {
         </div>
 
         <div class="form-group">
-          <label for="id_budget">ID бюджета:</label>
-          <input
-            type="number"
-            id="id_budget"
+          <label for="id_budget">Тип стипендии</label>
+          <select
             v-model.number="formData.id_budget"
-            required
-          />
+            id="id_budget"
+            @click="getBudget"
+            :disabled="!formData.name_semester"
+          >
+            <option value="">Выберите тип стипендии</option>
+            <option v-for="bud in filteredBudgets"
+                    :key="bud.id_budget"
+                    :value="bud.id_budget">
+              {{ bud.type_scholarship_budget }}
+            </option>
+          </select>
           <span class="error-message" v-if="errors.id_budget">
             {{ errors.id_budget }}
           </span>

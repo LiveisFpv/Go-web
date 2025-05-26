@@ -90,6 +90,7 @@ onMounted(() => {
       :sort-order="sortOrder"
       :current-filters="filters"
       @update-filters="handleFiltersUpdate"
+      @refresh="fetchMarks"
     />
     <PaginationBlock
       :page="page"
