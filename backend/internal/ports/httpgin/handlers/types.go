@@ -18,6 +18,8 @@ type (
 	ScholarshipsDeleteRequest = presenters.ScholarshipsDeleteRequest
 	SemesterRequest           = presenters.SemesterRequest
 	SemesterDeleteRequest     = presenters.SemesterDeleteRequest
+	AchievementRequest        = presenters.AchievementRequest
+	AchievementsDeleteRequest = presenters.AchievementsDeleteRequest
 )
 
 // Import all response functions
@@ -36,4 +38,6 @@ var (
 	AllScholarshipSuccessResponse = presenters.AllScholarshipSuccessResponse
 	SemesterSuccessResponse       = presenters.SemesterSuccessResponse
 	AllSemesterSuccessResponse    = presenters.AllSemesterSuccessResponse
+	AchievementSuccessResponse    = presenters.AchievementSuccessResponse
+	AllAchievementSuccessResponse = presenters.AllAchievementSuccessResponse
 )

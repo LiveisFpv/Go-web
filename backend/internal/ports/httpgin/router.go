@@ -61,6 +61,13 @@ func AppRouter(r *gin.RouterGroup, a *app.App) {
 	r.PUT("/achievement-category/", func(c *gin.Context) { handlers.UpdateAchievementCategoryByID(c, a) })
 	r.DELETE("/achievement-category/", func(c *gin.Context) { handlers.DeleteAchievementCategoryByID(c, a) })
 	r.DELETE("/achievement-category/ids", func(c *gin.Context) { handlers.DeleteAchievementCategories(c, a) })
+
+	// Achievement operations
+	r.POST("/achievement/", func(c *gin.Context) { handlers.CreateAchievement(c, a) })
+	r.PUT("/achievement/", func(c *gin.Context) { handlers.UpdateAchievementByID(c, a) })
+	r.DELETE("/achievement/", func(c *gin.Context) { handlers.DeleteAchievementByID(c, a) })
+	r.GET("/achievement/", func(c *gin.Context) { handlers.GetAllAchievement(c, a) })
+	r.DELETE("/achievement/ids", func(c *gin.Context) { handlers.DeleteAchievements(c, a) })
 }
 
 func OpenRouter(r *gin.RouterGroup, a *app.App) {

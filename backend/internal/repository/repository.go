@@ -79,4 +79,13 @@ type Repository interface {
 	UpdateAchievementCategoryByID(ctx context.Context, id_category uint64, achivments_type_category string, score_category uint8) (*domain.AchievementCategory, error)
 	DeleteAchievementCategoryByID(ctx context.Context, id_category uint64) error
 	DeleteAchievementCategories(ctx context.Context, ids []uint64) error
+
+	// Achievement operations
+	GetAllAchievement(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Achievement, int, error)
+	CreateAchievement(ctx context.Context, id_num_student int64,
+		id_category int64, name_achivement string, date_achivment string) (*domain.Achievement, error)
+	UpdateAchievementByID(ctx context.Context, id_achivment, id_num_student int64,
+		id_category int64, name_achivement string, date_achivment string) (*domain.Achievement, error)
+	DeleteAchievementByID(ctx context.Context, id_achivment int64) error
+	DeleteAchievements(ctx context.Context, ids []int64) error
 }
