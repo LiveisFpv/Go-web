@@ -72,4 +72,11 @@ type Repository interface {
 	UpdateBudgetByID(ctx context.Context, id_budget int, type_scholarship_budget string, name_semester string, size_budget float64) (*domain.Budget, error)
 	DeleteBudgetByID(ctx context.Context, id_budget int) error
 	DeleteBudgets(ctx context.Context, ids []int) error
+
+	// Achievement Category operations
+	GetAllAchievementCategory(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.AchievementCategory, int, error)
+	CreateAchievementCategory(ctx context.Context, achivments_type_category string, score_category uint8) (*domain.AchievementCategory, error)
+	UpdateAchievementCategoryByID(ctx context.Context, id_category uint64, achivments_type_category string, score_category uint8) (*domain.AchievementCategory, error)
+	DeleteAchievementCategoryByID(ctx context.Context, id_category uint64) error
+	DeleteAchievementCategories(ctx context.Context, ids []uint64) error
 }

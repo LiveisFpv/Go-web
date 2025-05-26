@@ -227,3 +227,29 @@ func (a *App) DeleteBudgets(ctx context.Context, ids []int) error {
 	err := a.repo.DeleteBudgets(ctx, ids)
 	return err
 }
+
+// Achievement Category operations
+func (a *App) GetAllAchievementCategory(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.AchievementCategory, int, error) {
+	categories, count, err := a.repo.GetAllAchievementCategory(ctx, filters, rowCount, page, search)
+	return categories, count, err
+}
+
+func (a *App) CreateAchievementCategory(ctx context.Context, achivments_type_category string, score_category uint8) (*domain.AchievementCategory, error) {
+	category, err := a.repo.CreateAchievementCategory(ctx, achivments_type_category, score_category)
+	return category, err
+}
+
+func (a *App) UpdateAchievementCategoryByID(ctx context.Context, id_category uint64, achivments_type_category string, score_category uint8) (*domain.AchievementCategory, error) {
+	category, err := a.repo.UpdateAchievementCategoryByID(ctx, id_category, achivments_type_category, score_category)
+	return category, err
+}
+
+func (a *App) DeleteAchievementCategoryByID(ctx context.Context, id_category uint64) error {
+	err := a.repo.DeleteAchievementCategoryByID(ctx, id_category)
+	return err
+}
+
+func (a *App) DeleteAchievementCategories(ctx context.Context, ids []uint64) error {
+	err := a.repo.DeleteAchievementCategories(ctx, ids)
+	return err
+}
