@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
 import { initGoogleAuth, handleGoogleLogin } from '../services/googleAuth'
 import {
   validateEmail,
@@ -14,7 +13,6 @@ import { login, register } from '../services/authService'
 import type { AuthError } from '../types/auth'
 
 const router = useRouter()
-const authStore = useAuthStore()
 
 const isLogin = ref(true)
 const email = ref('')
@@ -98,7 +96,6 @@ const handleLogin = async () => {
       email: email.value,
       password: password.value
     })
-    authStore.login(response.data.token)
     router.push('/')
   } catch (e) {
     const error = e as AuthError
@@ -121,7 +118,6 @@ const handleRegister = async () => {
       email: email.value,
       password: password.value
     })
-    authStore.login(response.data.token)
     router.push('/')
   } catch (e) {
     const error = e as AuthError
@@ -250,7 +246,7 @@ label {
   font-weight: 500;
 }
 
-input {
+input,select {
   padding: 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: 4px;

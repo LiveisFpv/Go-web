@@ -6,8 +6,7 @@ import { useAuthStore } from '@/stores/auth';
 import type { GroupResp } from '@/types/group';
 import type { StudentResp } from '@/types/student';
 import type { AxiosError } from 'axios';
-import { onMounted, ref } from 'vue';
-
+import { onMounted, ref, watch, computed } from 'vue';
 
 interface MarkFilters {
   id_num_student: number;
@@ -96,18 +95,31 @@ const onclick = async () => {
   }
 };
 
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
+
+const props = defineProps<{
+  filters: {
+    studentId?: number;
+    subjectId?: number;
+    semester?: number;
+    mark?: number;
+  };
+}>();
+
 </script>
 
 <template>
   <div class="filters-form">
     <div class="filters-grid">
-      <div class="filter-group">
+      <div v-if="!isStudent" class="filter-group">
         <label>Номер студента</label>
         <select v-model="localFilters.id_num_student">
           <option v-for="student in students" :key="student.id_num_student" :value="student.id_num_student">{{ student.second_name_student+" "+student.first_name_student+" "+student.surname_student+" "+student.id_num_student }}</option>
         </select>
       </div>
-      <div class="filter-group">
+      <div v-if="!isStudent" class="filter-group">
         <label>Группа</label>
         <select @click="onclick" v-model="localFilters.name_group" placeholder="Выберите группу">
           <option v-for="group in groups" :key="group" :value="group">{{ group }}</option>

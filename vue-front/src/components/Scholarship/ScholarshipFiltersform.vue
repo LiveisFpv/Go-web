@@ -4,7 +4,13 @@ import { studentService } from '@/services/studentService';
 import { useAuthStore } from '@/stores/auth';
 import type { StudentResp } from '@/types/student';
 import type { AxiosError } from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
+
+const authStore = useAuthStore();
+
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
 
 const emit = defineEmits<{
   (e: 'update-filters', filters: Record<string, string>): void;
@@ -57,7 +63,6 @@ const clearFilters = () => {
 };
 
 const students = ref<StudentResp[]>([]);
-const authStore = useAuthStore();
 const checkAuth = () => {
   if (!authStore.isAuthenticated) {
     router.push('/auth');
@@ -97,7 +102,7 @@ onMounted(async () => {
         />
       </div>
 
-      <div class="filter-item">
+      <div v-if="!isStudent" class="filter-item">
         <label for="id_num_student">Номер билета:</label>
         <input
           type="text"
@@ -133,7 +138,7 @@ onMounted(async () => {
         />
       </div>
 
-      <div class="filter-item">
+      <div v-if="!isStudent" class="filter-item">
         <label for="surname_student">Фамилия:</label>
         <input
           type="text"
@@ -142,7 +147,7 @@ onMounted(async () => {
         />
       </div>
 
-      <div class="filter-item">
+      <div v-if="!isStudent" class="filter-item">
         <label for="first_name_student">Имя:</label>
         <input
           type="text"
@@ -151,7 +156,7 @@ onMounted(async () => {
         />
       </div>
 
-      <div class="filter-item">
+      <div v-if="!isStudent" class="filter-item">
         <label for="second_name_student">Отчество:</label>
         <input
           type="text"
@@ -160,7 +165,7 @@ onMounted(async () => {
         />
       </div>
 
-      <div class="filter-item">
+      <div v-if="!isStudent" class="filter-item">
         <label for="name_group">Группа:</label>
         <input
           type="text"

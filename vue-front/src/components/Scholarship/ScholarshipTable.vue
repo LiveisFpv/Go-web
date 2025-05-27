@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import type { ScholarshipReq, ScholarshipResp } from '@/types/scholarship';
 import ScholarshipFiltersform from '@/components/Scholarship/ScholarshipFiltersform.vue';
 import ScholarshipFormModal from '@/components/Scholarship/ScholarshipFormModal.vue';
 import { scholarshipService } from '@/services/scholarshipService';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
+
+const authStore = useAuthStore();
+
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
 
 const props = defineProps<{
   scholarships: ScholarshipResp[];
@@ -111,46 +117,45 @@ const handleDelete = async (scholarship: ScholarshipResp) => {
                 <th @click="handleSort('id_scholarship')"class="sortable" hidden>
                   ID Стипендии {{ getSortIcon('id_scholarship') }}
                 </th>
-
-                <th @click="handleSort('id_num_student')" class="sortable">
+                <th v-if="!isStudent" @click="handleSort('id_num_student')" class="sortable">
                   Cтудент {{ getSortIcon('id_num_student') }}
                 </th>
-                <th @click="handleSort('second_name_student')" class="sortable">
+                <th v-if="!isStudent" @click="handleSort('second_name_student')" class="sortable">
                   ФИО {{ getSortIcon('second_name_student') }}
                 </th>
-                <th @click="handleSort('name_group')" class="sortable">
+                <th v-if="!isStudent" @click="handleSort('name_group')" class="sortable">
                   Группа {{ getSortIcon('name_group') }}
                 </th>
                 <th @click="handleSort('name_semester')" class="sortable">
                   Семестр {{ getSortIcon('name_semester') }}
                 </th>
-                <th @click="handleSort('size_scholarshp')">
+                <th @click="handleSort('size_scholarshp')" class="sortable">
                   Размер {{ getSortIcon('size_scholarshp') }}
                 </th>
-                <th @click="handleSort('type_scholarship_budget')">
+                <th @click="handleSort('type_scholarship_budget')" class="sortable">
                   Тип стипендии {{ getSortIcon('type_scholarship_budget') }}
                 </th>
-                <th>Действия</th>
+                <th v-if="!isStudent">Действия</th>
               </tr>
           </thead>
           <tbody>
             <tr v-for="scholarship in scholarships"
               :key="scholarship.id_scholarship"
-              @dblclick="handleRowDoubleClick(scholarship)"
-              class="editable-row">
+              @dblclick="!isStudent && handleRowDoubleClick(scholarship)"
+              :class="{ 'editable-row': !isStudent }">
               <td hidden>{{ scholarship.id_scholarship }}</td>
-              <td>{{ scholarship.id_num_student }}</td>
-              <td>{{ scholarship.second_name_student+" "+scholarship.first_name_student+" "+scholarship.surname_student }}</td>
-              <td>{{ scholarship.name_group }}</td>
+              <td v-if="!isStudent">{{ scholarship.id_num_student }}</td>
+              <td v-if="!isStudent">{{ scholarship.second_name_student+" "+scholarship.first_name_student+" "+scholarship.surname_student }}</td>
+              <td v-if="!isStudent">{{ scholarship.name_group }}</td>
               <td>{{ scholarship.name_semester }}</td>
               <td>{{ scholarship.size_scholarshp }}</td>
               <td>{{ scholarship.type_scholarship_budget }}</td>
-              <td>
+              <td v-if="!isStudent">
                 <button class="action-button delete" @click="handleDelete(scholarship)">Удалить</button>
               </td>
             </tr>
-            <tr class="create-row" @click="handleCreateClick">
-              <td colspan="7" class="create-cell">
+            <tr v-if="!isStudent" class="create-row" @click="handleCreateClick">
+              <td :colspan="isStudent ? 3 : 7" class="create-cell">
                 <span class="create-icon">+</span> Добавить стипендию
               </td>
             </tr>
@@ -161,7 +166,7 @@ const handleDelete = async (scholarship: ScholarshipResp) => {
   </div>
 
   <ScholarshipFormModal
-    v-if="showModal"
+    v-if="showModal && !isStudent"
     :show="showModal"
     :mode="modalMode"
     :scholarship="selectedScholarship"

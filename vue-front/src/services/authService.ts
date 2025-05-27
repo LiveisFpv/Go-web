@@ -2,8 +2,11 @@ import axios from 'axios'
 import type { LoginRequest, RegisterRequest, GoogleAuthRequest, AuthResponse, AuthError } from '../types/auth'
 import { USE_MOCKS } from '../config/mockConfig'
 import { mockLogin, mockRegister, mockGoogleAuth, mockLogout } from './mockAuthService'
+import { useAuthStore } from '@/stores/auth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+
+const authStore = useAuthStore()
 
 const authApi = axios.create({
   baseURL: API_URL,
@@ -28,6 +31,7 @@ export const login = async (data: LoginRequest): Promise<AuthResponse> => {
 
   try {
     const response = await authApi.post<AuthResponse>('/auth', data)
+    authStore.login(response.data.data.token)
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.data) {
@@ -44,6 +48,7 @@ export const register = async (data: RegisterRequest): Promise<AuthResponse> => 
 
   try {
     const response = await authApi.post<AuthResponse>('/register', data)
+    localStorage.setItem('token', response.data.data.token)
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.data) {

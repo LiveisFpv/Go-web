@@ -5,8 +5,21 @@ import { useAuthStore } from '@/stores/auth';
 import type { MarkReq, MarkResp } from '@/types/mark';
 import type { StudentResp } from '@/types/student';
 import type { AxiosError } from 'axios';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 
+const authStore = useAuthStore();
+
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
+
+const checkAuth = () => {
+  if (!authStore.isAuthenticated || isStudent.value) {
+    router.push('/auth');
+    return false;
+  }
+  return true;
+};
 
 const props = defineProps<{
   show: boolean;
@@ -76,28 +89,19 @@ const validateForm = (): boolean => {
   return isValid;
 };
 
-const handleSubmit = () =>{
+const handleSubmit = () => {
+  if (!checkAuth()) return;
   if (validateForm()) {
     emit('submit', formData.value);
   }
-}
+};
 
 const handleClose = () => {
   emit('close');
 };
 
 const students = ref<StudentResp[]>([]);
-const authStore = useAuthStore();
-const checkAuth = () => {
-  if (!authStore.isAuthenticated) {
-    router.push('/auth');
-    return false;
-  }
-  return true;
-};
-
 const onclick = async () => {
-  if (!checkAuth()) return;
   if (students.value.length > 0) return;
   try{
     const response = await studentService.getStudents(1, 1000);
@@ -115,7 +119,7 @@ const onclick = async () => {
 </script>
 
 <template>
-  <div v-if="show" class="modal-overlay" @click="handleClose">
+  <div v-if="show && !isStudent" class="modal-overlay" @click="handleClose">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
         <h2>{{ mode === 'create' ? 'Создать оценку' : 'Редактировать оценку' }}</h2>

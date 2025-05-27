@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import CategoryTable from '@/components/Category/CategoryTable.vue';
+import PaginationBlock from '@/components/PaginationBlock.vue';
 import { categoryService } from '@/services/categoryService';
 import { useAuthStore } from '@/stores/auth';
 import type { CategoryResp } from '@/types/category';
 import type { AxiosError } from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -12,6 +13,10 @@ const authStore = useAuthStore();
 const categories = ref<CategoryResp[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
+
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
 
 const page = ref(1);
 const limit = ref(10);
@@ -33,7 +38,7 @@ const checkAuth = () => {
   return true;
 };
 
-const fetchCategories = async () =>{
+const fetchCategories = async () => {
   if (!checkAuth()) return;
 
   try {
@@ -47,13 +52,13 @@ const fetchCategories = async () =>{
     );
     categories.value = response.data;
     total.value = response.pagination.total;
-  } catch (err){
+  } catch (err) {
     const axiosError = err as AxiosError;
     if (axiosError.response?.status === 401) {
       authStore.logout();
       router.push('/auth');
     } else {
-      error.value = 'Failed to fetch semesters';
+      error.value = 'Failed to fetch categories';
       console.error(err);
     }
   } finally {

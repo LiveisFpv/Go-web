@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { AchivementReq, AchivementResp } from '@/types/achievement';
 import AchievementFiltersform from '@/components/Achievement/AchievementFilterForm.vue';
 import AchievementFormModal from '@/components/Achievement/AchievementFormModal.vue';
 import { achievementService } from '@/services/achievementService';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
 
 const props = defineProps<{
   achievements: AchivementResp[];
@@ -85,6 +88,14 @@ const handleDelete = async (achievement: AchivementResp) => {
     }
   }
 };
+
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
+
+const canEdit = computed(() => {
+  return authStore.user_role !== 'STUDENT';
+});
 </script>
 
 <template>
@@ -108,13 +119,13 @@ const handleDelete = async (achievement: AchivementResp) => {
               <th @click="handleSort('id_achivment')" class="sortable" hidden>
                 ID Достижения {{ getSortIcon('id_achivment') }}
               </th>
-              <th @click="handleSort('id_num_student')" class="sortable">
+              <th v-if="!isStudent" @click="handleSort('id_num_student')" class="sortable">
                 Студент {{ getSortIcon('id_num_student') }}
               </th>
-              <th @click="handleSort('second_name_student')" class="sortable">
+              <th v-if="!isStudent" @click="handleSort('second_name_student')" class="sortable">
                 ФИО {{ getSortIcon('second_name_student') }}
               </th>
-              <th @click="handleSort('name_group')" class="sortable">
+              <th v-if="!isStudent" @click="handleSort('name_group')" class="sortable">
                 Группа {{ getSortIcon('name_group') }}
               </th>
               <th @click="handleSort('name_achivement')" class="sortable">
@@ -126,7 +137,7 @@ const handleDelete = async (achievement: AchivementResp) => {
               <th @click="handleSort('achivments_type_category')" class="sortable">
                 Тип достижения {{ getSortIcon('achivments_type_category') }}
               </th>
-              <th>Действия</th>
+              <th >Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -135,18 +146,18 @@ const handleDelete = async (achievement: AchivementResp) => {
               @dblclick="handleRowDoubleClick(achievement)"
               class="editable-row">
               <td hidden>{{ achievement.id_achivment }}</td>
-              <td>{{ achievement.id_num_student }}</td>
-              <td>{{ achievement.second_name_student+" "+achievement.first_name_student+" "+achievement.surname_student }}</td>
-              <td>{{ achievement.name_group }}</td>
+              <td v-if="!isStudent">{{ achievement.id_num_student }}</td>
+              <td v-if="!isStudent">{{ achievement.second_name_student+" "+achievement.first_name_student+" "+achievement.surname_student }}</td>
+              <td v-if="!isStudent">{{ achievement.name_group }}</td>
               <td>{{ achievement.name_achivement }}</td>
               <td>{{ achievement.date_achivement }}</td>
               <td>{{ achievement.achivments_type_category }}</td>
-              <td>
+              <td >
                 <button class="action-button delete" @click="handleDelete(achievement)">Удалить</button>
               </td>
             </tr>
             <tr class="create-row" @click="handleCreateClick">
-              <td colspan="7" class="create-cell">
+              <td :colspan="isStudent ? 4 : 7" class="create-cell">
                 <span class="create-icon">+</span> Добавить достижение
               </td>
             </tr>

@@ -25,6 +25,15 @@ export const studentService = {
     }
   },
 
+  async getStudentById(id: string): Promise<StudentResp> {
+    try {
+      const response = await api.get(`/api/v1/student/${id}`);
+      return response.data.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   async createStudent(student: StudentReq): Promise<StudentResp> {
     try {
       const response = await api.post(`/api/v1/student/`, student);

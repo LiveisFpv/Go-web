@@ -5,7 +5,7 @@ import { categoryService } from '@/services/categoryService';
 import { useAuthStore } from '@/stores/auth';
 import type { StudentResp } from '@/types/student';
 import type { AxiosError } from 'axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import type { CategoryResp } from '@/types/category';
 
 const emit = defineEmits<{
@@ -57,6 +57,11 @@ const clearFilters = () => {
 const students = ref<StudentResp[]>([]);
 const categories = ref<CategoryResp[]>([]);
 const authStore = useAuthStore();
+
+const canFilter = computed(() => {
+  return authStore.user_role !== 'STUDENT';
+});
+
 const checkAuth = () => {
   if (!authStore.isAuthenticated) {
     router.push('/auth');
@@ -98,8 +103,8 @@ onMounted(async () => {
 <template>
   <div class="filters-form">
     <div class="filters-grid">
-      <div class="filter-item">
-        <label for="id_num_student">Номер билета:</label>
+      <div class="filter-item" v-if="canFilter">
+        <label for="id_num_student" >Номер билета:</label>
         <input
           type="text"
           id="id_num_student"
@@ -125,7 +130,7 @@ onMounted(async () => {
         />
       </div>
 
-      <div class="filter-item">
+      <div class="filter-item" v-if="canFilter">
         <label for="second_name_student">Фамилия:</label>
         <input
           type="text"
@@ -134,7 +139,7 @@ onMounted(async () => {
         />
       </div>
 
-      <div class="filter-item">
+      <div class="filter-item" v-if="canFilter">
         <label for="first_name_student">Имя:</label>
         <input
           type="text"
@@ -143,7 +148,7 @@ onMounted(async () => {
         />
       </div>
 
-      <div class="filter-item">
+      <div class="filter-item" v-if="canFilter">
         <label for="surname_student">Отчество:</label>
         <input
           type="text"
@@ -152,7 +157,7 @@ onMounted(async () => {
         />
       </div>
 
-      <div class="filter-item">
+      <div class="filter-item" v-if="canFilter">
         <label for="name_group">Группа:</label>
         <input
           type="text"

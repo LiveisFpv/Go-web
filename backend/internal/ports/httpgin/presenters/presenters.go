@@ -19,7 +19,7 @@ func SuccessResponse(data ResponseData) *gin.H {
 func ErrorResponse(err error) *gin.H {
 	return &gin.H{
 		"data":  nil,
-		"error": err.Error(),
+		"error": err,
 	}
 }
 func AllSuccessResponse(data ResponseData, pagination Pagination) *gin.H {

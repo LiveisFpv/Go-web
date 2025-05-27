@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { markService } from '@/services/markService';
 import type { MarkReq, MarkResp } from '@/types/mark';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import MarkFiltersform from './MarkFiltersform.vue';
 import MarkFormModal from './MarkFormModal.vue';
+import { useAuthStore } from '@/stores/auth';
 
+const authStore = useAuthStore();
+
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
 
 const emit = defineEmits<{
   (e: 'refresh'): void;
@@ -108,13 +114,13 @@ const handleDelete = async (mark: MarkResp) => {
               <th @click="handleSort('id_mark')" class="sortable" hidden>
                 ID оценки {{ getSortIcon('id_mark') }}
               </th>
-              <th @click="handleSort('id_num_student')" class="sortable">
+              <th v-if="!isStudent" @click="handleSort('id_num_student')" class="sortable">
                 Cтудент {{ getSortIcon('id_num_student') }}
               </th>
-              <th @click="handleSort('second_name_student')" class="sortable">
-                  ФИО {{ getSortIcon('second_name_student') }}
-                </th>
-              <th @click="handleSort('name_group')" class="sortable">
+              <th v-if="!isStudent" @click="handleSort('second_name_student')" class="sortable">
+                ФИО {{ getSortIcon('second_name_student') }}
+              </th>
+              <th v-if="!isStudent" @click="handleSort('name_group')" class="sortable">
                 Группа {{ getSortIcon('name_group') }}
               </th>
               <th @click="handleSort('name_semester')" class="sortable">
@@ -129,28 +135,28 @@ const handleDelete = async (mark: MarkResp) => {
               <th @click="handleSort('type_mark')" class="sortable">
                 Тип оценки {{ getSortIcon('type_mark') }}
               </th>
-              <th>Действия</th>
+              <th v-if="!isStudent">Действия</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="mark in props.marks"
               :key="mark.id_mark"
-              @dblclick="handleRowDoubleClick(mark)"
-              class="editable-row">
+              @dblclick="!isStudent && handleRowDoubleClick(mark)"
+              :class="{ 'editable-row': !isStudent }">
               <td hidden>{{ mark.id_mark }}</td>
-              <td>{{ mark.id_num_student }}</td>
-              <td>{{ mark.second_name_student+" "+mark.first_name_student+" "+mark.surname_student }}</td>
-              <td>{{ mark.name_group }}</td>
+              <td v-if="!isStudent">{{ mark.id_num_student }}</td>
+              <td v-if="!isStudent">{{ mark.second_name_student+" "+mark.first_name_student+" "+mark.surname_student }}</td>
+              <td v-if="!isStudent">{{ mark.name_group }}</td>
               <td>{{ mark.name_semester }}</td>
               <td>{{ mark.lesson_name_mark }}</td>
               <td>{{ mark.score_mark }}</td>
               <td>{{ mark.type_mark }}</td>
-              <td>
+              <td v-if="!isStudent">
                 <button class="action-button delete" @click="handleDelete(mark)">Удалить</button>
               </td>
             </tr>
-            <tr class="create-row" @click="handleCreateClick">
-              <td colspan="9" class="create-cell">
+            <tr v-if="!isStudent" class="create-row" @click="handleCreateClick">
+              <td :colspan="isStudent ? 5 : 9" class="create-cell">
                 <span class="create-icon">+</span> Добавить новую оценку
               </td>
             </tr>
@@ -160,7 +166,7 @@ const handleDelete = async (mark: MarkResp) => {
     </div>
   </div>
   <MarkFormModal
-    v-if="showModal"
+    v-if="showModal && !isStudent"
     :show="showModal"
     :mode="modalMode"
     :mark="selectedMark"

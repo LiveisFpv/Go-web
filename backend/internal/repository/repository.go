@@ -29,6 +29,15 @@ type Repository interface {
 	Register(ctx context.Context, email, login, password string) error
 	GetCountRows(ctx context.Context, TableName string) (int, error)
 
+	// User CRUD operations
+	GetUserByID(ctx context.Context, userId int64) (*domain.User, error)
+	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
+	GetAllUsers(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.User, int, error)
+	CreateUser(ctx context.Context, email, login, password string, studentId *int, role string) (*domain.User, error)
+	UpdateUser(ctx context.Context, user *domain.User) error
+	DeleteUser(ctx context.Context, userId int64) error
+	DeleteUsers(ctx context.Context, ids []int64) error
+
 	FindStudentByID(ctx context.Context, id uint64) (*domain.Student, error)
 	GetAllStudent(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Student, int, error)
 	CreateStudent(ctx context.Context, id_num_student uint64, name_group, email_student, second_name_student,

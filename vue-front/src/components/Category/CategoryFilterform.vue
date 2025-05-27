@@ -49,6 +49,11 @@ const clearFilters = () => {
         <label>Балл</label>
         <input v-model.number="localFilters.score_category" type="number" placeholder="Введите балл" />
       </div>
+
+    </div>
+    <div class="filters-actions">
+      <button @click="apply" class="apply-btn">Применить</button>
+      <button @click="clearFilters" class="clear-button">Очистить</button>
     </div>
   </div>
 </template>

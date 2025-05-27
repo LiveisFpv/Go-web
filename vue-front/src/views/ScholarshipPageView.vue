@@ -5,14 +5,19 @@ import { scholarshipService } from '@/services/scholarshipService';
 import { useAuthStore } from '@/stores/auth';
 import type { ScholarshipResp } from '@/types/scholarship';
 import type { AxiosError } from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { userService } from '@/services/userService';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const scholarships = ref<ScholarshipResp[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
+
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
 
 const page = ref(1);
 const limit = ref(10);
@@ -34,11 +39,28 @@ const checkAuth = () => {
   return true;
 };
 
+const getStudentId = async () => {
+  if (!authStore.email) return;
+  try {
+    const userData = await userService.getUserbyEmail(authStore.email);
+    if (userData.user_student_id) {
+      // Устанавливаем фильтр по ID студента
+      filters.value.id_num_student = userData.user_student_id.toString();
+    }
+  } catch (err) {
+    console.error('Failed to fetch user data:', err);
+  }
+};
+
 const fetchScholarships = async () => {
   if (!checkAuth()) return;
 
   try {
     loading.value = true;
+    // Если пользователь студент, получаем его ID и устанавливаем фильтр
+    if (isStudent.value) {
+      await getStudentId();
+    }
     const response = await scholarshipService.getScholarships(
       page.value,
       limit.value,
@@ -70,15 +92,25 @@ const handleFiltersUpdate = (newFilters: Record<string, string>) => {
 
   // Remove sort parameters from filters
   const { sort, order, ...filterParams } = newFilters;
+  
+  // Если пользователь студент, сохраняем фильтр по его ID
+  if (isStudent.value && filters.value.id_num_student) {
+    filterParams.id_num_student = filters.value.id_num_student;
+  }
+  
   filters.value = filterParams;
 
   page.value = 1; // Reset to first page when filters change
   fetchScholarships();
 };
 
-onMounted(() => {
+onMounted(async () => {
   // Initialize auth state
   authStore.initialize();
+  // Если пользователь студент, получаем его ID перед загрузкой данных
+  if (isStudent.value) {
+    await getStudentId();
+  }
   fetchScholarships();
 });
 </script>

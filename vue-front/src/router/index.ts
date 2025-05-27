@@ -18,6 +18,11 @@ const router = createRouter({
       meta: { requiresAuth: false }
     },
     {
+      path: '/about',
+      name: 'about-page',
+      component: () => import('../views/AboutPageView.vue'),
+    },
+    {
       path: '/student',
       name: 'student-page',
       component: () => import('../views/StudentPageView.vue'),
@@ -64,13 +69,19 @@ const router = createRouter({
       name: 'category-page',
       component: () => import('../views/CategoryPageView.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/profile',
+      name: 'profile-page',
+      component: () => import('../views/ProfilePageView.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  
+
   // Initialize auth state
   authStore.initialize()
 

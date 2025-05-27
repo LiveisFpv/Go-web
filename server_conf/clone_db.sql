@@ -277,7 +277,8 @@ CREATE TABLE public.mark (
     name_semester character varying(5) NOT NULL,
     lesson_name_mark character varying(100) NOT NULL,
     score_mark smallint NOT NULL,
-    type_mark character varying(20)
+    type_mark character varying(20),
+    type_exam character varying(20) DEFAULT 'Семестр' NOT NULL
 );
 
 
@@ -381,6 +382,8 @@ CREATE TABLE public.user (
     user_id serial NOT NULL,
     user_login character varying(40) NOT NULL UNIQUE,
     user_email character varying(40) NOT NULL UNIQUE,
+    user_student_id integer NULL,
+    user_role character varying(20) NOT NULL DEFAULT 'USER',
     user_password text NOT NULL,
     PRIMARY KEY (user_id)
 );

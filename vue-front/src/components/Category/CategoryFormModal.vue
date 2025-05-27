@@ -1,7 +1,22 @@
 <script setup lang="ts">
 import type { CategoryReq, CategoryResp } from '@/types/category';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import router from '@/router';
 
+const authStore = useAuthStore();
+
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
+
+const checkAuth = () => {
+  if (!authStore.isAuthenticated || isStudent.value) {
+    router.push('/auth');
+    return false;
+  }
+  return true;
+};
 
 const props = defineProps<{
   show: boolean;
@@ -51,6 +66,7 @@ const validateForm = (): boolean => {
 };
 
 const handleSubmit = () => {
+  if (!checkAuth()) return;
   if (validateForm()) {
     emit('submit', { ...formData.value });
   }
@@ -63,7 +79,7 @@ const handleClose = () => {
 </script>
 
 <template>
-  <div v-if="show" class="modal-overlay" @click="handleClose">
+  <div v-if="show && !isStudent" class="modal-overlay" @click="handleClose">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
         <h2>{{ mode === 'create' ? 'Создать категорию' : 'Редактировать категорию' }}</h2>

@@ -37,8 +37,12 @@ const semesters = ref<SemesterResp[]>([]);
 const budget = ref<BudgetResp[]>([]);
 const authStore = useAuthStore();
 
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
+
 const checkAuth = () => {
-  if (!authStore.isAuthenticated) {
+  if (!authStore.isAuthenticated || isStudent.value) {
     router.push('/auth');
     return false;
   }
@@ -152,6 +156,7 @@ const validateForm = (): boolean => {
 };
 
 const handleSubmit = async () => {
+  if (!checkAuth()) return;
   if (validateForm()) {
     try {
       if (props.mode === 'create') {
@@ -163,7 +168,6 @@ const handleSubmit = async () => {
       handleClose();
     } catch (error) {
       console.error('Error saving scholarship:', error);
-      // Можно добавить отображение ошибки пользователю
     }
   }
 };
@@ -174,7 +178,7 @@ const handleClose = () => {
 </script>
 
 <template>
-  <div v-if="show" class="modal-overlay" @click="handleClose">
+  <div v-if="show && !isStudent" class="modal-overlay" @click="handleClose">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
         <h2>{{ mode === 'create' ? 'Создать стипендию' : 'Редактировать стипендию' }}</h2>

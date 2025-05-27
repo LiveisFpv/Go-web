@@ -20,10 +20,10 @@ func CheckPassword(hashed, password string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password)) == nil
 }
 
-func GenerateJWT(login string) (string, error) {
+func GenerateJWT(email string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": login,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+		"email": email,
+		"exp":   time.Now().Add(time.Hour * 24).Unix(),
 	})
 	return token.SignedString(secretKey)
 }
@@ -49,7 +49,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("username", claims["username"])
+		c.Set("email", claims["email"])
 		c.Next()
 	}
 }

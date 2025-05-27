@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import type { AchivementReq, AchivementResp } from '@/types/achievement';
 import { achievementService } from '@/services/achievementService';
 import type { StudentResp } from '@/types/student';
@@ -9,6 +9,7 @@ import { studentService } from '@/services/studentService';
 import type { AxiosError } from 'axios';
 import type { CategoryResp } from '@/types/category';
 import { categoryService } from '@/services/categoryService';
+import { userService } from '@/services/userService';
 
 const props = defineProps<{
   show: boolean;
@@ -33,6 +34,10 @@ const errors = ref<Record<string, string>>({});
 const students = ref<StudentResp[]>([]);
 const categories = ref<CategoryResp[]>([]);
 const authStore = useAuthStore();
+
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
 
 const checkAuth = () => {
   if (!authStore.isAuthenticated) {
@@ -59,6 +64,18 @@ const getCategories = async () => {
   }
 };
 
+const getStudentId = async () => {
+  if (!authStore.email) return;
+  try {
+    const userData = await userService.getUserbyEmail(authStore.email);
+    if (userData.user_student_id) {
+      formData.value.id_num_student = userData.user_student_id;
+    }
+  } catch (err) {
+    console.error('Failed to fetch user data:', err);
+  }
+};
+
 const onclick = async () => {
   if (!checkAuth()) return;
   if (students.value.length > 0) return;
@@ -76,6 +93,13 @@ const onclick = async () => {
   }
 };
 
+onMounted(async () => {
+  if (isStudent.value) {
+    await getStudentId();
+  }
+  await getCategories();
+});
+
 watch(() => props.achievement, (newAchievement) => {
   if (newAchievement && props.mode === 'edit') {
     formData.value = {
@@ -85,9 +109,6 @@ watch(() => props.achievement, (newAchievement) => {
       name_achivement: newAchievement.name_achivement,
       date_achivement: newAchievement.date_achivement
     };
-    // Load data for dropdowns
-    getCategories();
-    onclick();
   } else {
     formData.value = {
       id_achivment: 0,
@@ -96,6 +117,9 @@ watch(() => props.achievement, (newAchievement) => {
       name_achivement: '',
       date_achivement: ''
     };
+    if (isStudent.value) {
+      getStudentId();
+    }
   }
 }, { immediate: true });
 
@@ -123,21 +147,11 @@ const validateForm = (): boolean => {
   return isValid;
 };
 
-const handleSubmit = async () => {
+const handleSubmit = () =>{
   if (validateForm()) {
-    try {
-      if (props.mode === 'create') {
-        await achievementService.createAchievement(formData.value);
-      } else {
-        await achievementService.updateAchievement(formData.value);
-      }
-      emit('submit', formData.value);
-      handleClose();
-    } catch (error) {
-      console.error('Error saving achievement:', error);
-    }
+    emit('submit', formData.value);
   }
-};
+}
 
 const handleClose = () => {
   emit('close');
@@ -165,7 +179,7 @@ const handleClose = () => {
           </span>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" v-if="!isStudent">
           <label for="id_num_student">Студент:</label>
           <select v-model.number="formData.id_num_student" id="id_num_student" @click="onclick">
             <option v-for="student in students" :key="student.id_num_student" :value="student.id_num_student">

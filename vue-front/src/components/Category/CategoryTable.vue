@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { categoryService } from '@/services/categoryService';
 import type { CategoryReq, CategoryResp } from '@/types/category';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import CategoryFilterform from './CategoryFilterform.vue';
 import CategoryFormModal from './CategoryFormModal.vue';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
+
+const isStudent = computed(() => {
+  return authStore.user_role === 'STUDENT';
+});
 
 const emit = defineEmits<{
   (e: 'refresh'): void;
@@ -111,23 +118,23 @@ const handleDelete = async (category: CategoryReq)=>{
               <th @click="handleSort('score_category')" class="sortable">
                 Баллы {{ getSortIcon('score_category') }}
               </th>
-              <th>Действия</th>
+              <th v-if="!isStudent">Действия</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="category in categories"
             :key="category.id_category"
-            @dblclick="handleRowDoubleClick(category)"
-            class="editable-row">
+            @dblclick="!isStudent && handleRowDoubleClick(category)"
+            :class="{ 'editable-row': !isStudent }">
               <td hidden>{{ category.id_category }}</td>
               <td>{{ category.achivments_type_category }}</td>
               <td>{{ category.score_category }}</td>
-              <td>
+              <td v-if="!isStudent">
                 <button class="action-button delete" @click="handleDelete(category)">Удалить</button>
               </td>
             </tr>
-            <tr class="create-row" @click="handleCreateClick">
-              <td colspan="3" class="create-cell">
+            <tr v-if="!isStudent" class="create-row" @click="handleCreateClick">
+              <td :colspan="isStudent ? 2 : 3" class="create-cell">
                 <span class="create-icon">+</span> Добавить новую категорию
               </td>
             </tr>
@@ -137,6 +144,7 @@ const handleDelete = async (category: CategoryReq)=>{
     </div>
   </div>
     <CategoryFormModal
+      v-if="!isStudent"
       :show="showModal"
       :mode="modalMode"
       :category="selectedCategory"

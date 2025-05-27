@@ -7,6 +7,7 @@ import type { AchivementResp } from '@/types/achievement';
 import type { AxiosError } from 'axios';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { userService } from '@/services/userService';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -39,6 +40,21 @@ const fetchAchievements = async () => {
 
   try {
     loading.value = true;
+    // Если пользователь - студент, добавляем фильтр по его ID
+    if (authStore.user_role === 'STUDENT' && authStore.email) {
+      try {
+        const userData = await userService.getUserbyEmail(authStore.email);
+        if (userData.user_student_id) {
+          filters.value = {
+            ...filters.value,
+            id_num_student: userData.user_student_id.toString()
+          };
+        }
+      } catch (err) {
+        console.error('Failed to fetch user data:', err);
+      }
+    }
+
     const response = await achievementService.getAchievements(
       page.value,
       limit.value,
@@ -62,6 +78,11 @@ const fetchAchievements = async () => {
 };
 
 const handleFiltersUpdate = (newFilters: Record<string, string>) => {
+  // Если пользователь - студент, сохраняем фильтр по его ID
+  if (authStore.user_role === 'STUDENT' && filters.value.id_num_student) {
+    newFilters.id_num_student = filters.value.id_num_student;
+  }
+
   // Extract sort parameters
   if (newFilters.sort) {
     sortField.value = newFilters.sort;

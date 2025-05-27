@@ -13,6 +13,15 @@ func AppRouter(r *gin.RouterGroup, a *app.App) {
 	r.GET("/group/metadata", func(c *gin.Context) { handlers.GetGroupMeta(c, a) })
 	r.GET("/mark/metadata", func(c *gin.Context) { handlers.GetMarkMeta(c, a) })
 
+	// User operations
+	r.GET("/user/:user_id", func(c *gin.Context) { handlers.GetUserByID(c, a) })
+	r.GET("/user/email/:email", func(c *gin.Context) { handlers.GetUserByEmail(c, a) })
+	r.POST("/user/", func(c *gin.Context) { handlers.CreateUser(c, a) })
+	r.PUT("/user/", func(c *gin.Context) { handlers.UpdateUser(c, a) })
+	r.DELETE("/user/", func(c *gin.Context) { handlers.DeleteUser(c, a) })
+	r.GET("/user/", func(c *gin.Context) { handlers.GetAllUsers(c, a) })
+	r.DELETE("/user/ids", func(c *gin.Context) { handlers.DeleteUsers(c, a) })
+
 	//Запросы на получение и редактирование таблиц
 	r.GET("/student/:student_id", func(c *gin.Context) { handlers.GetStudentbyID(c, a) })
 	r.POST("/student/", func(c *gin.Context) { handlers.CreateStudent(c, a) })

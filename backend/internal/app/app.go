@@ -292,3 +292,43 @@ func (a *App) DeleteAchievements(ctx context.Context, ids []int64) error {
 	err := a.repo.DeleteAchievements(ctx, ids)
 	return err
 }
+
+// User CRUD operations
+func (a *App) GetUserByID(ctx context.Context, userId int64) (*domain.User, error) {
+	user, err := a.repo.GetUserByID(ctx, userId)
+	return user, err
+}
+
+func (a *App) GetAllUsers(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.User, int, error) {
+	users, count, err := a.repo.GetAllUsers(ctx, filters, rowCount, page, search)
+	return users, count, err
+}
+
+func (a *App) CreateUser(ctx context.Context, email, login, password string, studentId *int, role string) (*domain.User, error) {
+	hashedPassword, err := crypt.HashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+	user, err := a.repo.CreateUser(ctx, email, login, hashedPassword, studentId, role)
+	return user, err
+}
+
+func (a *App) DeleteUser(ctx context.Context, userId int64) error {
+	err := a.repo.DeleteUser(ctx, userId)
+	return err
+}
+
+func (a *App) DeleteUsers(ctx context.Context, ids []int64) error {
+	err := a.repo.DeleteUsers(ctx, ids)
+	return err
+}
+
+func (a *App) UpdateUser(ctx context.Context, user *domain.User) error {
+	err := a.repo.UpdateUser(ctx, user)
+	return err
+}
+
+func (a *App) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	user, err := a.repo.GetUserByEmail(ctx, email)
+	return user, err
+}
