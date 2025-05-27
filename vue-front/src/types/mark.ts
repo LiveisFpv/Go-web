@@ -6,7 +6,8 @@ export interface MarkReq {
   name_semester: string;
   lesson_name_mark: string;
   score_mark: number;
-  type_mark: string;
+  type_mark?: string;
+  type_exam: string;
 }
 export interface MarkResp {
   id_mark: number;
@@ -15,6 +16,7 @@ export interface MarkResp {
   lesson_name_mark: string;
   score_mark: number;
   type_mark: string;
+  type_exam: string;
   name_group: string;
   second_name_student: string
   first_name_student: string

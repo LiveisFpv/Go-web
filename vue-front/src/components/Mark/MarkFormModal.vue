@@ -38,7 +38,8 @@ const formData = ref<MarkReq>({
   name_semester: '',
   lesson_name_mark: '',
   score_mark: 0,
-  type_mark: ''
+  type_mark: '',
+  type_exam: ''
 });
 
 const errors = ref<Record<string, string>>({});
@@ -52,7 +53,8 @@ watch(() => props.mark, (newMark) => {
       name_semester: '',
       lesson_name_mark: '',
       score_mark: 0,
-      type_mark: ''
+      type_mark: '',
+      type_exam: ''
     };
   }
 }, { immediate: true });
@@ -61,10 +63,6 @@ const validateForm = (): boolean => {
   errors.value = {};
   let isValid = true;
 
-  if (!formData.value.id_mark) {
-    errors.value.id_mark = 'ID оценки обязателен';
-    isValid = false;
-  }
   if (!formData.value.id_num_student) {
     errors.value.id_num_student = 'ID студента обязателен';
     isValid = false;
@@ -81,8 +79,8 @@ const validateForm = (): boolean => {
     errors.value.score_mark = 'Оценка должна быть от 0 до 100';
     isValid = false;
   }
-  if (!formData.value.type_mark) {
-    errors.value.type_mark = 'Тип оценки обязателен';
+  if (!formData.value.type_exam) {
+    errors.value.type_exam = 'Тип экзамена обязателен';
     isValid = false;
   }
 
@@ -154,9 +152,9 @@ const onclick = async () => {
           <span class="error-message" v-if="errors.score_mark">{{ errors.score_mark }}</span>
         </div>
         <div class="form-group">
-          <label for="type_mark">Тип оценки:</label>
-          <input v-model="formData.type_mark" type="text" id="type_mark" placeholder="Введите тип оценки" />
-          <span class="error-message" v-if="errors.type_mark">{{ errors.type_mark }}</span>
+          <label for="type_exam">Тип экзамена:</label>
+          <input v-model="formData.type_exam" type="text" id="type_exam" placeholder="Введите тип экзамена" />
+          <span class="error-message" v-if="errors.type_exam">{{ errors.type_exam }}</span>
         </div>
         <div class="form-actions">
           <button type="submit" class="submit-button">

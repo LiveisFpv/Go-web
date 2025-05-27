@@ -55,9 +55,9 @@ type Repository interface {
 
 	GetAllMark(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Mark, int, error)
 	CreateMark(ctx context.Context, id_mark, id_num_student int64,
-		name_semester, lesson_name_mark string, score_mark int8, type_mark string) (*domain.Mark, error)
+		name_semester, lesson_name_mark string, score_mark int8, type_mark string, type_exam string) (*domain.Mark, error)
 	UpdateMarkByID(ctx context.Context, id_mark, id_num_student int64,
-		name_semester, lesson_name_mark string, score_mark int8, type_mark string) (*domain.Mark, error)
+		name_semester, lesson_name_mark string, score_mark int8, type_mark string, type_exam string) (*domain.Mark, error)
 	DeleteMarkByID(ctx context.Context, id_mark int64) error
 
 	// Scholarship operations

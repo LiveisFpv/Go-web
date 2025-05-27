@@ -23,7 +23,8 @@ func CreateMark(c *gin.Context, a *app.App) {
 		reqBody.Name_semester,
 		reqBody.Lesson_name_mark,
 		reqBody.Score_mark,
-		reqBody.Type_mark)
+		reqBody.Type_mark,
+		reqBody.Type_exam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse(err))
 		return
@@ -43,7 +44,8 @@ func UpdateMarkbyID(c *gin.Context, a *app.App) {
 		reqBody.Name_semester,
 		reqBody.Lesson_name_mark,
 		reqBody.Score_mark,
-		reqBody.Type_mark)
+		reqBody.Type_mark,
+		reqBody.Type_exam)
 	if err != nil {
 		c.JSON(http.StatusForbidden, ErrorResponse(err))
 		return

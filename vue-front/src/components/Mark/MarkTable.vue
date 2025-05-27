@@ -103,7 +103,10 @@ const handleDelete = async (mark: MarkResp) => {
         <div class="filters-wrapper">
           <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
           <div class="filters-dropdown" v-show="isFiltersOpen">
-            <MarkFiltersform @update-filters="handleFiltersUpdate" />
+            <MarkFiltersform
+              :filters="props.currentFilters || {}"
+              @update-filters="handleFiltersUpdate"
+            />
           </div>
         </div>
       </div>
@@ -135,6 +138,9 @@ const handleDelete = async (mark: MarkResp) => {
               <th @click="handleSort('type_mark')" class="sortable">
                 Тип оценки {{ getSortIcon('type_mark') }}
               </th>
+              <th @click="handleSort('type_exam')" class="sortable">
+                Тип экзамена {{ getSortIcon('type_exam') }}
+              </th>
               <th v-if="!isStudent">Действия</th>
             </tr>
           </thead>
@@ -151,12 +157,13 @@ const handleDelete = async (mark: MarkResp) => {
               <td>{{ mark.lesson_name_mark }}</td>
               <td>{{ mark.score_mark }}</td>
               <td>{{ mark.type_mark }}</td>
+              <td>{{ mark.type_exam }}</td>
               <td v-if="!isStudent">
                 <button class="action-button delete" @click="handleDelete(mark)">Удалить</button>
               </td>
             </tr>
             <tr v-if="!isStudent" class="create-row" @click="handleCreateClick">
-              <td :colspan="isStudent ? 5 : 9" class="create-cell">
+              <td :colspan="isStudent ? 6 : 10" class="create-cell">
                 <span class="create-icon">+</span> Добавить новую оценку
               </td>
             </tr>

@@ -1,20 +1,31 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from './stores/auth'
 
 const isMenuOpen = ref(false)
+const isProfileMenuOpen = ref(false)
 const authStore = useAuthStore()
 const router = useRouter()
+
+const userInitial = computed(() => {
+  return authStore.email ? authStore.email.charAt(0).toUpperCase() : ''
+})
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
 
+const toggleProfileMenu = () => {
+  isProfileMenuOpen.value = !isProfileMenuOpen.value
+}
+
 const handleLogout = () => {
   authStore.logout()
   router.push('/auth')
+  isProfileMenuOpen.value = false
 }
+
 onMounted(() =>{
 // Initialize auth state when component is mounted
 authStore.initialize()
@@ -26,9 +37,15 @@ authStore.initialize()
     <div class="mobile-header">
       <button class="hamburger" :class="{ rotated: isMenuOpen }" @click="toggleMenu">☰</button>
       <div class="panel" v-if="authStore.isAuthenticated">
-        <button @click="handleLogout" class="logout-btn">Выйти</button>
         <RouterLink to="/profile" class="link-button">Профиль</RouterLink>
-        <img src="./assets/avatar.jpg" alt="Avatar" class="logo"/>
+        <div class="profile-container">
+          <div class="avatar-placeholder" @click="toggleProfileMenu">
+            {{ userInitial }}
+          </div>
+          <div class="profile-menu" v-if="isProfileMenuOpen">
+            <button @click="handleLogout" class="logout-btn">Выйти</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="wrapper" :class="{ open: isMenuOpen }">
@@ -120,7 +137,7 @@ header {
   justify-self: center;
   text-align: center;
   vertical-align: middle;
-  background: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
   color: white;
   border: none;
   padding: 0.4rem;
@@ -132,7 +149,7 @@ header {
 }
 
 .logout-btn {
-  background: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
   color: white;
   border: none;
   padding: 0.55rem;
@@ -212,11 +229,52 @@ nav a.router-link-exact-active {
   display: none;
 }
 
-.logo {
+.avatar-placeholder {
   width: 40px;
   height: 40px;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
   border-radius: 50%;
-  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-placeholder:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profile-container {
+  position: relative;
+}
+
+.profile-menu {
+  position: absolute;
+  top: 100%;
+  right: -2rem;
+  background-color: var(--color-background);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.logo {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
 }
 
 .icon {
@@ -256,10 +314,10 @@ footer {
 }
 
 @media (min-width: 768px) {
-  .logo {
+  .avatar-placeholder {
     width: 48px;
     height: 48px;
-    border-radius: 50%;
+    font-size: 24px;
   }
 }
 
@@ -271,10 +329,10 @@ footer {
     padding: 0.3rem 0.8rem;
   }
 
-  .logo {
+  .avatar-placeholder {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    font-size: 18px;
   }
 
   #logo {

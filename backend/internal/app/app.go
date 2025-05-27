@@ -113,7 +113,7 @@ func (a *App) GetAllMark(ctx context.Context, filters map[string]string, rowCoun
 }
 
 func (a *App) CreateMark(ctx context.Context, id_mark, id_num_student int64,
-	name_semester, lesson_name_mark string, score_mark int8, type_mark string) (*domain.Mark, error) {
+	name_semester, lesson_name_mark string, score_mark int8, type_mark string, type_exam string) (*domain.Mark, error) {
 	mark, err := a.repo.CreateMark(ctx,
 		id_mark,
 		id_num_student,
@@ -121,11 +121,12 @@ func (a *App) CreateMark(ctx context.Context, id_mark, id_num_student int64,
 		lesson_name_mark,
 		score_mark,
 		type_mark,
+		type_exam,
 	)
 	return mark, err
 }
 func (a *App) UpdateMarkByID(ctx context.Context, id_mark, id_num_student int64,
-	name_semester, lesson_name_mark string, score_mark int8, type_mark string) (*domain.Mark, error) {
+	name_semester, lesson_name_mark string, score_mark int8, type_mark string, type_exam string) (*domain.Mark, error) {
 	mark, err := a.repo.UpdateMarkByID(ctx,
 		id_mark,
 		id_num_student,
@@ -133,6 +134,7 @@ func (a *App) UpdateMarkByID(ctx context.Context, id_mark, id_num_student int64,
 		lesson_name_mark,
 		score_mark,
 		type_mark,
+		type_exam,
 	)
 	return mark, err
 }

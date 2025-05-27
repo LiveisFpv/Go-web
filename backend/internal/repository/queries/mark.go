@@ -16,6 +16,7 @@ func (q *Queries) GetMarkByID(ctx context.Context, id int64) (*domain.Mark, erro
 		&mark.Name_semester,
 		&mark.Score_mark,
 		&mark.Type_mark,
+		&mark.Type_exam,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("can't query mark: %w", err)
@@ -44,11 +45,12 @@ func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, row
 			m.name_semester ILIKE $%d OR 
 			CAST(m.score_mark AS TEXT) ILIKE $%d OR 
 			m.type_mark ILIKE $%d OR
+			m.type_exam ILIKE $%d OR
 			s.surname_student ILIKE $%d OR
 			s.first_name_student ILIKE $%d OR
 			s.second_name_student ILIKE $%d OR
 			s.name_group ILIKE $%d
-		)`, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount)
+		)`, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount)
 		countQuery += fmt.Sprintf(` AND (
 			CAST(m.id_mark AS TEXT) ILIKE $%d OR 
 			CAST(m.id_num_student AS TEXT) ILIKE $%d OR 
@@ -56,11 +58,12 @@ func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, row
 			m.name_semester ILIKE $%d OR 
 			CAST(m.score_mark AS TEXT) ILIKE $%d OR 
 			m.type_mark ILIKE $%d OR
+			m.type_exam ILIKE $%d OR
 			s.surname_student ILIKE $%d OR
 			s.first_name_student ILIKE $%d OR
 			s.second_name_student ILIKE $%d OR
 			s.name_group ILIKE $%d
-		)`, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount)
+		)`, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount, argCount)
 		args = append(args, "%"+search+"%")
 		argCount++
 	}
@@ -82,6 +85,7 @@ func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, row
 				"name_semester":       "m.name_semester",
 				"score_mark":          "m.score_mark",
 				"type_mark":           "m.type_mark",
+				"type_exam":           "m.type_exam",
 				"surname_student":     "s.surname_student",
 				"first_name_student":  "s.first_name_student",
 				"second_name_student": "s.second_name_student",
@@ -113,6 +117,7 @@ func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, row
 			"name_semester":       "m.name_semester",
 			"score_mark":          "m.score_mark",
 			"type_mark":           "m.type_mark",
+			"type_exam":           "m.type_exam",
 			"surname_student":     "s.surname_student",
 			"first_name_student":  "s.first_name_student",
 			"second_name_student": "s.second_name_student",
@@ -147,6 +152,7 @@ func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, row
 			&mark.Lesson_name_mark,
 			&mark.Score_mark,
 			&mark.Type_mark,
+			&mark.Type_exam,
 			&mark.Student_surname,
 			&mark.Student_name,
 			&mark.Student_second_name,
@@ -170,9 +176,10 @@ func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, row
 	return marks, count, nil
 }
 func (q *Queries) CreateMark(ctx context.Context, id_mark, id_num_student int64,
-	name_semester, lesson_name_mark string, score_mark int8, type_mark string) (*domain.Mark, error) {
-	sqlStatement := `INSERT INTO "mark" (id_num_student,  name_semester,lesson_name_mark, score_mark, type_mark) VALUES ($1, $2, $3, $4, $5) RETURNING id_mark`
-	row := q.pool.QueryRow(ctx, sqlStatement, id_num_student, name_semester, lesson_name_mark, score_mark, type_mark)
+	name_semester, lesson_name_mark string, score_mark int8, type_mark, type_exam string) (*domain.Mark, error) {
+	sqlStatement := `INSERT INTO "mark" (id_num_student, name_semester, lesson_name_mark, score_mark, type_mark, type_exam) 
+		VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_mark`
+	row := q.pool.QueryRow(ctx, sqlStatement, id_num_student, name_semester, lesson_name_mark, score_mark, type_mark, type_exam)
 	var id int64
 	err := row.Scan(&id)
 	if err != nil {
@@ -185,9 +192,10 @@ func (q *Queries) CreateMark(ctx context.Context, id_mark, id_num_student int64,
 	return mark, nil
 }
 func (q *Queries) UpdateMarkByID(ctx context.Context, id_mark, id_num_student int64,
-	name_semester, lesson_name_mark string, score_mark int8, type_mark string) (*domain.Mark, error) {
-	sqlStatement := `UPDATE "mark" SET id_num_student=$2, name_semester=$3, lesson_name_mark=$4, score_mark=$5, type_mark=$6 WHERE id_mark=$1 RETURNING id_mark`
-	row := q.pool.QueryRow(ctx, sqlStatement, id_mark, id_num_student, name_semester, lesson_name_mark, score_mark, type_mark)
+	name_semester, lesson_name_mark string, score_mark int8, type_mark, type_exam string) (*domain.Mark, error) {
+	sqlStatement := `UPDATE "mark" SET id_num_student=$2, name_semester=$3, lesson_name_mark=$4, score_mark=$5, type_mark=$6, type_exam=$7 
+		WHERE id_mark=$1 RETURNING id_mark`
+	row := q.pool.QueryRow(ctx, sqlStatement, id_mark, id_num_student, name_semester, lesson_name_mark, score_mark, type_mark, type_exam)
 	var id int64
 	err := row.Scan(&id)
 	if err != nil {

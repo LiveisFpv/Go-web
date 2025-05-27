@@ -13,6 +13,7 @@ type markResponce struct {
 	Lesson_name_mark string `json:"lesson_name_mark"`
 	Score_mark       int8   `json:"score_mark"`
 	Type_mark        string `json:"type_mark"`
+	Type_exam        string `json:"type_exam"`
 	// Student information
 	Student_surname     string `json:"surname_student"`
 	Student_name        string `json:"first_name_student"`
@@ -27,6 +28,7 @@ type MarkRequest struct {
 	Lesson_name_mark string `json:"lesson_name_mark"`
 	Score_mark       int8   `json:"score_mark"`
 	Type_mark        string `json:"type_mark"`
+	Type_exam        string `json:"type_exam"`
 }
 
 type MarksDeleteRequest struct {
@@ -41,6 +43,7 @@ func mapMarkToResponse(mark *domain.Mark) markResponce {
 		Lesson_name_mark:    mark.Lesson_name_mark,
 		Score_mark:          mark.Score_mark,
 		Type_mark:           mark.Type_mark,
+		Type_exam:           mark.Type_exam,
 		Student_surname:     mark.Student_surname,
 		Student_name:        mark.Student_name,
 		Student_second_name: mark.Student_second_name,

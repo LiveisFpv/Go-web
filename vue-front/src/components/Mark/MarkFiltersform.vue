@@ -13,6 +13,7 @@ interface MarkFilters {
   name_semester: string;
   lesson_name_mark: string;
   type_mark: string;
+  type_exam: string;
   name_group?: string; // Optional field for group name
 }
 
@@ -25,6 +26,7 @@ const localFilters = ref<MarkFilters>({
   name_semester: '',
   lesson_name_mark: '',
   type_mark: '',
+  type_exam: '',
   name_group: '',
 });
 
@@ -136,6 +138,10 @@ const props = defineProps<{
       <div class="filter-group">
         <label>Тип оценки</label>
         <input v-model="localFilters.type_mark" placeholder="Введите тип оценки" />
+      </div>
+      <div class="filter-group">
+        <label>Тип экзамена</label>
+        <input v-model="localFilters.type_exam" placeholder="Введите тип экзамена" />
       </div>
     </div>
     <div class="filters-actions">
