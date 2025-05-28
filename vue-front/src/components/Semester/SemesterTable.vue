@@ -4,6 +4,7 @@ import type { SemesterResp, SemesterReq } from '@/types/semester';
 import { ref } from 'vue';
 import { semesterService } from '@/services/semesterService';
 import SemesterFiltersform from '@/components/Semester/SemesterFiltersform.vue';
+import { pdfService } from '@/services/pdfService';
 
 const emit = defineEmits<{
   (e: 'refresh'): void;
@@ -85,6 +86,27 @@ const handleDelete = async (semester: SemesterResp) => {
     }
   }
 };
+
+const handleExport = async () => {
+  try {
+    // Получаем все семестры с учетом фильтров и сортировки
+    const response = await semesterService.getSemesters(
+      1, // Первая страница
+      1000, // Большой лимит, чтобы получить все записи
+      props.sortField,
+      props.sortOrder,
+      props.currentFilters
+    );
+    
+    await pdfService.generateReport(
+      response.data,
+      'semesters',
+      'Отчет по семестрам'
+    );
+  } catch (error) {
+    console.error('Error exporting semesters:', error);
+  }
+};
 </script>
 
 <template>
@@ -92,10 +114,13 @@ const handleDelete = async (semester: SemesterResp) => {
     <div class="table-container">
       <div class="table-header">
         <h1>Семестры</h1>
-        <div class="filters-wrapper">
-          <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
-          <div class="filters-dropdown" v-show="isFiltersOpen">
-            <SemesterFiltersform @update-filters="handleFiltersUpdate" />
+        <div class="header-actions">
+          <button class="export-button" @click="handleExport">📄 Экспорт</button>
+          <div class="filters-wrapper">
+            <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
+            <div class="filters-dropdown" v-show="isFiltersOpen">
+              <SemesterFiltersform @update-filters="handleFiltersUpdate" />
+            </div>
           </div>
         </div>
       </div>

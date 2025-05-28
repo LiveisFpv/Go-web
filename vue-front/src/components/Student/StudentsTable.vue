@@ -4,6 +4,7 @@ import StudentFormModal from '@/components/Student/StudentFormModal.vue'
 import type { StudentResp, StudentReq } from '@/types/student';
 import { ref } from 'vue';
 import { studentService } from '@/services/studentService';
+import { pdfService } from '@/services/pdfService';
 
 const emit = defineEmits<{
   (e: 'refresh'): void;
@@ -87,6 +88,27 @@ const handleDelete = async (student: StudentResp) => {
     }
   }
 };
+
+const handleExport = async () => {
+  try {
+    // Получаем всех студентов с учетом фильтров и сортировки
+    const response = await studentService.getStudents(
+      1, // Первая страница
+      1000, // Большой лимит, чтобы получить все записи
+      props.sortField,
+      props.sortOrder,
+      props.currentFilters
+    );
+    
+    await pdfService.generateReport(
+      response.data,
+      'students',
+      'Отчет по студентам'
+    );
+  } catch (error) {
+    console.error('Error exporting students:', error);
+  }
+};
 </script>
 
 <template>
@@ -94,10 +116,13 @@ const handleDelete = async (student: StudentResp) => {
     <div class="table-container">
       <div class="table-header">
         <h1>Студенты</h1>
-        <div class="filters-wrapper">
-          <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
-          <div class="filters-dropdown" v-show="isFiltersOpen">
-            <Filtersform @update-filters="handleFiltersUpdate" />
+        <div class="header-actions">
+          <button class="export-button" @click="handleExport">📄 Экспорт</button>
+          <div class="filters-wrapper">
+            <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
+            <div class="filters-dropdown" v-show="isFiltersOpen">
+              <Filtersform @update-filters="handleFiltersUpdate" />
+            </div>
           </div>
         </div>
       </div>

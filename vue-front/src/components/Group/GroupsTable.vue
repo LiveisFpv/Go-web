@@ -4,6 +4,7 @@ import GroupFormModal from './GroupFormModal.vue';
 import {ref} from 'vue';
 import { groupService } from '@/services/groupService';
 import type { GroupResp } from '@/types/group';
+import { pdfService } from '@/services/pdfService';
 
 const emit = defineEmits<{
   (e: 'refresh'): void;
@@ -87,6 +88,27 @@ const handleDelete = async (group: GroupResp) => {
     }
   }
 }
+
+const handleExport = async () => {
+  try {
+    // Получаем все группы с учетом фильтров и сортировки
+    const response = await groupService.getGroups(
+      1, // Первая страница
+      1000, // Большой лимит, чтобы получить все записи
+      props.sortField,
+      props.sortOrder,
+      props.currentFilters
+    );
+    
+    await pdfService.generateReport(
+      response.data,
+      'groups',
+      'Отчет по группам'
+    );
+  } catch (error) {
+    console.error('Error exporting groups:', error);
+  }
+};
 </script>
 
 <template>
@@ -94,10 +116,13 @@ const handleDelete = async (group: GroupResp) => {
     <div class="table-container">
       <div class="table-header">
         <h1>Группы</h1>
-        <div class="filters-wrapper">
-          <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
-          <div class="filters-dropdown" v-show="isFiltersOpen">
-            <GroupFilterform @update-filters="handleFiltersUpdate" />
+        <div class="header-actions">
+          <button class="export-button" @click="handleExport">📄 Экспорт</button>
+          <div class="filters-wrapper">
+            <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
+            <div class="filters-dropdown" v-show="isFiltersOpen">
+              <GroupFilterform @update-filters="handleFiltersUpdate" />
+            </div>
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { ref, computed } from 'vue';
 import CategoryFilterform from './CategoryFilterform.vue';
 import CategoryFormModal from './CategoryFormModal.vue';
 import { useAuthStore } from '@/stores/auth';
+import { pdfService } from '@/services/pdfService';
 
 const authStore = useAuthStore();
 
@@ -91,6 +92,27 @@ const handleDelete = async (category: CategoryReq)=>{
     }
   }
 };
+
+const handleExport = async () => {
+  try {
+    // Получаем все категории с учетом фильтров и сортировки
+    const response = await categoryService.getCategories(
+      1, // Первая страница
+      1000, // Большой лимит, чтобы получить все записи
+      props.sortField,
+      props.sortOrder,
+      props.currentFilters
+    );
+    
+    await pdfService.generateReport(
+      response.data,
+      'categories',
+      'Отчет по категориям'
+    );
+  } catch (error) {
+    console.error('Error exporting categories:', error);
+  }
+};
 </script>
 
 <template>
@@ -98,10 +120,13 @@ const handleDelete = async (category: CategoryReq)=>{
     <div class="table-container">
       <div class="table-header">
         <h1>Категории</h1>
-        <div class="filters-wrapper">
-          <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
-          <div class="filters-dropdown" v-show="isFiltersOpen">
-            <CategoryFilterform @update-filters="handleFiltersUpdate" />
+        <div class="header-actions">
+          <button class="export-button" @click="handleExport">📄 Экспорт</button>
+          <div class="filters-wrapper">
+            <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
+            <div class="filters-dropdown" v-show="isFiltersOpen">
+              <CategoryFilterform @update-filters="handleFiltersUpdate" />
+            </div>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import type { BudgetResp, BudgetReq } from '@/types/budget';
 import { ref } from 'vue';
 import { budgetService } from '@/services/budgetService';
 import BudgetFiltersform from '@/components/Budget/BudgetFiltersform.vue';
+import { pdfService } from '@/services/pdfService';
 
 const emit = defineEmits<{
   (e: 'refresh'): void;
@@ -84,6 +85,27 @@ const handleDelete = async (budget: BudgetResp) => {
     }
   }
 };
+
+const handleExport = async () => {
+  try {
+    // Получаем все бюджеты с учетом фильтров и сортировки
+    const response = await budgetService.getBudgets(
+      1, // Первая страница
+      1000, // Большой лимит, чтобы получить все записи
+      props.sortField,
+      props.sortOrder,
+      props.currentFilters
+    );
+    
+    await pdfService.generateReport(
+      response.data,
+      'budgets',
+      'Отчет по бюджетам'
+    );
+  } catch (error) {
+    console.error('Error exporting budgets:', error);
+  }
+};
 </script>
 
 <template>
@@ -91,10 +113,13 @@ const handleDelete = async (budget: BudgetResp) => {
     <div class="table-container">
       <div class="table-header">
         <h1>Бюджеты</h1>
-        <div class="filters-wrapper">
-          <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
-          <div class="filters-dropdown" v-show="isFiltersOpen">
-            <BudgetFiltersform @update-filters="handleFiltersUpdate" />
+        <div class="header-actions">
+          <button class="export-button" @click="handleExport">📄 Экспорт</button>
+          <div class="filters-wrapper">
+            <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
+            <div class="filters-dropdown" v-show="isFiltersOpen">
+              <BudgetFiltersform @update-filters="handleFiltersUpdate" />
+            </div>
           </div>
         </div>
       </div>

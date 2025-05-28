@@ -6,6 +6,7 @@ import ScholarshipFormModal from '@/components/Scholarship/ScholarshipFormModal.
 import { scholarshipService } from '@/services/scholarshipService';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
+import { pdfService } from '@/services/pdfService';
 
 const authStore = useAuthStore();
 
@@ -94,6 +95,27 @@ const handleDelete = async (scholarship: ScholarshipResp) => {
   }
 };
 
+const handleExport = async () => {
+  try {
+    // Получаем все стипендии с учетом фильтров и сортировки
+    const response = await scholarshipService.getScholarships(
+      1, // Первая страница
+      1000, // Большой лимит, чтобы получить все записи
+      props.sortField,
+      props.sortOrder,
+      props.currentFilters
+    );
+    
+    await pdfService.generateReport(
+      response.data,
+      'scholarships',
+      'Отчет по стипендиям'
+    );
+  } catch (error) {
+    console.error('Error exporting scholarships:', error);
+  }
+};
+
 </script>
 
 <template>
@@ -101,13 +123,16 @@ const handleDelete = async (scholarship: ScholarshipResp) => {
     <div class="table-container">
       <div class="table-header">
         <h1>Стипендии</h1>
-        <div class="filters-wrapper">
+        <div class="header-actions">
+          <button class="export-button" @click="handleExport">📄 Экспорт</button>
+          <div class="filters-wrapper">
             <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
             <div class="filters-dropdown" v-show="isFiltersOpen">
               <ScholarshipFiltersform
                 @update-filters="handleFiltersUpdate"
               />
             </div>
+          </div>
         </div>
       </div>
       <div class="table-scroll">

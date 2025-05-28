@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { markService } from '@/services/markService';
+import { pdfService } from '@/services/pdfService';
 import type { MarkReq, MarkResp } from '@/types/mark';
 import { ref, computed } from 'vue';
 import MarkFiltersform from './MarkFiltersform.vue';
@@ -93,6 +94,27 @@ const handleDelete = async (mark: MarkResp) => {
     }
   }
 };
+
+const handleExport = async () => {
+  try {
+    // Получаем все оценки с учетом фильтров и сортировки
+    const response = await markService.getMarks(
+      1, // Первая страница
+      1000, // Большой лимит, чтобы получить все записи
+      props.sortField,
+      props.sortOrder,
+      props.currentFilters
+    );
+    
+    await pdfService.generateReport(
+      response.data,
+      'marks',
+      'Отчет по оценкам'
+    );
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+  }
+};
 </script>
 
 <template>
@@ -100,13 +122,16 @@ const handleDelete = async (mark: MarkResp) => {
     <div class="table-container">
       <div class="table-header">
         <h1>Оценки</h1>
-        <div class="filters-wrapper">
-          <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
-          <div class="filters-dropdown" v-show="isFiltersOpen">
-            <MarkFiltersform
-              :filters="props.currentFilters || {}"
-              @update-filters="handleFiltersUpdate"
-            />
+        <div class="header-actions">
+          <button class="export-button" @click="handleExport">📄 Экспорт</button>
+          <div class="filters-wrapper">
+            <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
+            <div class="filters-dropdown" v-show="isFiltersOpen">
+              <MarkFiltersform
+                :filters="props.currentFilters || {}"
+                @update-filters="handleFiltersUpdate"
+              />
+            </div>
           </div>
         </div>
       </div>

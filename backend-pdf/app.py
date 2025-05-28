@@ -69,9 +69,19 @@ def generate_pdf():
     if not request_data or "url" not in request_data:
         return jsonify({"error": "Invalid data"}), 400
     
+    # Получение токена из запроса
+    token = request_data.get("token")
+    if not token:
+        return jsonify({"error": "No authorization token provided"}), 401
+    
+    # Создаем заголовки с токеном авторизации
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    
     # Получение данных с API
-    response = requests.get(request_data["url"])
-    if response.status_code!= 200:
+    response = requests.get(request_data["url"], headers=headers)
+    if response.status_code != 200:
         return jsonify({"error": f"Failed to retrieve data from API: {response.status_code}"}), 403
     
     # Парсинг JSON-данных
@@ -97,11 +107,11 @@ def generate_pdf():
     pdf.report_info(report_data)
     pdf.dynamic_table(table_data,table_name)
     url=request_data['url']
-    for i in range(1,int(data["pages"])):
+    for i in range(1,int(data["pagination"]["total"]/data["pagination"]["page_size"])):
         # Получение следующей страницы
         url=url.replace(f"page={i}",f"page={i+1}")
-        response = requests.get(f"{url}")
-        if response.status_code!= 200:
+        response = requests.get(f"{url}", headers=headers)
+        if response.status_code != 200:
             return jsonify({"error": f"Failed to retrieve data from API: {response.status_code}"}), 403
         data=response.json()
 

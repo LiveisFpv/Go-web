@@ -5,6 +5,7 @@ import AchievementFiltersform from '@/components/Achievement/AchievementFilterFo
 import AchievementFormModal from '@/components/Achievement/AchievementFormModal.vue';
 import { achievementService } from '@/services/achievementService';
 import { useAuthStore } from '@/stores/auth';
+import { pdfService } from '@/services/pdfService';
 
 const authStore = useAuthStore();
 
@@ -89,6 +90,27 @@ const handleDelete = async (achievement: AchivementResp) => {
   }
 };
 
+const handleExport = async () => {
+  try {
+    // Получаем все достижения с учетом фильтров и сортировки
+    const response = await achievementService.getAchievements(
+      1, // Первая страница
+      1000, // Большой лимит, чтобы получить все записи
+      props.sortField,
+      props.sortOrder,
+      props.currentFilters
+    );
+    
+    await pdfService.generateReport(
+      response.data,
+      'achievements',
+      'Отчет по достижениям'
+    );
+  } catch (error) {
+    console.error('Error exporting achievements:', error);
+  }
+};
+
 const isStudent = computed(() => {
   return authStore.user_role === 'STUDENT';
 });
@@ -103,12 +125,15 @@ const canEdit = computed(() => {
     <div class="table-container">
       <div class="table-header">
         <h1>Достижения</h1>
-        <div class="filters-wrapper">
-          <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
-          <div class="filters-dropdown" v-show="isFiltersOpen">
-            <AchievementFiltersform
-              @update-filters="handleFiltersUpdate"
-            />
+        <div class="header-actions">
+          <button class="export-button" @click="handleExport">📄 Экспорт</button>
+          <div class="filters-wrapper">
+            <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
+            <div class="filters-dropdown" v-show="isFiltersOpen">
+              <AchievementFiltersform
+                @update-filters="handleFiltersUpdate"
+              />
+            </div>
           </div>
         </div>
       </div>
