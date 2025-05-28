@@ -2,6 +2,17 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import HomeView from '../views/HomeView.vue'
 
+type UserRole = 'ADMIN' | 'DEAN' | 'ACCOUNTANT' | 'STUDENT' | 'USER'
+
+// Define allowed routes for each role
+const roleRoutes: Record<UserRole, string[]> = {
+  ADMIN: ['/', '/about', '/student', '/group', '/mark', '/semester', '/scholarship', '/budget', '/achievement', '/category', '/profile'],
+  DEAN: ['/', '/about', '/student', '/mark', '/achievement', '/category', '/profile'],
+  ACCOUNTANT: ['/', '/about', '/budget', '/scholarship', '/profile'],
+  STUDENT: ['/', '/about', '/achievement', '/category', '/scholarship', '/mark', '/profile'],
+  USER: ['/', '/about', '/profile']
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -82,15 +93,28 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
-  // Initialize auth state
   authStore.initialize()
 
+  // Check if route requires authentication
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     // Redirect to auth page if trying to access protected route while not authenticated
     next({ name: 'auth-page' })
-  } else {
-    next()
+    return
   }
+
+  // If user is authenticated, check role-based access
+  if (authStore.isAuthenticated) {
+    const userRole = (authStore.user_role || 'USER') as UserRole
+    const allowedRoutes = roleRoutes[userRole]
+
+    // If route is not in allowed routes for user's role, redirect to home
+    if (!allowedRoutes.includes(to.path)) {
+      next({ name: 'home' })
+      return
+    }
+  }
+
+  next()
 })
 
 export default router

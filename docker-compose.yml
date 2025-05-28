@@ -20,17 +20,17 @@ services:
     depends_on:
       - db
 
-  backend-python:
-    container_name: backend-py
-    build:
-      context: .
-      dockerfile: backend-pdf/Dockerfile
-    networks:
-      - app-network
-    ports:
-      - "9000:9000"
-    depends_on:
-      - backend
+  # backend-python:
+  #   container_name: backend-py
+  #   build:
+  #     context: .
+  #     dockerfile: backend-pdf/Dockerfile
+  #   networks:
+  #     - app-network
+  #   ports:
+  #     - "9000:9000"
+  #   depends_on:
+  #     - backend
       
   db:
     image: postgres:16
