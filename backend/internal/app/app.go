@@ -178,6 +178,11 @@ func (a *App) DeleteScholarshipByID(ctx context.Context, id_scholarship int64) e
 	return err
 }
 
+func (a *App) AssignScholarships(ctx context.Context, current_semester, budget_type string) error {
+	err := a.repo.AssignScholarships(ctx, current_semester, budget_type)
+	return err
+}
+
 // Semester operations
 func (a *App) GetAllSemester(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Semester, int, error) {
 	semesters, count, err := a.repo.GetAllSemester(ctx, filters, rowCount, page, search)

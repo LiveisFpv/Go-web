@@ -1,7 +1,6 @@
 import axios from 'axios'
 import type { LoginRequest, RegisterRequest, GoogleAuthRequest, AuthResponse, AuthError } from '../types/auth'
 import { USE_MOCKS } from '../config/mockConfig'
-import { mockLogin, mockRegister, mockGoogleAuth, mockLogout } from './mockAuthService'
 import { useAuthStore } from '@/stores/auth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
@@ -25,9 +24,6 @@ authApi.interceptors.request.use((config) => {
 })
 
 export const login = async (data: LoginRequest): Promise<AuthResponse> => {
-  if (USE_MOCKS) {
-    return mockLogin(data)
-  }
 
   try {
     const response = await authApi.post<AuthResponse>('/auth', data)
@@ -42,9 +38,6 @@ export const login = async (data: LoginRequest): Promise<AuthResponse> => {
 }
 
 export const register = async (data: RegisterRequest): Promise<AuthResponse> => {
-  if (USE_MOCKS) {
-    return mockRegister(data)
-  }
 
   try {
     const response = await authApi.post<AuthResponse>('/register', data)
@@ -59,9 +52,6 @@ export const register = async (data: RegisterRequest): Promise<AuthResponse> => 
 }
 
 export const googleAuth = async (data: GoogleAuthRequest): Promise<AuthResponse> => {
-  if (USE_MOCKS) {
-    return mockGoogleAuth(data)
-  }
 
   try {
     const response = await authApi.post<AuthResponse>('/auth/google', data)
@@ -76,9 +66,6 @@ export const googleAuth = async (data: GoogleAuthRequest): Promise<AuthResponse>
 }
 
 export const logout = async (): Promise<void> => {
-  if (USE_MOCKS) {
-    return mockLogout()
-  }
 
   try {
     await authApi.post('/auth/logout')

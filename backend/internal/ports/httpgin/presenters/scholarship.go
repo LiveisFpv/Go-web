@@ -28,6 +28,11 @@ type ScholarshipRequest struct {
 	Id_budget       int64   `json:"id_budget"`
 }
 
+type AssignScholarshipsRequest struct {
+	Current_semester string `json:"current_semester"`
+	Budget_type      string `json:"budget_type"`
+}
+
 type ScholarshipsDeleteRequest struct {
 	Ids_scholarship []string `json:"ids"`
 }

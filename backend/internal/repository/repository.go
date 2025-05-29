@@ -67,6 +67,7 @@ type Repository interface {
 	UpdateScholarshipByID(ctx context.Context, id_scholarship, id_num_student int64,
 		name_semester string, size_scholarshp float64, id_budget int64) (*domain.Scholarship, error)
 	DeleteScholarshipByID(ctx context.Context, id_scholarship int64) error
+	AssignScholarships(ctx context.Context, current_semester, budget_type string) error
 
 	// Semester operations
 	GetAllSemester(ctx context.Context, filters map[string]string, rowCount, page int, search string) ([]*domain.Semester, int, error)

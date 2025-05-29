@@ -172,7 +172,7 @@ func (q *Queries) GetAllMark(ctx context.Context, filters map[string]string, row
 	if err != nil {
 		return nil, 0, fmt.Errorf("can't count marks: %w", err)
 	}
-
+	fmt.Println(getAll)
 	return marks, count, nil
 }
 func (q *Queries) CreateMark(ctx context.Context, id_mark, id_num_student int64,

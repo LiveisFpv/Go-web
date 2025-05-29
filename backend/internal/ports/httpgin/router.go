@@ -49,6 +49,7 @@ func AppRouter(r *gin.RouterGroup, a *app.App) {
 	r.DELETE("/scholarship/", func(c *gin.Context) { handlers.DeleteScholarshipByID(c, a) })
 	r.GET("/scholarship/", func(c *gin.Context) { handlers.GetAllScholarship(c, a) })
 	r.DELETE("/scholarship/ids", func(c *gin.Context) { handlers.DeleteScholarships(c, a) })
+	r.POST("/scholarship/assign", func(c *gin.Context) { handlers.AssignScholarships(c, a) })
 
 	// Semester operations
 	r.GET("/semester/", func(c *gin.Context) { handlers.GetAllSemester(c, a) })

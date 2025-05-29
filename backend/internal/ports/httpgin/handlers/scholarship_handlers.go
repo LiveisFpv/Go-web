@@ -8,6 +8,7 @@ import (
 
 	"backend/internal/app"
 	"backend/internal/domain"
+	"backend/internal/ports/httpgin/presenters"
 )
 
 func CreateScholarship(c *gin.Context, a *app.App) {
@@ -111,4 +112,18 @@ func GetAllScholarship(c *gin.Context, a *app.App) {
 		return
 	}
 	c.JSON(http.StatusOK, AllScholarshipSuccessResponse(scholarships, rowCount, count, page))
+}
+
+func AssignScholarships(c *gin.Context, a *app.App) {
+	var reqBody presenters.AssignScholarshipsRequest
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse(err))
+		return
+	}
+	err := a.AssignScholarships(c, reqBody.Current_semester, reqBody.Budget_type)
+	if err != nil {
+		c.JSON(http.StatusForbidden, ErrorResponse(err))
+		return
+	}
+	c.JSON(http.StatusOK, SuccessResponse(nil))
 }

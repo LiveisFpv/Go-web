@@ -1,4 +1,4 @@
-import type { ScholarshipReq, ScholarshipResp, ScholarshipsResp } from "@/types/scholarship";
+import type { AssignScholarshipReq, ScholarshipReq, ScholarshipResp, ScholarshipsResp } from "@/types/scholarship";
 import { api } from "@/services/apiService";
 
 export const scholarshipService = {
@@ -34,6 +34,14 @@ export const scholarshipService = {
     }
   },
 
+  async assignScholarships(req: AssignScholarshipReq): Promise<void>{
+    try {
+      await api.post(`/api/v1/scholarship/assign`, req);
+    } catch (error) {
+      throw error;
+    }
+  },
+
   async updateScholarship(scholarship: ScholarshipReq): Promise<ScholarshipResp>{
     try {
       const response = await api.put(`/api/v1/scholarship/`, scholarship);
@@ -52,4 +60,4 @@ export const scholarshipService = {
       throw error;
     }
   }
-}; 
+};

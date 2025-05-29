@@ -215,3 +215,12 @@ func (q *Queries) DeleteScholarshipByID(ctx context.Context, id_scholarship int6
 	}
 	return nil
 }
+
+func (q *Queries) AssignScholarships(ctx context.Context, current_semester, budget_type string) error {
+	sqlStatement := `CALL public.assign_scholarships($1, $2)`
+	_, err := q.pool.Exec(ctx, sqlStatement, current_semester, budget_type)
+	if err != nil {
+		return fmt.Errorf("can't assign scholarships: %w", err)
+	}
+	return nil
+}

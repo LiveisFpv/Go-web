@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue';
 import type { ScholarshipReq, ScholarshipResp } from '@/types/scholarship';
 import ScholarshipFiltersform from '@/components/Scholarship/ScholarshipFiltersform.vue';
 import ScholarshipFormModal from '@/components/Scholarship/ScholarshipFormModal.vue';
+import ScholarshipGenerateModal from '@/components/Scholarship/ScholarshipGenerateModal.vue';
 import { scholarshipService } from '@/services/scholarshipService';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
@@ -28,6 +29,7 @@ const emit = defineEmits<{
 
 const isFiltersOpen = ref(false);
 const showModal = ref(false);
+const showGenerateModal = ref(false);
 const modalMode = ref<'create' | 'edit'>('create');
 const selectedScholarship = ref<ScholarshipResp | undefined>(undefined);
 
@@ -105,7 +107,7 @@ const handleExport = async () => {
       props.sortOrder,
       props.currentFilters
     );
-    
+
     await pdfService.generateReport(
       response.data,
       'scholarships',
@@ -116,6 +118,10 @@ const handleExport = async () => {
   }
 };
 
+const handleGenerateClick = () => {
+  showGenerateModal.value = true;
+};
+
 </script>
 
 <template>
@@ -124,6 +130,7 @@ const handleExport = async () => {
       <div class="table-header">
         <h1>Стипендии</h1>
         <div class="header-actions">
+          <button class="export-button" @click="handleGenerateClick" v-if="!isStudent">🎓 Генерировать</button>
           <button class="export-button" @click="handleExport">📄 Экспорт</button>
           <div class="filters-wrapper">
             <button class="hamburger" :class="{ rotated: isFiltersOpen }" @click="toggleFilters">☰</button>
@@ -197,6 +204,13 @@ const handleExport = async () => {
     :scholarship="selectedScholarship"
     @close="showModal = false"
     @submit="handleModalSubmit"
+  />
+
+  <ScholarshipGenerateModal
+    v-if="showGenerateModal && !isStudent"
+    :show="showGenerateModal"
+    @close="showGenerateModal = false"
+    @refresh="emit('refresh')"
   />
 </template>
 

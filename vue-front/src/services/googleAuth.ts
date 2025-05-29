@@ -1,3 +1,21 @@
+declare global {
+  interface Window {
+    google: {
+      accounts: {
+        oauth2: {
+          initTokenClient: (config: {
+            client_id: string;
+            scope: string;
+            callback: (response: { access_token: string }) => void;
+          }) => {
+            requestAccessToken: () => void;
+          };
+        };
+      };
+    };
+  }
+}
+
 import { useAuthStore } from '../stores/auth'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
@@ -17,7 +35,7 @@ export const initGoogleAuth = () => {
 
 export const handleGoogleLogin = async () => {
   try {
-    const client = google.accounts.oauth2.initTokenClient({
+    const client = window.google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
       scope: 'email profile',
       callback: async (response: any) => {
@@ -36,4 +54,4 @@ export const handleGoogleLogin = async () => {
     console.error('Google login error:', error)
     throw error
   }
-} 
+}

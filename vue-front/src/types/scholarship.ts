@@ -21,6 +21,11 @@ export interface ScholarshipResp {
   type_scholarship_budget: string;
 }
 
+export interface AssignScholarshipReq{
+  current_semester: string;
+  budget_type: string;
+}
+
 export interface ScholarshipsResp {
   data: ScholarshipResp[];
   pagination: Pagination;
@@ -29,4 +34,4 @@ export interface ScholarshipsResp {
 
 export interface ScholarshipDeleteReq {
   ids: number[];
-} 
+}
