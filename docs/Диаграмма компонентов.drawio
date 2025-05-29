@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" version="26.3.0">
   <diagram name="Страница — 1" id="zbMt8ld53hos1hts9wzq">
-    <mxGraphModel dx="925" dy="1243" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="639" dy="1243" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -43,15 +43,6 @@
             <mxPoint x="453" y="84" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="MN3PHeWG23Chj6dq9QR9-12" value="Frontend&lt;div&gt;Vue (Vite + TS)&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="383" y="74" width="120" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="MN3PHeWG23Chj6dq9QR9-13" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="MN3PHeWG23Chj6dq9QR9-12" target="MN3PHeWG23Chj6dq9QR9-9">
-          <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="544" y="70" as="sourcePoint" />
-            <mxPoint x="594" y="20" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
         <mxCell id="MN3PHeWG23Chj6dq9QR9-14" value="Docker" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="262" y="-74" width="60" height="30" as="geometry" />
         </mxCell>
@@ -61,7 +52,7 @@
             <mxPoint x="573.7106781186548" y="104" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="MN3PHeWG23Chj6dq9QR9-17" value="Cliet" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="MN3PHeWG23Chj6dq9QR9-17" value="Client&lt;br&gt;Frontend&lt;div&gt;Vue (Vite + TS)&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="640" y="11.5" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="MN3PHeWG23Chj6dq9QR9-19" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="MN3PHeWG23Chj6dq9QR9-1" target="MN3PHeWG23Chj6dq9QR9-17">
