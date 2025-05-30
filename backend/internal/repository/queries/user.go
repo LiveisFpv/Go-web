@@ -8,7 +8,7 @@ import (
 
 // TODO work with database
 func (q *Queries) Login(ctx context.Context, login, password string) (*domain.User, error) {
-	sqlStatement := `SELECT * FROM "user" WHERE user_login = $1`
+	sqlStatement := `SELECT * FROM "user" WHERE user_email = $1`
 	row := q.pool.QueryRow(ctx, sqlStatement, login)
 	user := &domain.User{}
 	err := row.Scan(
